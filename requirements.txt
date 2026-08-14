@@ -1,0 +1,18 @@
+# Core Data & Numerical Computing
+pandas>=2.0.0
+numpy>=1.24.0
+yfinance>=0.2.38
+python-dateutil>=2.8.2
+
+# Broker & Execution
+alpaca-py>=0.20.0
+
+# Reporting & Storage
+openpyxl>=3.1.0
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# Optional GPU Acceleration (NVIDIA CUDA):
+# Uncomment according to your CUDA version if GPU acceleration is desired:
+# cupy-cuda12x>=13.0.0

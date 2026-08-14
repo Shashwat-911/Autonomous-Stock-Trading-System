@@ -1,0 +1,18 @@
+Your bot in plain English
+You have 4 commands. That's it.
+
+Here's a simple visual guide to using your bot:
+
+That's your complete cheat sheet. The one thing to remember:
+
+Every evening around 7 PM IST, open your terminal in the finance folder and run:
+
+python main.py live
+
+You'll see one line printed every 60 seconds like:
+
+[19:32:01] NVDA | $134.20 | Portfolio: $100,842 | Signal: HOLD (0.25) | No position | Market: OPEN
+
+When it prints BUY — it actually submits a real order to your Alpaca paper account automatically. You don't do anything. Just watch.
+
+After 2-3 weeks of this, you'll have real trade history to look at and you'll know if it's ready for real money.

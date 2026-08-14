@@ -1,0 +1,20 @@
+{
+  "session_timestamp": "2026-08-14T00:43:47.241064",
+  "starting_equity": 100000.0,
+  "ending_equity": 99565.75,
+  "total_return_pct": -0.4343,
+  "sharpe_ratio": 0.0,
+  "sortino_ratio": 0.0,
+  "max_drawdown_pct": 0.0,
+  "max_drawdown_duration_days": 0,
+  "total_trades": 50,
+  "winning_trades": 26,
+  "losing_trades": 15,
+  "win_rate": 0.6341,
+  "expectancy": 0.3347,
+  "profit_factor": 1.0034,
+  "avg_gain": 155.1201,
+  "avg_loss": -267.96,
+  "avg_slippage_pct": 66.690575,
+  "avg_execution_latency_ms": 2078.78
+}

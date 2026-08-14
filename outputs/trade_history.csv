@@ -1,0 +1,4 @@
+session_timestamp,starting_equity,ending_equity,total_return_pct,sharpe_ratio,sortino_ratio,max_drawdown_pct,max_drawdown_duration_days,total_trades,winning_trades,losing_trades,win_rate,expectancy,profit_factor,avg_gain,avg_loss,avg_slippage_pct,avg_execution_latency_ms
+2026-08-12T01:31:33.556147,100000.0,100000.0,0.0,0.0,0.0,0.0,0,50,26,15,0.6341,-6.4604,0.9341,144.4048,-267.96,66.690575,1636.02
+2026-08-13T01:30:29.306371,100000.0,99554.98,-0.445,0.0,0.0,0.0,0,50,26,15,0.6341,0.3347,1.0034,155.1201,-267.96,66.690575,2078.78
+2026-08-14T00:43:47.241064,100000.0,99565.75,-0.4343,0.0,0.0,0.0,0,50,26,15,0.6341,0.3347,1.0034,155.1201,-267.96,66.690575,2078.78

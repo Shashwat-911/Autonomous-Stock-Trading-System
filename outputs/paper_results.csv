@@ -1,0 +1,2 @@
+order_id,timestamp,ticker,action,quantity,status,filled_avg_price
+6772b00b-d35d-48cf-84bd-f23ad4a3772a,2026-08-10 15:31:46.263985+00:00,NVDA,BUY,66.0,filled,219.18
