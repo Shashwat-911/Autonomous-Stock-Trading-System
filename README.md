@@ -27,7 +27,6 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 - [Disclaimer](#disclaimer)
 
 ---
-<img width="1634" height="1190" alt="image" src="https://github.com/user-attachments/assets/261b9a96-7016-41aa-8465-660a654bf37a" />
 
 ## Live Paper Trading Performance
 
