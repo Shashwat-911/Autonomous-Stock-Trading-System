@@ -11,6 +11,7 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 ## Table of Contents
 
+- [Live Paper Trading Performance](#live-paper-trading-performance)
 - [System Architecture](#system-architecture)
 - [Key Features](#key-features)
 - [Quantitative Strategy & Signal Engine](#quantitative-strategy--signal-engine)
@@ -27,6 +28,16 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 ---
 <img width="1634" height="1190" alt="image" src="https://github.com/user-attachments/assets/261b9a96-7016-41aa-8465-660a654bf37a" />
+
+## Live Paper Trading Performance
+
+> **Paper trading on Alpaca** | Started: Aug 12, 2026 | Initial Capital: $100,000
+
+![Daily P&L Chart](outputs/daily_pnl_chart.png)
+
+*Chart auto-generated from session logs via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py). Updated daily.*
+
+---
 
 ## System Architecture
 
