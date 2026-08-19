@@ -15,19 +15,19 @@ except ImportError:
 
 TRADING = {
     "ticker": "NVDA",
-    "tickers": ["NVDA", "AAPL", "MSFT", "GOOGL", "AMZN"],
-    "interval": "1h",                  # hourly bars for live mode
+    "tickers": ["NVDA"],               # single ticker only for reset
+    "interval": "1d",                  # daily candles (simplest)
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
-    "min_confidence": 0.75,            # require stronger signals
+    "min_confidence": 0.50,            # lowered to let signals execute
     "lookback_days": 60,               # hourly lookback (yfinance max ~60d for 1h)
     "lookback_days_intraday": 30,      # 5m lookback (yfinance max ~60d for 5m)
 }
 
 SIGNAL = {
-    "rsi_oversold": 45.0,              # buy earlier in the dip
-    "rsi_overbought": 65.0,            # hold longer before selling
-    "require_confirmation": False,
+    "rsi_oversold": 30.0,              # standard RSI oversold threshold
+    "rsi_overbought": 70.0,            # standard RSI overbought threshold
+    "require_confirmation": True,      # all 4 conditions must agree
 }
 
 RISK = {
@@ -44,10 +44,10 @@ RISK = {
 }
 
 BRACKET = {
-    "stop_loss_atr_mult": 1.5,         # stop-loss at entry - 1.5×ATR
-    "take_profit_atr_mult": 3.0,       # take-profit at entry + 3.0×ATR (2:1 R:R)
-    "trailing_activation_atr": 1.5,    # activate trailing stop after +1.5×ATR gain
-    "trailing_stop_atr_mult": 1.0,     # trailing stop distance once activated
+    "stop_loss_atr_mult": 2.5,      # was 1.5 — give more breathing room
+    "take_profit_atr_mult": 2.0,    # was 3.0 — closer target, more fills
+    "trailing_activation_atr": 1.0, # was 1.5
+    "trailing_stop_atr_mult": 1.0,  # unchanged
 }
 
 MARKET_REGIME = {

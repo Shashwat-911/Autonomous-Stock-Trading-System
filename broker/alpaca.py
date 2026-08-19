@@ -235,8 +235,8 @@ class AlpacaPaperBroker:
         reason: str,
         current_price: float,
         atr: float,
-        stop_loss_mult: float = 1.5,
-        take_profit_mult: float = 3.0,
+        stop_loss_mult: float = 2.5,
+        take_profit_mult: float = 2.0,
         ticker: str | None = None,
     ) -> dict:
         """
@@ -508,31 +508,15 @@ class AlpacaPaperBroker:
             )
 
             if heat_ok and position is None:
-                # ATR-based sizing
-                if atr_value > 0:
-                    qty = self.risk_manager.get_position_size_atr(
-                        portfolio_value, current_price, atr_value
-                    )
-                else:
-                    qty = self.risk_manager.get_position_size(
-                        portfolio_value, current_price
-                    )
+                # Simple percentage-based sizing (no ATR)
+                qty = self.risk_manager.get_position_size(
+                    portfolio_value, current_price
+                )
 
                 if qty > 0:
-                    import config
-                    bracket_cfg = getattr(config, "BRACKET", {})
-                    if atr_value > 0 and bracket_cfg:
-                        self.submit_bracket_buy(
-                            qty,
-                            "; ".join(signal_dict["reasons"]),
-                            current_price,
-                            atr_value,
-                            stop_loss_mult=bracket_cfg.get("stop_loss_atr_mult", 1.5),
-                            take_profit_mult=bracket_cfg.get("take_profit_atr_mult", 3.0),
-                            ticker=self.ticker,
-                        )
-                    else:
-                        self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
+                    # TEMP: bracket orders disabled for debugging
+                    # Uses plain market order + simple position sizing
+                    self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
 

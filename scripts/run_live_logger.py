@@ -14,15 +14,17 @@ os.makedirs(OUTPUTS_DIR, exist_ok=True)
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+session_num = sys.argv[1] if len(sys.argv) > 1 else "5"
+
 target_log_files = [
-    os.path.join(OUTPUTS_DIR, "session 4.txt"),
-    os.path.join(OUTPUTS_DIR, "session_4.txt"),
-    os.path.join(OUTPUTS_DIR, "seeion 4.txt"),
-    os.path.join(OUTPUT_DIR, "session 4.txt"),
-    os.path.join(OUTPUT_DIR, "session_4.txt"),
-    os.path.join(PROJECT_ROOT, "session 4.txt"),
-    os.path.join(PROJECT_ROOT, "session_4.txt"),
-    os.path.join(PROJECT_ROOT, "seeion 4.txt"),
+    os.path.join(OUTPUTS_DIR, f"session {session_num}.txt"),
+    os.path.join(OUTPUTS_DIR, f"session_{session_num}.txt"),
+    os.path.join(OUTPUTS_DIR, f"seeion {session_num}.txt"),
+    os.path.join(OUTPUT_DIR, f"session {session_num}.txt"),
+    os.path.join(OUTPUT_DIR, f"session_{session_num}.txt"),
+    os.path.join(PROJECT_ROOT, f"session {session_num}.txt"),
+    os.path.join(PROJECT_ROOT, f"session_{session_num}.txt"),
+    os.path.join(PROJECT_ROOT, f"seeion {session_num}.txt"),
 ]
 
 # Open log file handles with line buffering (UTF-8)
