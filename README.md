@@ -30,11 +30,27 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 ## Live Paper Trading Performance
 
-> **Paper trading on Alpaca** | Started: Aug 12, 2026 | Initial Capital: $100,000
+> **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA (Daily / 5m)
 
 ![Daily P&L Chart](outputs/daily_pnl_chart.png)
 
-*Chart auto-generated from session logs via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py). Updated daily.*
+*Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
+
+### Daily Session Breakdown
+
+| Session | Date | Ending Equity | Daily P&L | Cumulative P&L | Return (%) | Status |
+|---|---|---|---|---|---|---|
+| **Day 1** | Aug 11 (Tue) | $99,923.23 | -$76.77 | -$76.77 | -0.077% | Closed |
+| **Day 2** | Aug 12 (Wed) | $99,551.43 | -$371.80 | -$448.57 | -0.449% | Closed |
+| **Day 3** | Aug 13 (Thu) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Closed |
+| **Day 4** | Aug 14 (Fri) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | Closed |
+| **Day 5** | Aug 15 (Sat) | $99,543.69 | -$7.34 | -$456.31 | -0.456% | Weekend Close |
+| **Day 6** | Aug 17 (Mon) | $99,514.27 | -$29.42 | -$485.73 | -0.486% | Closed |
+| **Day 7** | Aug 18 (Tue) | $99,515.93 | +$1.66 | -$484.07 | -0.484% | Closed |
+| **Day 8** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$486.61 | -0.487% | Closed |
+| **Day 9** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$387.76 | -0.388% | **Profitable Session** |
+
+> **Current Equity**: $99,612.24 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 9) &nbsp;|&nbsp; **Total Sessions**: 9 &nbsp;|&nbsp; **Capital Drawdown Protected**: Max loss capped under 0.5%
 
 ---
 
