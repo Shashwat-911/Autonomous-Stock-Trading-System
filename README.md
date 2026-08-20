@@ -213,7 +213,10 @@ Autonomous-Stock-Trading-System/
 │   ├── excel_exporter.py           # Multi-tab Excel workbook generator (openpyxl)
 │   └── fetcher.py                  # Robust market data fetcher with exponential backoff retries
 ├── outputs/
+│   ├── alpaca_equity_history.csv   # Historical daily equity and P&L dataset from Alpaca API
 │   ├── backtest_results.csv        # Historical backtest trade records
+│   ├── daily_pnl_chart.png         # Dual-panel daily P&L equity curve and bar chart
+│   ├── logs/                       # Date-stamped live session log archives
 │   ├── paper_results.csv           # Local paper trading trade records
 │   ├── performance_summary.json    # JSON report of quantitative performance metrics
 │   ├── portfolio_trading_results.xlsx # Multi-tab Excel workbook (master summary + ticker sheets)
@@ -226,8 +229,12 @@ Autonomous-Stock-Trading-System/
 │   └── manager.py                  # Pre-trade circuit breaker, ATR position sizing, cooldowns
 ├── scripts/
 │   ├── cleanup_positions.py        # Utility to cancel pending orders and liquidate non-monitored tickers
+│   ├── diag_orders.py              # Diagnostic inspector for order legs (TP/SL) and fills
+│   ├── fetch_alpaca_equity.py      # Direct Alpaca Portfolio History API fetcher
+│   ├── generate_pnl_chart.py       # High-resolution dark-mode daily P&L chart generator
 │   ├── generate_session_report.py  # Generates end-of-session performance summary from Alpaca
-│   └── run_live_logger.py          # Process wrapper for background live logging
+│   ├── run_live_logger.py          # Process wrapper for background live logging
+│   └── session_analysis.py         # Multi-session trend assessment and ASCII equity curve
 ├── strategy/
 │   ├── __init__.py
 │   ├── gpu_indicators.py           # CUDA CuPy-accelerated technical indicator matrix engine
@@ -386,9 +393,25 @@ python outputs/project_status.py
 ```
 
 ### 6. Utility Scripts
+- **Generate Daily P&L Performance Chart:**
+  ```bash
+  python scripts/generate_pnl_chart.py
+  ```
 - **Generate End-of-Session Performance Report:**
   ```bash
   python scripts/generate_session_report.py
+  ```
+- **Multi-Session Strategy Trend Analysis & ASCII Equity Curve:**
+  ```bash
+  python scripts/session_analysis.py
+  ```
+- **Inspect Order Legs, TP/SL Brackets & Execution Types:**
+  ```bash
+  python scripts/diag_orders.py
+  ```
+- **Fetch Raw Alpaca Portfolio History Snapshots:**
+  ```bash
+  python scripts/fetch_alpaca_equity.py
   ```
 - **Cleanup / Liquidate Orphaned Positions & Cancel Pending Orders:**
   ```bash
@@ -401,7 +424,10 @@ python outputs/project_status.py
 
 All results and runtime artifacts are written to the `outputs/` directory:
 
+- **`outputs/daily_pnl_chart.png`**: High-resolution dark-mode performance chart with cumulative equity curve and daily P&L bars.
+- **`outputs/alpaca_equity_history.csv`**: Daily equity snapshots and profit/loss history directly synced from Alpaca Portfolio API.
 - **`outputs/performance_summary.json`**: Machine-readable JSON summary of quantitative session metrics (Sharpe ratio, Sortino ratio, max drawdown, win rate, expectancy, profit factor, latency, slippage).
+- **`outputs/logs/`**: Archive of date-stamped live session execution logs (e.g. `session_YYYY_MM_DD.txt`).
 - **`outputs/portfolio_trading_results.xlsx`**: Multi-tab Excel workbook featuring:
   - *Portfolio Summary Tab*: Real-time overview of all monitored assets, active positions, unrealized P&L, and latest signals.
   - *Individual Ticker Tabs*: Tick-by-tick indicator states, prices, and execution history.
