@@ -14,28 +14,23 @@ client = TradingClient(
     paper=True
 )
 
-# Fetch portfolio history - daily timeframe
 history = client.get_portfolio_history(
     GetPortfolioHistoryRequest(
         timeframe="1D",
-        date_start="2026-08-09",
-        date_end="2026-08-21",
+        start="2026-08-09",
+        end="2026-08-22",
         extended_hours=False
     )
 )
 
-timestamps = history.timestamp
-equity_values = history.equity
-profit_loss = history.profit_loss
-profit_loss_pct = history.profit_loss_pct
-
 rows = []
-for ts, eq, pl, plp in zip(timestamps, equity_values, 
-                             profit_loss, profit_loss_pct):
+for ts, eq, pl, plp in zip(
+    history.timestamp, history.equity,
+    history.profit_loss, history.profit_loss_pct
+):
     if eq is None or eq == 0:
         continue
     dt = datetime.fromtimestamp(ts, tz=timezone.utc)
-    # Skip weekends
     if dt.weekday() >= 5:
         continue
     rows.append({
@@ -52,5 +47,6 @@ df.to_csv("outputs/alpaca_equity_history.csv", index=False)
 print("Real equity data from Alpaca:")
 print(df.to_string(index=False))
 print(f"\nTotal P&L: ${df['daily_pnl'].sum():.2f}")
-print(f"Win days: {(df['daily_pnl'] > 0).sum()}")
+print(f"Win days:  {(df['daily_pnl'] > 0).sum()}")
 print(f"Loss days: {(df['daily_pnl'] < 0).sum()}")
+print(f"Sessions:  {len(df)}")
