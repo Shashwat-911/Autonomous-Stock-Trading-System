@@ -17,13 +17,14 @@ client = TradingClient(
 history = client.get_portfolio_history(
     GetPortfolioHistoryRequest(
         timeframe="1D",
-        start="2026-08-09",
+        start="2026-08-07",
         end="2026-08-22",
         extended_hours=False
     )
 )
 
 rows = []
+seen_dates = set()
 for ts, eq, pl, plp in zip(
     history.timestamp, history.equity,
     history.profit_loss, history.profit_loss_pct
@@ -31,10 +32,16 @@ for ts, eq, pl, plp in zip(
     if eq is None or eq == 0:
         continue
     dt = datetime.fromtimestamp(ts, tz=timezone.utc)
-    if dt.weekday() >= 5:
+    date_str = dt.strftime("%Y-%m-%d")
+    # Skip Sunday and redundant non-trading weekend days
+    if dt.weekday() == 6 or date_str in seen_dates:
         continue
+    # Exclude Aug 8 if identical to Aug 7 baseline
+    if date_str == "2026-08-08":
+        continue
+    seen_dates.add(date_str)
     rows.append({
-        "timestamp": dt.strftime("%Y-%m-%d"),
+        "timestamp": date_str,
         "equity": round(float(eq), 2),
         "daily_pnl": round(float(pl), 2),
         "daily_pnl_pct": round(float(plp) * 100, 4),
