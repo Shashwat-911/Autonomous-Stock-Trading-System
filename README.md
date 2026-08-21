@@ -49,8 +49,9 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 7** | Aug 18 (Tue) | $99,515.93 | +$1.66 | -$484.07 | -0.484% | Closed |
 | **Day 8** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$486.61 | -0.487% | Closed |
 | **Day 9** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$387.76 | -0.388% | **Profitable Session** |
+| **Day 10** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$493.94 | -0.494% | Disciplined HOLD |
 
-> **Current Equity**: $99,612.24 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 9) &nbsp;|&nbsp; **Total Sessions**: 9 &nbsp;|&nbsp; **Capital Drawdown Protected**: Max loss capped under 0.5%
+> **Current Equity**: $99,506.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 9) &nbsp;|&nbsp; **Total Sessions**: 10 &nbsp;|&nbsp; **Capital Drawdown Protected**: Max loss capped under 0.5%
 
 ---
 
