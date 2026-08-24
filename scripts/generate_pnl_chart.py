@@ -18,11 +18,11 @@ session_notes = {
     "2026-08-13": "Rebuilt\nclean",
     "2026-08-14": "5-ticker\nstable",
     "2026-08-15": "Hourly\ncandles",
-    "2026-08-17": "Position\nmaintenance",
     "2026-08-18": "Bracket\ntuning",
     "2026-08-19": "RSI\nexperiment",
     "2026-08-20": "Simple\nreset",
     "2026-08-21": "Disciplined\nHOLD",
+    "2026-08-24": "Post-cleanup\nfresh start",
 }
 
 df["note"] = df["timestamp"].map(
