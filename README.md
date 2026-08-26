@@ -40,15 +40,15 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 | Session | Date | Ending Equity | Daily P&L | Cumulative P&L | Return (%) | Status |
 |---|---|---|---|---|---|---|
-| **Day 1** | Aug 11 (Mon) | $99,923.23 | -$76.77 | -$76.77 | -0.077% | First Trade — NVDA Bought |
-| **Day 2** | Aug 12 (Tue) | $99,551.43 | -$371.80 | -$448.57 | -0.449% | 100-Ticker Chaos |
-| **Day 3** | Aug 13 (Wed) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Rebuilt Clean |
-| **Day 4** | Aug 14 (Thu) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | 5-Ticker Stable |
-| **Day 5** | Aug 18 (Mon) | $99,515.93 | -$27.76 | -$476.73 | -0.477% | Bracket Tuning |
-| **Day 6** | Aug 19 (Tue) | $99,513.39 | -$2.54 | -$479.27 | -0.479% | RSI Experiment |
-| **Day 7** | Aug 20 (Wed) | $99,612.24 | **+$98.85** | -$380.42 | -0.380% | **Simple Reset — Profitable** |
-| **Day 8** | Aug 21 (Thu) | $99,506.06 | -$106.18 | -$486.60 | -0.487% | Disciplined HOLD |
-| **Day 9** | Aug 25 (Mon) | $99,598.94 | **+$85.83** | -$400.77 | -0.401% | **Pre-earnings Watch — Profitable** |
+| **Day 1** | Aug 11 (Tue) | $99,923.23 | -$76.77 | -$76.77 | -0.077% | First Trade — NVDA Bought |
+| **Day 2** | Aug 12 (Wed) | $99,551.43 | -$371.80 | -$448.57 | -0.449% | 100-Ticker Chaos |
+| **Day 3** | Aug 13 (Thu) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Rebuilt Clean |
+| **Day 4** | Aug 14 (Fri) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | 5-Ticker Stable |
+| **Day 5** | Aug 18 (Tue) | $99,515.93 | -$27.76 | -$476.73 | -0.477% | Bracket Tuning |
+| **Day 6** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$479.27 | -0.479% | RSI Experiment |
+| **Day 7** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$380.42 | -0.380% | **Simple Reset — Profitable** |
+| **Day 8** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$486.60 | -0.487% | Disciplined HOLD |
+| **Day 9** | Aug 25 (Tue) | $99,598.94 | **+$85.83** | -$400.77 | -0.401% | **Pre-earnings Watch — Profitable** |
 
 > **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$400.77 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 7) &nbsp;|&nbsp; **Win Rate**: 33.3% (3W / 6L) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 9
 
