@@ -48,9 +48,10 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 6** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$479.27 | -0.479% | RSI Experiment |
 | **Day 7** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$380.42 | -0.380% | **Simple Reset — Profitable** |
 | **Day 8** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$486.60 | -0.487% | Disciplined HOLD |
-| **Day 9** | Aug 25 (Tue) | $99,598.94 | **+$85.83** | -$400.77 | -0.401% | **Pre-earnings Watch — Profitable** |
+| **Day 9** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$393.54 | -0.394% | **Post-cleanup Fresh Start — Profitable** |
+| **Day 10** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$393.72 | -0.394% | Pre-earnings Watch |
 
-> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$400.77 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 7) &nbsp;|&nbsp; **Win Rate**: 33.3% (3W / 6L) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 9
+> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$393.72 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 7) &nbsp;|&nbsp; **Win Rate**: 30.0% (3W / 6L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 10
 
 > Chart auto-generated from live Alpaca Portfolio History API via `scripts/generate_pnl_chart.py`
 
