@@ -44,16 +44,17 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 2** | Aug 12 (Wed) | $99,551.43 | -$371.80 | -$448.57 | -0.449% | 100-Ticker Chaos |
 | **Day 3** | Aug 13 (Thu) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Rebuilt Clean |
 | **Day 4** | Aug 14 (Fri) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | 5-Ticker Stable |
-| **Day 5** | Aug 18 (Tue) | $99,515.93 | -$27.76 | -$476.73 | -0.477% | Bracket Tuning |
-| **Day 6** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$479.27 | -0.479% | RSI Experiment |
-| **Day 7** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$380.42 | -0.380% | **Simple Reset — Profitable** |
-| **Day 8** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$486.60 | -0.487% | Disciplined HOLD |
-| **Day 9** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$393.54 | -0.394% | **Post-cleanup Fresh Start — Profitable** |
-| **Day 10** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$393.72 | -0.394% | Pre-earnings Watch |
+| **Day 5** | Aug 17 (Mon) | $99,514.27 | -$36.76 | -$485.73 | -0.486% | Multi-ticker Session |
+| **Day 6** | Aug 18 (Tue) | $99,515.93 | +$1.66 | -$484.07 | -0.484% | Bracket Tuning |
+| **Day 7** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$486.61 | -0.487% | RSI Experiment |
+| **Day 8** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$387.76 | -0.388% | **Simple Reset — Profitable** |
+| **Day 9** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$493.94 | -0.494% | Disciplined HOLD |
+| **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$400.88 | -0.401% | **Post-cleanup Fresh Start — Profitable** |
+| **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
 
-> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$393.72 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 7) &nbsp;|&nbsp; **Win Rate**: 30.0% (3W / 6L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 10
+> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 27.3% (3W / 7L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 11
 
-> Chart auto-generated from live Alpaca Portfolio History API via `scripts/generate_pnl_chart.py`
+> Chart auto-generated from live Alpaca Portfolio History API and session telemetry via `scripts/generate_pnl_chart.py`
 
 ---
 
