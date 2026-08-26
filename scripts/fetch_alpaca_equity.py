@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import config
@@ -13,14 +14,14 @@ client = TradingClient(
     paper=True
 )
 
-history_request = GetPortfolioHistoryRequest(
-    timeframe="1D",
-    start="2026-08-09",
-    end="2026-08-25",
-    extended_hours=False
+history = client.get_portfolio_history(
+    GetPortfolioHistoryRequest(
+        timeframe="1D",
+        start="2026-08-09",
+        end="2026-08-27",
+        extended_hours=False
+    )
 )
-
-history = client.get_portfolio_history(history_filter=history_request)
 
 rows = []
 for ts, eq, pl, plp in zip(
@@ -43,9 +44,9 @@ df = pd.DataFrame(rows)
 os.makedirs("outputs", exist_ok=True)
 df.to_csv("outputs/alpaca_equity_history.csv", index=False)
 
-print("Real equity data from Alpaca:")
+print("Equity data fetched:")
 print(df.to_string(index=False))
-print(f"\nTotal P&L: ${df['daily_pnl'].sum():.2f}")
-print(f"Win days:  {(df['daily_pnl'] > 0).sum()}")
-print(f"Loss days: {(df['daily_pnl'] < 0).sum()}")
-print(f"Sessions:  {len(df)}")
+print(f"\nTotal P&L:  ${df['daily_pnl'].sum():.2f}")
+print(f"Win days:   {(df['daily_pnl'] > 0).sum()}")
+print(f"Loss days:  {(df['daily_pnl'] < 0).sum()}")
+print(f"Sessions:   {len(df)}")
