@@ -51,8 +51,9 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 9** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$493.94 | -0.494% | Disciplined HOLD |
 | **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$400.88 | -0.401% | **Post-cleanup Fresh Start — Profitable** |
 | **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
+| **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings — Disciplined HOLD |
 
-> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 27.3% (3W / 7L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 11
+> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 25.0% (3W / 8L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 12
 
 > Chart auto-generated from live Alpaca Portfolio History API and session telemetry via `scripts/generate_pnl_chart.py`
 
