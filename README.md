@@ -52,8 +52,10 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$400.88 | -0.401% | **Post-cleanup Fresh Start — Profitable** |
 | **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
 | **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings — Disciplined HOLD |
+| **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | 0.000% | Momentum Strategy — First Live Session |
+| **Day 14** | Aug 28 (Fri) | $99,598.94 *(pending)* | $0.00 | -$401.06 | 0.000% | Week 3 Final Session |
 
-> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 25.0% (3W / 8L / 1 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 12
+> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 21.4% (3W / 8L / 3 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 14
 
 > Chart auto-generated from live Alpaca Portfolio History API and session telemetry via `scripts/generate_pnl_chart.py`
 
@@ -126,12 +128,13 @@ The trading engine evaluates technical indicators across price windows using rig
 - **Average True Range (ATR)**: 14-period smoothed true range reflecting actual market volatility:
   $$\text{TR} = \max\Big(\text{High} - \text{Low}, |\text{High} - \text{Close}_{\text{prev}}|, |\text{Low} - \text{Close}_{\text{prev}}|\Big)$$
 
-### 2. Signal Generation Matrix
+### 2. Signal Generation Matrix (Dual-Path Entry)
 
 | Signal | Conditions Evaluated | Confirmation / Weight |
 |---|---|---|
-| **BUY** | 1. RSI oversold ($< 45.0$ or $< 30.0$ depending on mode)<br>2. MACD Bullish crossover ($\text{MACD} > \text{Signal}$)<br>3. Price above 20-period SMA ($\text{Close} > \text{SMA}_{20}$)<br>4. Price above lower Bollinger Band ($\text{Close} > \text{BB}_{\text{Lower}}$) | Requires $\ge 75\%$ confidence (3 of 4 conditions met) + SPY above 200-SMA |
-| **SELL** | 1. RSI overbought ($> 65.0$ or $> 70.0$)<br>2. MACD Bearish crossover ($\text{MACD} < \text{Signal}$)<br>3. Price breaks below lower Bollinger Band ($\text{Close} < \text{BB}_{\text{Lower}}$)<br>4. Risk manager circuit breaker or stop-loss trigger | Liquidates open position immediately |
+| **BUY (Path 1: Dip Entry)** | 1. RSI oversold ($< 40.0$)<br>2. MACD Bullish ($\text{MACD} > \text{Signal}$)<br>3. Price above 20-period SMA ($\text{Close} > \text{SMA}_{20}$)<br>4. Price above lower Bollinger Band ($\text{Close} > \text{BB}_{\text{Lower}}$) | Requires $\ge 75\%$ confidence (3 of 4 conditions met) + SPY above 200-SMA |
+| **BUY (Path 2: Momentum)** | 1. MACD Bullish Crossover ($\text{MACD}_{\text{now}} > \text{Signal}_{\text{now}}$ and $\text{MACD}_{\text{prev}} \le \text{Signal}_{\text{prev}}$)<br>2. Price above 20-period SMA ($\text{Close} > \text{SMA}_{20}$)<br>3. RSI between 40.0 and 65.0 | High-conviction momentum entry (catches post-earnings pumps) + SPY above 200-SMA |
+| **SELL** | 1. RSI overbought ($> 70.0$)<br>2. MACD Bearish crossover ($\text{MACD} < \text{Signal}$)<br>3. Price breaks below lower Bollinger Band ($\text{Close} < \text{BB}_{\text{Lower}}$)<br>4. Risk manager circuit breaker or stop-loss trigger ($-4.0\%$) | Liquidates open position immediately |
 | **HOLD** | Insufficient confirmation or risk blocks active | No action |
 
 ---
