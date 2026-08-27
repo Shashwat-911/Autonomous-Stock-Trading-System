@@ -177,8 +177,21 @@ class SignalGenerator:
             buy_reasons.append(f"Above BB_Lower ({close:.2f} > {bb_lower:.2f})")
         buy_conditions.append(cond_above_bb)
 
+        # MACD bullish crossover (new condition)
+        macd_cross_up = (
+            float(df['MACD'].iloc[-1]) > float(df['MACD_Signal'].iloc[-1])
+            and float(df['MACD'].iloc[-2]) <= float(df['MACD_Signal'].iloc[-2])
+        ) if len(df) >= 2 else False
+
+        # Path 2: Momentum crossover logic (MACD cross + above SMA + RSI 40-65)
+        momentum_buy = macd_cross_up and (close > sma_20) and (40.0 <= rsi <= 65.0)
+        if momentum_buy:
+            buy_reasons.append("Momentum crossover (MACD cross up + above SMA_20 + RSI 40-65)")
+
         buy_count = sum(buy_conditions)
         buy_confidence = min(buy_count * 0.25, 1.0)
+        if momentum_buy and buy_confidence < 0.75:
+            buy_confidence = 0.75
 
         # Daily trend penalty: reduce confidence if daily trend is bearish
         if not daily_trend_bullish and buy_count >= 2:
@@ -219,14 +232,16 @@ class SignalGenerator:
         # ----- Determine final signal -----
         if self.require_confirmation:
             # ALL 4 conditions must be true (original strict mode)
-            buy_triggered = (buy_count == len(buy_conditions)) and not blocked and not regime_blocked
+            path1_triggered = (buy_count == len(buy_conditions))
         else:
             # At least 3 out of 4 conditions must agree (raised from 2 -> ensures 0.75 floor)
             buy_conditions_met = sum(buy_conditions)
-            buy_triggered = (buy_conditions_met >= 3) and not blocked and not regime_blocked
+            path1_triggered = (buy_conditions_met >= 3)
+
+        buy_triggered = (path1_triggered or momentum_buy) and not blocked and not regime_blocked
 
         # Block buy if market regime is bearish
-        if regime_blocked and buy_count >= 2:
+        if regime_blocked and (buy_count >= 2 or momentum_buy):
             buy_reasons.append("BLOCKED: Market regime bearish (SPY < SMA-200)")
 
         sell_triggered = sell_count >= 1
