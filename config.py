@@ -19,22 +19,23 @@ TRADING = {
     "interval": "1d",                  # daily candles (simplest)
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
-    "min_confidence": 0.50,            # lowered to let signals execute
+    "min_confidence": 0.75,  # only strong signals execute
     "lookback_days": 60,               # hourly lookback (yfinance max ~60d for 1h)
     "lookback_days_intraday": 30,      # 5m lookback (yfinance max ~60d for 5m)
+    "scan_interval_minutes": 15,       # scan and trade every 15 minutes
 }
 
 SIGNAL = {
-    "rsi_oversold": 30.0,              # standard RSI oversold threshold
-    "rsi_overbought": 70.0,            # standard RSI overbought threshold
-    "require_confirmation": True,      # all 4 conditions must agree
+    "rsi_oversold": 40.0,    # lower bound for RSI on BUY
+    "rsi_overbought": 70.0,  # sell when overbought
+    "require_confirmation": False,
 }
 
 RISK = {
     "max_daily_loss_pct": 0.05,
     "max_trade_loss_pct": 0.04,        # give trades room for high volatility
-    "max_position_pct": 0.05,          # 5% single-stock exposure cap
-    "max_position_dollars": 2000.0,    # hard dollar cap per position (whichever is lower)
+    "max_position_pct": 0.10,          # was 0.05, now 10% per trade
+    "max_position_dollars": 5000.0,    # was 2000, now $5000
     "cooldown_minutes": 15,            # re-enter faster
     "max_portfolio_heat_pct": 0.60,    # max 60% of equity in long positions
     # ATR-based position sizing
