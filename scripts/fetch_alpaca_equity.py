@@ -18,7 +18,7 @@ history = client.get_portfolio_history(
     GetPortfolioHistoryRequest(
         timeframe="1D",
         start="2026-08-09",
-        end="2026-08-27",
+        end="2026-08-28",
         extended_hours=False
     )
 )
