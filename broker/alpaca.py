@@ -97,6 +97,7 @@ class AlpacaPaperBroker:
 
         # Trailing stop tracking: ticker -> {order_id, entry_price, atr, activated}
         self._trailing_state: Dict[str, dict] = {}
+        self._last_buy_time: Dict[str, datetime] = {}
 
         logger.info(
             "AlpacaPaperBroker initialized -- ticker=%s, feed=%s, min_confidence=%.2f",
@@ -517,11 +518,23 @@ class AlpacaPaperBroker:
                     # TEMP: bracket orders disabled for debugging
                     # Uses plain market order + simple position sizing
                     self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
+                    self._last_buy_time[self.ticker] = datetime.now()
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
 
         if signal == "SELL" and position is not None:
-            self.submit_sell("ALL", "; ".join(signal_dict["reasons"]))
+            if self.ticker in self._last_buy_time:
+                minutes_held = (
+                    datetime.now() - self._last_buy_time[self.ticker]
+                ).seconds / 60
+                if minutes_held < 60:  # minimum 60 minute hold
+                    logger.info(
+                        f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
+                    )
+                else:
+                    self.submit_sell("ALL", "; ".join(signal_dict["reasons"]))
+            else:
+                self.submit_sell("ALL", "; ".join(signal_dict["reasons"]))
 
         return {
             "signal": signal,
