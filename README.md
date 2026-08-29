@@ -53,9 +53,9 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
 | **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings — Disciplined HOLD |
 | **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | 0.000% | Momentum Strategy — First Live Session |
-| **Day 14** | Aug 28 (Fri) | $99,598.94 *(pending)* | $0.00 | -$401.06 | 0.000% | Week 3 Final Session |
+| **Day 14** | Aug 28 (Fri) | $99,352.83 | -$246.11 | -$647.17 | -0.647% | Momentum Strategy — Whipsaw Day |
 
-> **Current Equity**: $99,598.94 &nbsp;|&nbsp; **Total P&L**: -$401.06 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 21.4% (3W / 8L / 3 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.494% &nbsp;|&nbsp; **Sessions**: 14
+> **Current Equity**: $99,352.83 &nbsp;|&nbsp; **Total P&L**: -$647.17 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 21.4% (3W / 9L / 2 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.647% &nbsp;|&nbsp; **Sessions**: 14
 
 > Chart auto-generated from live Alpaca Portfolio History API and session telemetry via `scripts/generate_pnl_chart.py`
 
@@ -136,6 +136,18 @@ The trading engine evaluates technical indicators across price windows using rig
 | **BUY (Path 2: Momentum)** | 1. MACD Bullish Crossover ($\text{MACD}_{\text{now}} > \text{Signal}_{\text{now}}$ and $\text{MACD}_{\text{prev}} \le \text{Signal}_{\text{prev}}$)<br>2. Price above 20-period SMA ($\text{Close} > \text{SMA}_{20}$)<br>3. RSI between 40.0 and 65.0 | High-conviction momentum entry (catches post-earnings pumps) + SPY above 200-SMA |
 | **SELL** | 1. RSI overbought ($> 70.0$)<br>2. MACD Bearish crossover ($\text{MACD} < \text{Signal}$)<br>3. Price breaks below lower Bollinger Band ($\text{Close} < \text{BB}_{\text{Lower}}$)<br>4. Risk manager circuit breaker or stop-loss trigger ($-4.0\%$) | Liquidates open position immediately |
 | **HOLD** | Insufficient confirmation or risk blocks active | No action |
+
+### Strategy Evolution Log
+The system uses an adaptive dual-path entry strategy, evolved through live paper trading observations:
+
+| Phase | Dates | Strategy | Result |
+|---|---|---|---|
+| Week 1 | Aug 11-15 | RSI dip-buying (RSI < 30, strict) | Too strict — 0 clean trades |
+| Week 2 | Aug 18-26 | Simplified dip strategy + cleanup | Stable but inactive |
+| Week 3 | Aug 27-28 | Dual-path: Dip + MACD Momentum | First momentum trades — whipsaw detected |
+| Week 4 | Sep 1+ | Momentum + 60-min hold filter | Pending |
+
+> Each iteration reflects real diagnostic data, not arbitrary changes. Whipsaw behavior on Aug 28 led to implementation of minimum hold period filter.
 
 ---
 
