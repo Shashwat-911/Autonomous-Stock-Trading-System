@@ -35,7 +35,7 @@ session_notes = {
     "2026-08-25": "Pre-earnings\nWatch",
     "2026-08-26": "NVDA\nEarnings Day",
     "2026-08-27": "Momentum\nStrategy Live",
-    "2026-08-28": "Week 3\nFinal Day",
+    "2026-08-28": "Whipsaw\nLearning Day",
 }
 df["note"] = df["timestamp"].map(
     lambda x: session_notes.get(x, ""))
