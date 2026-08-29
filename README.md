@@ -53,11 +53,10 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
 | **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings — Disciplined HOLD |
 | **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | 0.000% | Momentum Strategy — First Live Session |
-| **Day 14** | Aug 28 (Fri) | $99,352.83 | -$246.11 | -$647.17 | -0.647% | Momentum Strategy — Whipsaw Day |
+| **Day 14** | Aug 28 (Fri) | $99,352.83 | **-$246.11** | -$647.17 | -0.647% | Momentum Whipsaw — Hold Filter Added |
 
-> **Current Equity**: $99,352.83 &nbsp;|&nbsp; **Total P&L**: -$647.17 &nbsp;|&nbsp; **Best Day**: +$98.85 (Day 8) &nbsp;|&nbsp; **Win Rate**: 21.4% (3W / 9L / 2 Flat) &nbsp;|&nbsp; **Max Drawdown**: -0.647% &nbsp;|&nbsp; **Sessions**: 14
+> **Current Equity**: $99,352.83 | **Total P&L**: -$647.17 | **Best Day**: +$98.85 (Day 8) | **Win Rate**: 21.4% (3W / 9L / 2 Flat) | **Max Drawdown**: -0.647% | **Sessions**: 14
 
-> Chart auto-generated from live Alpaca Portfolio History API and session telemetry via `scripts/generate_pnl_chart.py`
 
 ---
 
@@ -138,16 +137,19 @@ The trading engine evaluates technical indicators across price windows using rig
 | **HOLD** | Insufficient confirmation or risk blocks active | No action |
 
 ### Strategy Evolution Log
-The system uses an adaptive dual-path entry strategy, evolved through live paper trading observations:
 
-| Phase | Dates | Strategy | Result |
+| Phase | Dates | Change | Reason |
 |---|---|---|---|
-| Week 1 | Aug 11-15 | RSI dip-buying (RSI < 30, strict) | Too strict — 0 clean trades |
-| Week 2 | Aug 18-26 | Simplified dip strategy + cleanup | Stable but inactive |
-| Week 3 | Aug 27-28 | Dual-path: Dip + MACD Momentum | First momentum trades — whipsaw detected |
-| Week 4 | Sep 1+ | Momentum + 60-min hold filter | Pending |
+| Week 1 | Aug 11–15 | RSI dip-buying, strict (RSI < 30, all 4 confirm) | Baseline validation |
+| Week 2 | Aug 18–26 | Simplified + cleanup, require_confirmation=False | Too strict, 0 clean trades |
+| Week 3 (Aug 27) | Aug 27–28 | Dual-path: Dip + MACD Momentum crossover | Catch post-earnings moves |
+| Week 3 (Aug 28) | Aug 28 | Position size $2k → $5k | Returns too small |
+| Week 4 | Sep 1+ | 60-min minimum hold filter added | Whipsaw on Aug 28 caused 2 losing trades in 30 mins |
 
-> Each iteration reflects real diagnostic data, not arbitrary changes. Whipsaw behavior on Aug 28 led to implementation of minimum hold period filter.
+> Every change above was driven by real live trading data, 
+> not theory. Whipsaw behavior detected Aug 28 — 
+> momentum crossover on daily candles is unstable at 
+> 15-minute scan intervals without a minimum hold period.
 
 ---
 
