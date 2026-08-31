@@ -54,8 +54,9 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings — Disciplined HOLD |
 | **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | 0.000% | Momentum Strategy — First Live Session |
 | **Day 14** | Aug 28 (Fri) | $99,352.83 | **-$246.11** | -$647.17 | -0.647% | Momentum Whipsaw — Hold Filter Added |
+| **Day 15** | Aug 31 (Mon) | $99,352.40 | $0.00 | -$647.17 | -0.647% | Sideways Market — Disciplined HOLD |
 
-> **Current Equity**: $99,352.83 | **Total P&L**: -$647.17 | **Best Day**: +$98.85 (Day 8) | **Win Rate**: 21.4% (3W / 9L / 2 Flat) | **Max Drawdown**: -0.647% | **Sessions**: 14
+> **Current Equity**: $99,352.40 | **Total P&L**: -$647.17 | **Best Day**: +$98.85 (Day 8) | **Win Rate**: 20.0% (3W / 9L / 3 Flat) | **Max Drawdown**: -0.647% | **Sessions**: 15
 
 
 ---
