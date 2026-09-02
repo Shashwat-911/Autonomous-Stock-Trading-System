@@ -364,9 +364,9 @@ RISK = {
 
 # Bracket Order Configuration
 BRACKET = {
-    "stop_loss_atr_mult": 1.5,                         # Stop-loss at entry - 1.5×ATR
-    "take_profit_atr_mult": 3.0,                       # Take-profit at entry + 3.0×ATR (2:1 R:R)
-    "trailing_activation_atr": 1.5,                    # Activate trailing stop after +1.5×ATR gain
+    "stop_loss_atr_mult": 2.5,                         # Stop-loss at entry - 2.5×ATR
+    "take_profit_atr_mult": 2.0,                       # Take-profit at entry + 2.0×ATR
+    "trailing_activation_atr": 1.0,                    # Activate trailing stop after +1.0×ATR gain
     "trailing_stop_atr_mult": 1.0,                     # Trailing stop distance once active
 }
 
