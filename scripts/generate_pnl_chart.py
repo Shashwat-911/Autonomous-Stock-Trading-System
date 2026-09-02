@@ -37,6 +37,7 @@ session_notes = {
     "2026-08-27": "Momentum\nStrategy Live",
     "2026-08-28": "Whipsaw\nLearning Day",
     "2026-08-31": "Sideways\nMarket HOLD",
+    "2026-09-01": "RSI Raised\n40→45 Live",
 }
 df["note"] = df["timestamp"].map(
     lambda x: session_notes.get(x, ""))
@@ -140,7 +141,7 @@ ax1.set_ylabel("Account Equity ($)",
                color="#c9d1d9", fontsize=10)
 ax1.set_title(
     "Autonomous Trading Agent  --  Paper Trading Performance\n"
-    "Live Alpaca Paper Account  |  Aug 2026  |  NVDA Strategy",
+    "Live Alpaca Paper Account  |  Aug–Sep 2026  |  NVDA Strategy",
     color="#f0f6fc", fontsize=13,
     fontweight="bold", pad=14
 )
