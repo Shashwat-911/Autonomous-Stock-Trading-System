@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["python311"]
+
+[start]
+cmd = "python scripts/cloud_launcher.py"
