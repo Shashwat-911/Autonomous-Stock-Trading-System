@@ -404,6 +404,9 @@ def run_live():
             feed=config.ALPACA["feed"],
         )
 
+    scan_interval_mins = config.TRADING.get("scan_interval_minutes", 15)
+    scan_interval_secs = scan_interval_mins * 60
+
     print("=" * 60)
     print(f"  LIVE PAPER TRADING — {len(tickers)} tickers")
     print(f"  {', '.join(tickers)}")
@@ -413,7 +416,7 @@ def run_live():
     print(f"  Portfolio heat cap: {config.RISK.get('max_portfolio_heat_pct', 0.60):.0%}")
     print(f"  Bracket orders: SL={config.BRACKET.get('stop_loss_atr_mult', 1.5)}×ATR, "
           f"TP={config.BRACKET.get('take_profit_atr_mult', 3.0)}×ATR")
-    print(f"  Checking every 5 minutes")
+    print(f"  Checking every {scan_interval_mins} minutes")
     print("  Press Ctrl+C to stop")
     print("=" * 60)
 
@@ -481,7 +484,7 @@ def run_live():
                     confidence = tick.get("confidence", 0)
                     position = tick.get("position")
                     pos_str = (f"{position['shares']:.0f}sh"
-                               if position else "none")
+                                if position else "none")
 
                     # ATR value for display
                     atr_val = float(df["ATR_14"].iloc[-1]) if "ATR_14" in df.columns else 0.0
@@ -524,7 +527,7 @@ def run_live():
                 (close - datetime.now()).total_seconds() / 60)
 
             print(f"  Market closes in: {mins_left} mins")
-            print(f"  Next scan:        in 5 minutes")
+            print(f"  Next scan:        in {scan_interval_mins} minutes")
 
             # Windows popup for any BUY/SELL
             if action_alerts:
@@ -532,7 +535,7 @@ def run_live():
                 cmd_str = f'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("{alert_text}", "AutoTrader Alert")'
                 subprocess.Popen(['powershell', '-command', cmd_str])
 
-            time.sleep(1800)
+            time.sleep(scan_interval_secs)
 
     except KeyboardInterrupt:
         print("\n" + "=" * 60)
