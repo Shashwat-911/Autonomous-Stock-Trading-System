@@ -39,9 +39,9 @@ today_str = now_utc.strftime("%Y-%m-%d")
 start_str = (now_utc - timedelta(days=3)).strftime("%Y-%m-%d") if today_only else PROJECT_START_DATE
 end_str   = today_str
 
-print(f"Fetching Alpaca equity history: {start_str} → {end_str}")
+print(f"Fetching Alpaca equity history: {start_str} -> {end_str}")
 
-# ── Alpaca client ──────────────────────────────────────────────────────────────
+# -- Alpaca client --------------------------------------------------------------
 client = TradingClient(
     config.ALPACA["api_key"],
     config.ALPACA["secret_key"],

@@ -36,9 +36,9 @@ DRY_RUN = "--dry-run" in sys.argv
 
 def banner(msg: str):
     """Print a clearly visible section header to Railway logs."""
-    print(f"\n{'─' * 60}")
+    print(f"\n{'-' * 60}")
     print(f"  {msg}")
-    print(f"{'─' * 60}", flush=True)
+    print(f"{'-' * 60}", flush=True)
 
 
 def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
@@ -184,7 +184,7 @@ def run_post_session_pipeline():
 
     equity_summary = read_equity_summary()
     commit_msg = (
-        f"auto(session): {date_str} trading session — {equity_summary}"
+        f"auto(session): {date_str} trading session - {equity_summary}"
     )
     print(f"  Commit message: {commit_msg}", flush=True)
 

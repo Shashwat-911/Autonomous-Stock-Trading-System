@@ -90,7 +90,7 @@ def run_post_session(date_str: str):
     Streams all output to Railway logs.
     """
     print(f"\n{'=' * 60}")
-    print(f"  POST-SESSION PIPELINE — {date_str}")
+    print(f"  POST-SESSION PIPELINE -- {date_str}")
     print(f"  Time: {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}")
     print(f"{'=' * 60}", flush=True)
 
