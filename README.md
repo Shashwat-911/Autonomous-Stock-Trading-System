@@ -353,8 +353,8 @@ SIGNAL = {
 RISK = {
     "max_daily_loss_pct": 0.05,                        # 5% max portfolio daily drawdown
     "max_trade_loss_pct": 0.04,                        # 4% per-trade stop-loss
-    "max_position_pct": 0.05,                          # 5% max portfolio allocation per asset
-    "max_position_dollars": 2000.0,                    # $2,000 hard dollar cap per position
+    "max_position_pct": 0.10,                          # 10% max portfolio allocation per asset
+    "max_position_dollars": 5000.0,                    # $5,000 hard dollar cap per position
     "cooldown_minutes": 15,                            # Cooldown after stop-loss event
     "max_portfolio_heat_pct": 0.60,                    # Max 60% of equity in long positions
     "atr_period": 14,                                  # ATR smoothing window
