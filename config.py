@@ -26,7 +26,7 @@ TRADING = {
 }
 
 SIGNAL = {
-    "rsi_oversold": 40.0,    # lower bound for RSI on BUY
+    "rsi_oversold": 45.0,    # lower bound for RSI on BUY (raised 40→45 to catch NVDA dip setups earlier)
     "rsi_overbought": 70.0,  # sell when overbought
     "require_confirmation": False,
 }
