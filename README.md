@@ -147,6 +147,7 @@ The trading engine evaluates technical indicators across price windows using rig
 | Week 3 (Aug 27) | Aug 27–28 | Dual-path: Dip + MACD Momentum crossover | Catch post-earnings moves |
 | Week 3 (Aug 28) | Aug 28 | Position size $2k → $5k | Returns too small |
 | Week 4 | Sep 1+ | 60-min minimum hold filter added | Whipsaw on Aug 28 caused 2 losing trades in 30 mins |
+| Week 5 | Sep 2 | RSI oversold threshold raised 40 → 45 | Sep 1 NVDA dip at RSI ~47 missed entry; wider window needed |
 
 > Every change above was driven by real live trading data, 
 > not theory. Whipsaw behavior detected Aug 28 — 
