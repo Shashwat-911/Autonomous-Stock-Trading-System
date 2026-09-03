@@ -1,0 +1,144 @@
+﻿name: AutoTrader Daily Session
+
+on:
+  schedule:
+    - cron: '30 13 * * 1-5'  # 7:00 PM IST = 13:30 UTC Mon-Fri
+  workflow_dispatch:           # manual trigger for testing
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 400
+
+    steps:
+    # ─────────────────────────────────────────
+    # STAGE 1: Setup
+    # ─────────────────────────────────────────
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GIT_TOKEN }}
+        fetch-depth: 0  # full history for git operations
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        echo "Dependencies installed"
+
+    - name: Create output directories
+      run: |
+        mkdir -p outputs/logs
+        mkdir -p outputs
+        echo "Directories ready"
+
+    # ─────────────────────────────────────────
+    # STAGE 2: Run the trading bot
+    # ─────────────────────────────────────────
+    - name: Run live trading session
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
+      run: |
+        DATE=$(date +%Y_%m_%d)
+        LOG_FILE="outputs/logs/session_${DATE}.txt"
+        echo "Starting bot session: $DATE"
+        echo "Log file: $LOG_FILE"
+        python main.py live 2>&1 | tee $LOG_FILE
+        echo "Bot session ended"
+      timeout-minutes: 385
+
+    # ─────────────────────────────────────────
+    # STAGE 3: Post-session data pipeline
+    # ─────────────────────────────────────────
+    - name: Fetch Alpaca equity history
+      if: always()
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
+      run: |
+        python scripts/fetch_alpaca_equity.py --today
+        echo "Equity history updated"
+
+    - name: Generate session performance report
+      if: always()
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
+      run: |
+        python scripts/generate_session_report.py
+        echo "Performance summary updated"
+
+    # ─────────────────────────────────────────
+    # STAGE 4: Update chart and README
+    # ─────────────────────────────────────────
+    - name: Install matplotlib for chart generation
+      if: always()
+      run: pip install matplotlib --quiet
+
+    - name: Regenerate daily P&L chart
+      if: always()
+      run: |
+        python scripts/generate_pnl_chart.py
+        echo "Chart regenerated"
+
+    - name: Update README session table
+      if: always()
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
+      run: |
+        python scripts/update_readme.py
+        echo "README updated"
+
+    # ─────────────────────────────────────────
+    # STAGE 5: Commit and push everything
+    # ─────────────────────────────────────────
+    - name: Commit and push all session artifacts
+      if: always()
+      run: |
+        git config user.email "autotrader-bot@github.com"
+        git config user.name "AutoTrader Bot"
+
+        DATE=$(date +%Y-%m-%d)
+
+        # Stage all updated files
+        git add outputs/logs/ || true
+        git add outputs/alpaca_equity_history.csv || true
+        git add outputs/performance_summary.json || true
+        git add outputs/trade_history.csv || true
+        git add outputs/daily_pnl_chart.png || true
+        git add README.md || true
+
+        # Only commit if there are changes
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "auto(session): ${DATE} | $(python -c "
+import json
+try:
+    d = json.load(open('outputs/performance_summary.json'))
+    eq = d.get('ending_equity', 0)
+    ret = d.get('total_return_pct', 0)
+    print(f'equity=\${eq:,.0f} | return={ret:+.3f}%')
+except:
+    print('session complete')
+")"
+          git push origin main
+          echo "Session artifacts pushed to GitHub"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
