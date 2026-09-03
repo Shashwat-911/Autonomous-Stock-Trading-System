@@ -55,9 +55,10 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | 0.000% | Momentum Strategy — First Live Session |
 | **Day 14** | Aug 28 (Fri) | $99,352.83 | **-$246.11** | -$647.17 | -0.647% | Momentum Whipsaw — Hold Filter Added |
 | **Day 15** | Aug 31 (Mon) | $99,352.40 | $0.00 | -$647.17 | -0.647% | Sideways Market — Disciplined HOLD |
-| **Day 16** | Sep 1 (Tue) | $99,330.04 | **-$22.36** | -$669.96 | -0.670% | NVDA Dip — 1 Round-Trip; Hold Filter Works |
+| **Day 16** | Sep 1 (Tue) | $99,352.40 | $0.00 | -$647.17 | -0.647% | Flat Session — Disciplined HOLD |
+| **Day 17** | Sep 2 (Wed) | $99,329.81 | -$22.59 | -$670.19 | -0.670% | NVDA BUY Executed (44sh @ $224.74) — Held Overnight |
 
-> **Current Equity**: $99,330.04 | **Total P&L**: -$669.96 | **Best Day**: +$98.85 (Day 8) | **Win Rate**: 25.0% (4W / 9L / 3 Flat) | **Max Drawdown**: -0.670% | **Sessions**: 16
+> **Current Equity**: $99,329.81 | **Total P&L**: -$670.19 | **Best Day**: +$98.85 (Day 8) | **Win Rate**: 23.5% (4W / 9L / 4 Flat) | **Max Drawdown**: -0.670% | **Sessions**: 17
 
 
 ---
@@ -148,6 +149,7 @@ The trading engine evaluates technical indicators across price windows using rig
 | Week 3 (Aug 28) | Aug 28 | Position size $2k → $5k | Returns too small |
 | Week 4 | Sep 1+ | 60-min minimum hold filter added | Whipsaw on Aug 28 caused 2 losing trades in 30 mins |
 | Week 5 | Sep 2 | RSI oversold threshold raised 40 → 45 | Sep 1 NVDA dip at RSI ~47 missed entry; wider window needed |
+| Week 5 (Sep 2) | Sep 2 | High-conviction BUY (44 shares NVDA @ $224.74) | Momentum crossover confirmed with multi-timeframe filter |
 
 > Every change above was driven by real live trading data, 
 > not theory. Whipsaw behavior detected Aug 28 — 
