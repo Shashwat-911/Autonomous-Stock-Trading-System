@@ -1,0 +1,148 @@
+2026-08-25 20:22:43,388 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=4.0%, max_position=5.0%, cooldown=15min, max_pos_dollars=$2000, portfolio_heat=60%
+2026-08-25 20:22:43,388 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=30.0, overbought=70.0, confirmation=True
+2026-08-25 20:22:43,388 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.50
+============================================================
+  LIVE PAPER TRADING — 1 tickers
+  NVDA
+  Interval: 1d | Confidence floor: 0.5
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.5×ATR, TP=2.0×ATR
+  Checking every 5 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,598.94
+  Buying power: $398,395.76
+
+
+[20:22:44] Scanning 1 tickers... | SPY regime: BULL ($764.61 vs SMA-200 $705.91)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 20:22:46,709 - strategy.signals - INFO - Evaluating signal -- Close=211.87, RSI=39.38, MACD=1.3305, MACD_Signal=2.4164, SMA_20=214.52, BB_Lower=194.50
+2026-08-25 20:22:46,709 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 20:22:46,709 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 211.87 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 307 mins
+  Next scan:        in 5 minutes
+
+[20:52:47] Scanning 1 tickers... | SPY regime: BULL ($765.10 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 20:52:50,148 - strategy.signals - INFO - Evaluating signal -- Close=210.69, RSI=37.96, MACD=1.2370, MACD_Signal=2.3977, SMA_20=214.46, BB_Lower=194.40
+2026-08-25 20:52:50,149 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 20:52:50,149 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 210.69 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 277 mins
+  Next scan:        in 5 minutes
+
+[21:22:50] Scanning 1 tickers... | SPY regime: BULL ($764.96 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 21:22:53,492 - strategy.signals - INFO - Evaluating signal -- Close=211.27, RSI=38.67, MACD=1.2830, MACD_Signal=2.4069, SMA_20=214.49, BB_Lower=194.45
+2026-08-25 21:22:53,493 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 21:22:53,493 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 211.27 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 247 mins
+  Next scan:        in 5 minutes
+
+[21:52:54] Scanning 1 tickers... | SPY regime: BULL ($765.58 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 21:52:57,144 - strategy.signals - INFO - Evaluating signal -- Close=212.17, RSI=39.74, MACD=1.3548, MACD_Signal=2.4212, SMA_20=214.53, BB_Lower=194.52
+2026-08-25 21:52:57,144 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 21:52:57,144 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.17 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 217 mins
+  Next scan:        in 5 minutes
+
+[22:22:57] Scanning 1 tickers... | SPY regime: BULL ($765.39 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 22:23:00,565 - strategy.signals - INFO - Evaluating signal -- Close=212.35, RSI=39.95, MACD=1.3691, MACD_Signal=2.4241, SMA_20=214.54, BB_Lower=194.53
+2026-08-25 22:23:00,565 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 22:23:00,565 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.35 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 186 mins
+  Next scan:        in 5 minutes
+
+[22:53:01] Scanning 1 tickers... | SPY regime: BULL ($765.14 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 22:53:04,170 - strategy.signals - INFO - Evaluating signal -- Close=212.29, RSI=39.88, MACD=1.3644, MACD_Signal=2.4231, SMA_20=214.54, BB_Lower=194.53
+2026-08-25 22:53:04,170 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 22:53:04,170 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.29 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 156 mins
+  Next scan:        in 5 minutes
+
+[23:23:04] Scanning 1 tickers... | SPY regime: BULL ($765.02 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 23:23:07,730 - strategy.signals - INFO - Evaluating signal -- Close=212.38, RSI=39.98, MACD=1.3714, MACD_Signal=2.4246, SMA_20=214.54, BB_Lower=194.53
+2026-08-25 23:23:07,730 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 23:23:07,730 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.38 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 126 mins
+  Next scan:        in 5 minutes
+
+[23:53:08] Scanning 1 tickers... | SPY regime: BULL ($764.95 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-25 23:53:11,292 - strategy.signals - INFO - Evaluating signal -- Close=212.10, RSI=39.66, MACD=1.3496, MACD_Signal=2.4202, SMA_20=214.53, BB_Lower=194.51
+2026-08-25 23:53:11,293 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-25 23:53:11,293 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.10 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 96 mins
+  Next scan:        in 5 minutes
+
+[00:23:11] Scanning 1 tickers... | SPY regime: BULL ($765.76 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-26 00:23:15,073 - strategy.signals - INFO - Evaluating signal -- Close=213.15, RSI=40.86, MACD=1.4330, MACD_Signal=2.4369, SMA_20=214.58, BB_Lower=194.59
+2026-08-26 00:23:15,073 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-26 00:23:15,073 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 213.15 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 66 mins
+  Next scan:        in 5 minutes
+
+[00:53:15] Scanning 1 tickers... | SPY regime: BULL ($764.99 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-26 00:53:18,974 - strategy.signals - INFO - Evaluating signal -- Close=211.93, RSI=39.45, MACD=1.3352, MACD_Signal=2.4173, SMA_20=214.52, BB_Lower=194.50
+2026-08-26 00:53:18,974 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-26 00:53:18,974 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 211.93 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 36 mins
+  Next scan:        in 5 minutes
+
+[01:23:17] Scanning 1 tickers... | SPY regime: BULL ($765.63 vs SMA-200 $705.92)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-08-26 01:23:20,079 - strategy.signals - INFO - Evaluating signal -- Close=212.61, RSI=40.25, MACD=1.3899, MACD_Signal=2.4282, SMA_20=214.56, BB_Lower=194.55
+2026-08-26 01:23:20,080 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-08-26 01:23:20,080 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.61 SELL    0.33 $   6.45         none
+
+  Equity: $99,598.94 | Long exposure: $0 (0.0%) | Cash: $99,598.94
+  Market closes in: 6 mins
+  Next scan:        in 5 minutes

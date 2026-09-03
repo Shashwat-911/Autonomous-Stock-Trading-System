@@ -1,0 +1,56 @@
+
+============================================================
+  SESSION 15 (2026_09_03) -- 2026-09-03 19:21:38
+============================================================
+2026-09-03 19:21:45,989 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=4.0%, max_position=10.0%, cooldown=15min, max_pos_dollars=$5000, portfolio_heat=60%
+2026-09-03 19:21:45,989 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=45.0, overbought=70.0, confirmation=False
+2026-09-03 19:21:45,989 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.75
+============================================================
+  LIVE PAPER TRADING — 1 tickers
+  NVDA
+  Interval: 1d | Confidence floor: 0.75
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.5×ATR, TP=2.0×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,495.27
+  Buying power: $385,914.96
+
+
+[19:21:47] Scanning 1 tickers... | SPY regime: BULL ($769.85 vs SMA-200 $709.30)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-03 19:21:52,867 - strategy.signals - INFO - Evaluating signal -- Close=228.70, RSI=47.46, MACD=3.1600, MACD_Signal=2.6260, SMA_20=219.77, BB_Lower=208.28
+2026-09-03 19:21:52,868 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (228.70 > 219.77); Above BB_Lower (228.70 > 208.28)
+2026-09-03 19:21:52,868 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (228.70 > 219.77)', 'Above BB_Lower (228.70 > 208.28)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 228.70 BUY     0.75 $   7.35         44sh
+
+  Equity: $99,504.29 | Long exposure: $10,063 (10.1%) | Cash: $89,440.17
+  Market closes in: 368 mins
+  Next scan:        in 15 minutes
+
+[19:36:53] Scanning 1 tickers... | SPY regime: BULL ($768.15 vs SMA-200 $709.29)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-03 19:36:57,506 - strategy.signals - INFO - Evaluating signal -- Close=227.85, RSI=46.89, MACD=3.0926, MACD_Signal=2.6125, SMA_20=219.73, BB_Lower=208.37
+2026-09-03 19:36:57,507 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (227.85 > 219.73); Above BB_Lower (227.85 > 208.37)
+2026-09-03 19:36:57,507 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (227.85 > 219.73)', 'Above BB_Lower (227.85 > 208.37)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 227.85 BUY     0.75 $   7.35         44sh
+
+  Equity: $99,469.53 | Long exposure: $10,030 (10.1%) | Cash: $89,440.17
+  Market closes in: 353 mins
+  Next scan:        in 15 minutes
+
+[19:51:58] Scanning 1 tickers... | SPY regime: BULL ($768.54 vs SMA-200 $709.30)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-03 19:52:01,806 - strategy.signals - INFO - Evaluating signal -- Close=227.91, RSI=46.94, MACD=3.0978, MACD_Signal=2.6136, SMA_20=219.74, BB_Lower=208.37
+2026-09-03 19:52:01,806 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (227.91 > 219.74); Above BB_Lower (227.91 > 208.37)
+2026-09-03 19:52:01,806 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (227.91 > 219.74)', 'Above BB_Lower (227.91 > 208.37)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 227.91 BUY     0.75 $   7.35         44sh
+
+  Equity: $99,470.41 | Long exposure: $10,031 (10.1%) | Cash: $89,440.17
+  Market closes in: 337 mins
+  Next scan:        in 15 minutes

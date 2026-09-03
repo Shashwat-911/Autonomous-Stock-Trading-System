@@ -45,11 +45,14 @@ authentication code.txt
 # Logs & Session Dumps
 *.log
 outputs/*.log
-seeion*.txt
-session*.txt
+/seeion*.txt
+/session*.txt
 outputs/seeion*.txt
 outputs/session*.txt
-output/session*.txt
+output/
+outputs/logs/legacy/
+!outputs/logs/
+!outputs/logs/session_*.txt
 
 # Microsoft Excel temp lock files
 ~$*.xlsx
