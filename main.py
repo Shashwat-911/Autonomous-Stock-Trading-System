@@ -529,11 +529,14 @@ def run_live():
             print(f"  Market closes in: {mins_left} mins")
             print(f"  Next scan:        in {scan_interval_mins} minutes")
 
-            # Windows popup for any BUY/SELL
-            if action_alerts:
-                alert_text = ' | '.join(action_alerts)
-                cmd_str = f'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("{alert_text}", "AutoTrader Alert")'
-                subprocess.Popen(['powershell', '-command', cmd_str])
+            # Windows popup for any BUY/SELL (Windows desktop only)
+            if action_alerts and sys.platform.startswith("win"):
+                try:
+                    alert_text = ' | '.join(action_alerts)
+                    cmd_str = f'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("{alert_text}", "AutoTrader Alert")'
+                    subprocess.Popen(['powershell', '-command', cmd_str])
+                except Exception:
+                    pass
 
             time.sleep(scan_interval_secs)
 
