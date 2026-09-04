@@ -32,10 +32,38 @@ import os
 import time
 import threading
 from datetime import datetime, timezone
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # ── Working directory: always project root, regardless of where this script is called from ──
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')  # go to project root
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Health Server (Required for Render Free Web Service)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"status": "healthy", "service": "Autonomous-Stock-Trading-System"}')
+
+    def log_message(self, format, *args):
+        # Silence access logs to keep stdout clean
+        pass
+
+
+def start_health_server():
+    port_str = os.environ.get("PORT", "10000")
+    try:
+        port = int(port_str)
+        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        print(f"  Health check server listening on port {port} (Render Free Web Service mode)", flush=True)
+        server.serve_forever()
+    except Exception as e:
+        print(f"  Warning: health server could not bind to port {port_str}: {e}", flush=True)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -120,6 +148,9 @@ print(f"  Python:      {sys.version.split()[0]}")
 print(f"  Working dir: {os.getcwd()}")
 print("=" * 60, flush=True)
 
+# ── Start HTTP health server for Render Free Web Service ──
+threading.Thread(target=start_health_server, daemon=True).start()
+
 # Track which date we last ran the post-session pipeline (prevent duplicate runs)
 last_post_session_date: str = ""
 
@@ -141,13 +172,21 @@ while True:
         try:
             debug_path = f"outputs/logs/debug_{date_tag}.log"
 
+            env = os.environ.copy()
+            env["PYTHONUNBUFFERED"] = "1"
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
+
             # Launch main.py live — stdout = clean print output, stderr = Python logging
             process = subprocess.Popen(
-                [sys.executable, "main.py", "live"],
+                [sys.executable, "-X", "utf8", "-u", "main.py", "live"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,     # keep stderr separate from clean output
                 text=True,
-                bufsize=1                   # line-buffered for real-time log streaming
+                bufsize=1,                  # line-buffered for real-time log streaming
+                encoding="utf-8",
+                errors="replace",
+                env=env,
             )
 
             # ── Thread: drain stdout → session log (clean tabular output only) ──
