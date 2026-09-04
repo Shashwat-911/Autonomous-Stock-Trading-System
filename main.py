@@ -354,6 +354,12 @@ def run_walkforward() -> None:
 # ======================================================================
 
 def run_live():
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(line_buffering=True)
+
     import time
     import subprocess
     from datetime import datetime, timedelta

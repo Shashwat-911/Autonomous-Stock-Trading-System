@@ -45,6 +45,21 @@ os.chdir('..')  # go to project root
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path in ("/logs", "/log"):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            now_utc = datetime.now(timezone.utc)
+            date_tag = now_utc.strftime("%Y_%m_%d")
+            log_path = f"outputs/logs/session_{date_tag}.txt"
+            if os.path.exists(log_path):
+                with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                    content = f.read()
+                self.wfile.write(content.encode("utf-8"))
+            else:
+                self.wfile.write(b"Waiting for session log...\n")
+            return
+
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -55,12 +70,29 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
         pass
 
 
+def keep_alive():
+    """Background keep-alive ping to prevent Render free tier from sleeping."""
+    time.sleep(180)  # Wait 3 mins after startup
+    url = "https://autonomous-stock-trading-system.onrender.com/"
+    while True:
+        try:
+            import urllib.request
+            req = urllib.request.Request(url, headers={"User-Agent": "RenderKeepAlive/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                pass
+        except Exception:
+            pass
+        time.sleep(600)  # Ping every 10 minutes (Render timeout is 15 minutes)
+
+
 def start_health_server():
     port_str = os.environ.get("PORT", "10000")
     try:
         port = int(port_str)
         server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
         print(f"  Health check server listening on port {port} (Render Free Web Service mode)", flush=True)
+        # Start keep-alive ping in background
+        threading.Thread(target=keep_alive, daemon=True).start()
         server.serve_forever()
     except Exception as e:
         print(f"  Warning: health server could not bind to port {port_str}: {e}", flush=True)
@@ -192,7 +224,10 @@ while True:
             # ── Thread: drain stdout → session log (clean tabular output only) ──
             def stream_stdout():
                 with open(log_path, "a", encoding="utf-8") as lf:
-                    for line in process.stdout:
+                    while True:
+                        line = process.stdout.readline()
+                        if not line:
+                            break
                         print(line, end="", flush=True)
                         lf.write(line)
                         lf.flush()
@@ -200,9 +235,15 @@ while True:
             # ── Thread: drain stderr → debug log (Python logging INFO lines) ──
             def stream_stderr():
                 with open(debug_path, "a", encoding="utf-8") as df:
-                    for line in process.stderr:
+                    while True:
+                        line = process.stderr.readline()
+                        if not line:
+                            break
                         df.write(line)
                         df.flush()
+                        # Surface critical errors or crashes to Render console
+                        if any(k in line for k in ("ERROR", "Traceback", "Exception", "CRITICAL")):
+                            print(line, end="", flush=True)
 
             t_out = threading.Thread(target=stream_stdout, daemon=True)
             t_err = threading.Thread(target=stream_stderr, daemon=True)
