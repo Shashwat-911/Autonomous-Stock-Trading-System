@@ -1,0 +1,43 @@
+services:
+  - type: worker
+    name: autonomous-stock-trader
+    runtime: python
+    plan: free                        # upgrade to 'starter' ($7/mo) for persistent disk
+    region: oregon                    # us-west-2 — lowest latency to Alpaca US servers
+
+    # -- Build ------------------------------------------------------------------
+    buildCommand: pip install -r requirements.txt
+
+    # -- Start ------------------------------------------------------------------
+    startCommand: python scripts/cloud_launcher.py
+
+    # -- Auto-deploy on git push ------------------------------------------------
+    autoDeploy: true
+
+    # -- Environment Variables --------------------------------------------------
+    # Set these in Render Dashboard ? Environment ? Add Environment Variable
+    # Do NOT put real values here — this file is committed to git.
+    envVars:
+      - key: ALPACA_API_KEY
+        sync: false                   # Render will prompt you to fill this in the dashboard
+
+      - key: ALPACA_SECRET_KEY
+        sync: false
+
+      - key: ALPACA_BASE_URL
+        value: https://paper-api.alpaca.markets/v2
+
+      - key: ALPACA_FEED
+        value: iex
+
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false                   # optional — leave blank if not using Telegram alerts
+
+      - key: TELEGRAM_CHAT_ID
+        sync: false                   # optional
+
+      - key: GIT_TOKEN
+        sync: false                   # GitHub PAT for post-session auto-push
+
+      - key: PYTHON_VERSION
+        value: "3.11.0"

@@ -1,16 +1,16 @@
 """
 cloud_launcher.py
 =================
-Railway cloud deployment wrapper for the Autonomous Stock Trading System.
+Render cloud deployment wrapper for the Autonomous Stock Trading System.
 
 Purpose:
-  - Runs continuously as a Railway 'worker' process.
+  - Runs continuously as a Render 'worker' service.
   - Only launches the trading bot during US market hours (Mon-Fri 13:30-20:00 UTC).
   - Auto-restarts the bot if it crashes mid-session.
-  - Streams all bot output to both Railway logs (stdout) and a date-stamped local log file.
+  - Streams all bot output to both Render logs (stdout) and a date-stamped local log file.
   - After each session ends (market closes), runs the post-session pipeline:
       fetch equity → regenerate chart → git commit → git push to GitHub.
-  - Sleeps when market is closed so Railway is not billed for idle compute.
+  - Sleeps when market is closed so Render is not billed for idle compute.
 
 Market Hours Reference:
   US Market:  Mon-Fri  09:30 - 16:00 ET
