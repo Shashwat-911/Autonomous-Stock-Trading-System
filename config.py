@@ -19,24 +19,24 @@ TRADING = {
     "interval": "1d",                  # daily candles (simplest)
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
-    "min_confidence": 0.75,  # only strong signals execute
+    "min_confidence": 0.70,  # lowered 0.75→0.70: allow slightly more trades through
     "lookback_days": 60,               # hourly lookback (yfinance max ~60d for 1h)
     "lookback_days_intraday": 30,      # 5m lookback (yfinance max ~60d for 5m)
     "scan_interval_minutes": 15,       # scan and trade every 15 minutes
 }
 
 SIGNAL = {
-    "rsi_oversold": 45.0,    # lower bound for RSI on BUY (raised 40→45 to catch NVDA dip setups earlier)
+    "rsi_oversold": 40.0,    # lower bound for RSI on BUY (lowered 45→40: require stronger dip before buying)
     "rsi_overbought": 70.0,  # sell when overbought
     "require_confirmation": False,
 }
 
 RISK = {
     "max_daily_loss_pct": 0.05,
-    "max_trade_loss_pct": 0.04,        # give trades room for high volatility
-    "max_position_pct": 0.10,          # was 0.05, now 10% per trade
-    "max_position_dollars": 5000.0,    # was 2000, now $5000
-    "cooldown_minutes": 15,            # re-enter faster
+    "max_trade_loss_pct": 0.05,        # loosened 4%→5%: fewer premature stop-outs
+    "max_position_pct": 0.10,          # 10% per trade
+    "max_position_dollars": 5000.0,    # $5000 per trade
+    "cooldown_minutes": 5,             # reduced 15→5 min: re-enter much faster after stop-loss
     "max_portfolio_heat_pct": 0.60,    # max 60% of equity in long positions
     # ATR-based position sizing
     "atr_period": 14,
@@ -45,10 +45,10 @@ RISK = {
 }
 
 BRACKET = {
-    "stop_loss_atr_mult": 2.5,      # was 1.5 — give more breathing room
-    "take_profit_atr_mult": 2.0,    # was 3.0 — closer target, more fills
-    "trailing_activation_atr": 1.0, # was 1.5
-    "trailing_stop_atr_mult": 1.0,  # unchanged
+    "stop_loss_atr_mult": 3.0,      # widened 2.5→3.0: more breathing room per trade
+    "take_profit_atr_mult": 2.0,    # closer target, more fills
+    "trailing_activation_atr": 1.0,
+    "trailing_stop_atr_mult": 1.0,
 }
 
 MARKET_REGIME = {

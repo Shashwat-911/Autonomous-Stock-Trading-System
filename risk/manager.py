@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Optional
 
 # Configure logger for risk manager module
 logger = logging.getLogger(__name__)
@@ -109,7 +110,11 @@ class RiskManager:
     # Public methods
     # ------------------------------------------------------------------
 
-    def can_trade(self, current_portfolio_value: float) -> tuple[bool, str]:
+    def can_trade(
+        self,
+        current_portfolio_value: float,
+        as_of: Optional[datetime] = None,
+    ) -> tuple[bool, str]:
         """
         Circuit-breaker check — **must** be called before every trade.
 
@@ -120,6 +125,11 @@ class RiskManager:
         ----------
         current_portfolio_value : float
             Current total portfolio value (cash + holdings).
+        as_of : datetime or None, optional
+            The reference timestamp to use when evaluating the cooldown
+            period.  Pass the current **bar's timestamp** during backtesting
+            so that cooldown logic is based on candle time rather than
+            wall-clock time.  Defaults to ``datetime.now()``.
 
         Returns
         -------
@@ -127,6 +137,8 @@ class RiskManager:
             ``(True, "OK")`` if trading is allowed, otherwise
             ``(False, reason)`` describing which limit was breached.
         """
+        now = as_of if as_of is not None else datetime.now()
+
         # 1. Check daily loss limit
         daily_loss_pct = (
             (self._day_start_balance - current_portfolio_value)
@@ -152,7 +164,6 @@ class RiskManager:
 
         # 2. Check cooldown period
         if self._cooldown_until is not None:
-            now = datetime.now()
             if now < self._cooldown_until:
                 remaining = (self._cooldown_until - now).total_seconds()
                 reason = (
@@ -221,7 +232,10 @@ class RiskManager:
         return max_shares
 
     def check_stop_loss(
-        self, entry_price: float, current_price: float
+        self,
+        entry_price: float,
+        current_price: float,
+        as_of: Optional[datetime] = None,
     ) -> tuple[bool, str]:
         """
         Evaluate whether the current price has breached the per-trade
@@ -236,6 +250,11 @@ class RiskManager:
             Price at which the position was opened.
         current_price : float
             Current market price of the asset.
+        as_of : datetime or None, optional
+            The reference timestamp used as the cooldown start time.
+            Pass the current **bar's timestamp** during backtesting so
+            that the cooldown is calculated from candle time, not wall-clock
+            time.  Defaults to ``datetime.now()``.
 
         Returns
         -------
@@ -251,9 +270,8 @@ class RiskManager:
 
         if loss_pct >= self.max_trade_loss_pct:
             self._stop_loss_count += 1
-            self._cooldown_until = datetime.now() + timedelta(
-                minutes=self.cooldown_minutes
-            )
+            now = as_of if as_of is not None else datetime.now()
+            self._cooldown_until = now + timedelta(minutes=self.cooldown_minutes)
             reason = (
                 f"STOP-LOSS triggered: price dropped {loss_pct:.2%} "
                 f"(limit {self.max_trade_loss_pct:.2%}), "

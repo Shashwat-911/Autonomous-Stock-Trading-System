@@ -3,7 +3,7 @@ import os
 import sqlite3
 import sys
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -414,6 +414,18 @@ class LocalPaperBroker:
         current_price = float(df.iloc[-1]["Close"])
         portfolio_value = self.get_portfolio_value(current_price)
 
+        # Resolve the bar's timestamp for backtest-aware cooldown tracking.
+        # During a backtest the index is a DatetimeIndex; during live trading
+        # it may be a string or already a datetime — we normalise to datetime.
+        raw_ts = df.index[-1]
+        try:
+            if isinstance(raw_ts, datetime):
+                bar_time: Optional[datetime] = raw_ts.replace(tzinfo=None)
+            else:
+                bar_time = pd.Timestamp(raw_ts).to_pydatetime().replace(tzinfo=None)
+        except Exception:
+            bar_time = None  # fall back to wall-clock time
+
         status = {
             "timestamp": str(df.index[-1]),
             "price": round(current_price, 4),
@@ -425,13 +437,15 @@ class LocalPaperBroker:
             "signal": None,
         }
 
-        # (b) Risk gate -- checked FIRST
-        can_trade, block_reason = self.risk_manager.can_trade(portfolio_value)
+        # (b) Risk gate -- checked FIRST, using bar time for backtest awareness
+        can_trade, block_reason = self.risk_manager.can_trade(
+            portfolio_value, as_of=bar_time
+        )
 
         # (c) Stop-loss check for open positions
         if self.shares > 0 and self.entry_price is not None:
             triggered, sl_reason = self.risk_manager.check_stop_loss(
-                self.entry_price, current_price
+                self.entry_price, current_price, as_of=bar_time
             )
             if triggered:
                 logger.warning(
