@@ -30,6 +30,7 @@ import subprocess
 import sys
 import os
 import time
+import threading
 from datetime import datetime, timezone
 
 # ── Working directory: always project root, regardless of where this script is called from ──
@@ -138,21 +139,38 @@ while True:
         print(f"  Session log: {log_path}", flush=True)
 
         try:
-            # Launch main.py live as a child process
+            debug_path = f"outputs/logs/debug_{date_tag}.log"
+
+            # Launch main.py live — stdout = clean print output, stderr = Python logging
             process = subprocess.Popen(
                 [sys.executable, "main.py", "live"],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,   # merge stderr → stdout
+                stderr=subprocess.PIPE,     # keep stderr separate from clean output
                 text=True,
-                bufsize=1                   # line-buffered for real-time Railway log streaming
+                bufsize=1                   # line-buffered for real-time log streaming
             )
 
-            # Stream output line-by-line to Railway AND local log file simultaneously
-            with open(log_path, "a") as log_file:   # 'a' = append; safe if bot restarts same day
-                for line in process.stdout:
-                    print(line, end="", flush=True)
-                    log_file.write(line)
-                    log_file.flush()
+            # ── Thread: drain stdout → session log (clean tabular output only) ──
+            def stream_stdout():
+                with open(log_path, "a", encoding="utf-8") as lf:
+                    for line in process.stdout:
+                        print(line, end="", flush=True)
+                        lf.write(line)
+                        lf.flush()
+
+            # ── Thread: drain stderr → debug log (Python logging INFO lines) ──
+            def stream_stderr():
+                with open(debug_path, "a", encoding="utf-8") as df:
+                    for line in process.stderr:
+                        df.write(line)
+                        df.flush()
+
+            t_out = threading.Thread(target=stream_stdout, daemon=True)
+            t_err = threading.Thread(target=stream_stderr, daemon=True)
+            t_out.start()
+            t_err.start()
+            t_out.join()
+            t_err.join()
 
             process.wait()
             exit_code = process.returncode
