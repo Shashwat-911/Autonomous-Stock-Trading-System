@@ -79,7 +79,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 def keep_alive():
     """Background keep-alive ping to prevent Render free tier from sleeping."""
     time.sleep(180)  # Wait 3 mins after startup
-    url = os.environ.get("RENDER_EXTERNAL_URL", "https://autonomous-stock-trading-system.onrender.com/")
+    url = os.environ.get("RENDER_EXTERNAL_URL", "https://autonomous-stock-trader.onrender.com/")
     if not url.endswith("/"):
         url += "/"
     while True:

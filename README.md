@@ -3,7 +3,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Alpaca API](https://img.shields.io/badge/broker-Alpaca%20Trading%20API-green.svg)](https://alpaca.markets/)
 [![Render Service](https://img.shields.io/badge/Render-Live%20Service-46E3B7.svg?logo=render&logoColor=white)](https://autonomous-stock-trader.onrender.com/)
-[![Live Logs](https://img.shields.io/badge/Render-Live%20Logs-informational.svg?logo=render&logoColor=white)](https://autonomous-stock-trading-system.onrender.com/logs)
+[![Live Logs](https://img.shields.io/badge/Render-Live%20Logs-informational.svg?logo=render&logoColor=white)](https://autonomous-stock-trader.onrender.com/logs)
 [![GPU Accelerated](https://img.shields.io/badge/acceleration-NVIDIA%20CUDA%20%2F%20CuPy-76B900.svg)](https://cupy.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -38,7 +38,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 | Endpoint | Link | Description |
 |---|---|---|
 | **Live Web Service / Health** | [autonomous-stock-trader.onrender.com](https://autonomous-stock-trader.onrender.com/) | Real-time web server endpoint and operational status |
-| **Live Streaming Logs** | [autonomous-stock-trading-system.onrender.com/logs](https://autonomous-stock-trading-system.onrender.com/logs) | Live real-time session execution and trade logs stream |
+| **Live Streaming Logs** | [autonomous-stock-trader.onrender.com/logs](https://autonomous-stock-trader.onrender.com/logs) | Live real-time session execution and trade logs stream |
 
 ---
 
@@ -424,7 +424,7 @@ python main.py live
 ```
 
 ### 5. View Logs & Diagnostics
-- **Live Stream Logs (Cloud):** [autonomous-stock-trading-system.onrender.com/logs](https://autonomous-stock-trading-system.onrender.com/logs)
+- **Live Stream Logs (Cloud):** [autonomous-stock-trader.onrender.com/logs](https://autonomous-stock-trader.onrender.com/logs)
 - **Live Service Endpoint (Cloud):** [autonomous-stock-trader.onrender.com](https://autonomous-stock-trader.onrender.com/)
 - **Local Logs CLI:**
   ```bash
