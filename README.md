@@ -2,6 +2,8 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Alpaca API](https://img.shields.io/badge/broker-Alpaca%20Trading%20API-green.svg)](https://alpaca.markets/)
+[![Render Service](https://img.shields.io/badge/Render-Live%20Service-46E3B7.svg?logo=render&logoColor=white)](https://autonomous-stock-trader.onrender.com/)
+[![Live Logs](https://img.shields.io/badge/Render-Live%20Logs-informational.svg?logo=render&logoColor=white)](https://autonomous-stock-trading-system.onrender.com/logs)
 [![GPU Accelerated](https://img.shields.io/badge/acceleration-NVIDIA%20CUDA%20%2F%20CuPy-76B900.svg)](https://cupy.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -11,6 +13,7 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 ## Table of Contents
 
+- [Live Cloud Deployment & Monitoring](#live-cloud-deployment--monitoring)
 - [Live Paper Trading Performance](#live-paper-trading-performance)
 - [System Architecture](#system-architecture)
 - [Key Features](#key-features)
@@ -25,6 +28,17 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 - [Usage & Execution Modes](#usage--execution-modes)
 - [Outputs & Reporting](#outputs--reporting)
 - [Disclaimer](#disclaimer)
+
+---
+
+## Live Cloud Deployment & Monitoring
+
+The automated trading bot is deployed in the cloud on Render with continuous monitoring and real-time log streaming endpoints:
+
+| Endpoint | Link | Description |
+|---|---|---|
+| **Live Web Service / Health** | [autonomous-stock-trader.onrender.com](https://autonomous-stock-trader.onrender.com/) | Real-time web server endpoint and operational status |
+| **Live Streaming Logs** | [autonomous-stock-trading-system.onrender.com/logs](https://autonomous-stock-trading-system.onrender.com/logs) | Live real-time session execution and trade logs stream |
 
 ---
 
@@ -410,14 +424,16 @@ python main.py live
 ```
 
 ### 5. View Logs & Diagnostics
-Inspect recent execution logs:
-```bash
-python main.py logs
-```
-View full project diagnostics and Alpaca account status:
-```bash
-python outputs/project_status.py
-```
+- **Live Stream Logs (Cloud):** [autonomous-stock-trading-system.onrender.com/logs](https://autonomous-stock-trading-system.onrender.com/logs)
+- **Live Service Endpoint (Cloud):** [autonomous-stock-trader.onrender.com](https://autonomous-stock-trader.onrender.com/)
+- **Local Logs CLI:**
+  ```bash
+  python main.py logs
+  ```
+- **Project Diagnostics & Alpaca Status:**
+  ```bash
+  python outputs/project_status.py
+  ```
 
 ### 6. Utility Scripts
 - **Generate Daily P&L Performance Chart:**
