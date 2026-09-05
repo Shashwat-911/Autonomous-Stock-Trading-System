@@ -26,6 +26,12 @@ import os
 import time
 from datetime import datetime, timezone
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # ── Working directory: always project root ─────────────────────────────────────
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')
@@ -133,37 +139,51 @@ def run_post_session_pipeline():
     print("=" * 60, flush=True)
 
     # ── Step 1: Fetch today's equity from Alpaca ───────────────────────────────
-    banner("Step 1/4 — Fetching equity snapshot from Alpaca API")
+    banner("Step 1/5 — Fetching equity snapshot from Alpaca API")
     fetch_ok = run_python("scripts/fetch_alpaca_equity.py", "--today")
     if not fetch_ok:
         print("[WARN] Equity fetch failed — CSV may be stale. Continuing pipeline.", flush=True)
 
-    # ── Step 2: Regenerate P&L chart ──────────────────────────────────────────
-    banner("Step 2/4 — Regenerating daily P&L chart")
+    # ── Step 2: Generate session performance report ───────────────────────────
+    banner("Step 2/5 — Generating session performance report")
+    report_ok = run_python("scripts/generate_session_report.py")
+    if not report_ok:
+        print("[WARN] Session report generation failed. Continuing.", flush=True)
+
+    # ── Step 3: Regenerate P&L chart ──────────────────────────────────────────
+    banner("Step 3/5 — Regenerating daily P&L chart")
     chart_ok = run_python("scripts/generate_pnl_chart.py")
     if not chart_ok:
         print("[WARN] Chart generation failed — PNG may be stale. Continuing.", flush=True)
 
-    # ── Step 3: Git add ────────────────────────────────────────────────────────
-    banner("Step 3/4 — Staging files for commit")
+    # ── Step 4: Update README session breakdown ────────────────────────────────
+    banner("Step 4/5 — Updating README.md session breakdown table")
+    readme_ok = run_python("scripts/update_readme.py")
+    if not readme_ok:
+        print("[WARN] README update failed. Continuing.", flush=True)
+
+    # ── Step 5: Git stage, commit + push ──────────────────────────────────────
+    banner("Step 5/5 — Staging files, committing and pushing to GitHub")
 
     files_to_stage = [
         "outputs/alpaca_equity_history.csv",
         "outputs/daily_pnl_chart.png",
+        "outputs/performance_summary.json",
+        "outputs/trade_history.csv",
+        "outputs/session_all_orders.csv",
+        "README.md",
     ]
-
-    # Add today's session log only if it exists and has content
-    if os.path.exists(log_path) and os.path.getsize(log_path) > 0:
-        files_to_stage.append(log_path)
-        print(f"  Including session log: {log_path}", flush=True)
-    else:
-        print(f"  Session log not found or empty: {log_path}", flush=True)
 
     for f in files_to_stage:
         if os.path.exists(f):
             run(["git", "add", f], check=False)
         else:
             print(f"  [SKIP] {f} — file does not exist", flush=True)
+
+    # Stage all session logs
+    if os.path.exists("outputs/logs"):
+        run(["git", "add", "outputs/logs/"], check=False)
+        print("  Staged outputs/logs/", flush=True)
 
     # ── Check if there's anything to commit ────────────────────────────────────
     status = subprocess.run(
@@ -179,16 +199,13 @@ def run_post_session_pipeline():
 
     print(f"\n  Staged changes:\n{staged_changes}", flush=True)
 
-    # ── Step 4: Git commit + push ──────────────────────────────────────────────
-    banner("Step 4/4 — Committing and pushing to GitHub")
-
     equity_summary = read_equity_summary()
     commit_msg = (
         f"auto(session): {date_str} trading session - {equity_summary}"
     )
     print(f"  Commit message: {commit_msg}", flush=True)
 
-    # Configure git identity (required on fresh Railway container)
+    # Configure git identity (required on fresh Railway/Render container)
     subprocess.run(
         ["git", "config", "user.email", "autotrader@railway.app"],
         check=False, capture_output=True
@@ -207,13 +224,18 @@ def run_post_session_pipeline():
 
         push_result = subprocess.run(
             ["git", "push", "origin", "main"],
-            text=True, capture_output=False, check=False
+            capture_output=True, text=True, check=False
         )
         if push_result.returncode == 0:
             print("\n  ✅ Pushed to GitHub successfully.", flush=True)
+            if push_result.stdout:
+                print(push_result.stdout.strip(), flush=True)
         else:
             print(f"\n  ❌ Push failed (exit {push_result.returncode}).", flush=True)
-            print("     Check GIT_TOKEN env var and token permissions.", flush=True)
+            if push_result.stdout:
+                print(f"Stdout: {push_result.stdout.strip()}", flush=True)
+            if push_result.stderr:
+                print(f"Stderr: {push_result.stderr.strip()}", flush=True)
             return False
 
     print(f"\n  Pipeline complete — {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}", flush=True)

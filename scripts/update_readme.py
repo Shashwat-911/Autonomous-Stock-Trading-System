@@ -1,4 +1,4 @@
-﻿"""
+"""
 update_readme.py
 ================
 Auto-updates the Daily Session Breakdown table in README.md
@@ -35,6 +35,8 @@ def get_session_status(date_str, pnl):
         "2026-08-31": "Sideways Market - Disciplined HOLD",
         "2026-09-01": "MACD Bearish - Disciplined HOLD",
         "2026-09-02": "RSI Threshold Adjusted to 45",
+        "2026-09-03": "Active Session",
+        "2026-09-04": "Bullish Trend - Best Day (+0.18%)",
     }
     if date_str in notes:
         return notes[date_str]
@@ -133,20 +135,27 @@ def update_readme():
     with open(readme_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    pattern     = r"### Daily Session Breakdown.*?(?=\n---|\n## |\Z)"
-    new_content = re.sub(pattern, new_table, content, flags=re.DOTALL)
+    pattern = r"### Daily Session Breakdown.*?(?=\n---|\n## |\Z)"
+    match   = re.search(pattern, content, flags=re.DOTALL)
 
-    if new_content == content:
+    if not match:
         print("[WARNING] Could not find '### Daily Session Breakdown' section in README.")
         print("          The table was NOT updated. Check the README header exactly.")
-    else:
-        with open(readme_path, "w", encoding="utf-8") as f:
-            f.write(new_content)
-        print(f"[OK] README updated with {sessions} sessions.")
-        print(f"     Current equity : ${current_equity:,.2f}")
-        print(f"     Total P&L      : ${total_pnl:+,.2f}")
-        print(f"     Win / Loss / Flat: {win_days} / {loss_days} / {flat_days}")
-        print(f"     Max Drawdown   : {max_drawdown:.3f}%")
+        return
+
+    if match.group(0).strip() == new_table.strip():
+        print(f"[OK] README is already up to date with {sessions} sessions.")
+        return
+
+    new_content = content[:match.start()] + new_table + content[match.end():]
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+    print(f"[OK] README updated with {sessions} sessions.")
+    print(f"     Current equity : ${current_equity:,.2f}")
+    print(f"     Total P&L      : ${total_pnl:+,.2f}")
+    print(f"     Win / Loss / Flat: {win_days} / {loss_days} / {flat_days}")
+    print(f"     Max Drawdown   : {max_drawdown:.3f}%")
 
 
 if __name__ == "__main__":

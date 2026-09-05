@@ -115,12 +115,23 @@ class AlpacaPaperBroker:
         bool
             True if market is open, False otherwise.
         """
+        clock = self.get_clock()
+        return bool(clock.is_open) if clock else False
+
+    def get_clock(self):
+        """
+        Fetch the current market clock from Alpaca.
+
+        Returns
+        -------
+        Clock or None
+            Alpaca Clock object with is_open, next_open, next_close, timestamp.
+        """
         try:
-            clock = self.client.get_clock()
-            return bool(clock.is_open)
+            return self.client.get_clock()
         except Exception as e:
             logger.error("Failed to query market clock from Alpaca: %s", e)
-            return False
+            return None
 
     def get_account_info(self) -> dict:
         """

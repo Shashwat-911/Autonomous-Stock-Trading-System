@@ -58,8 +58,9 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 16** | Sep 01 (Tue) | $99,352.40 | $0.00 | -$344.47 | -0.344% | MACD Bearish - Disciplined HOLD |
 | **Day 17** | Sep 02 (Wed) | $99,329.81 | -$22.59 | -$367.06 | -0.367% | RSI Threshold Adjusted to 45 |
 | **Day 18** | Sep 03 (Thu) | $99,314.21 | -$15.60 | -$382.66 | -0.383% | Active Session |
+| **Day 19** | Sep 04 (Fri) | $99,491.97 | **+$177.76** | -$204.90 | -0.205% | Bullish Trend - Best Day (+0.18%) |
 
-> **Current Equity**: $99,314.21 | **Total P&L**: $-382.66 | **Best Day**: $+98.85 | **Win Rate**: 22.2% (4W / 9L / 5 Flat) | **Max Drawdown**: -0.523% | **Sessions**: 18
+> **Current Equity**: $99,491.97 | **Total P&L**: $-204.90 | **Best Day**: $+177.76 | **Win Rate**: 26.3% (5W / 9L / 5 Flat) | **Max Drawdown**: -0.523% | **Sessions**: 19
 ---
 
 ## System Architecture

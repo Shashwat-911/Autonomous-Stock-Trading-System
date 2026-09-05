@@ -525,14 +525,34 @@ def run_live():
                 pass
 
             # Market close countdown
-            close = datetime.now().replace(
-                hour=1, minute=30, second=0, microsecond=0)
-            if datetime.now().hour > 9:
-                close = close + timedelta(days=1)
-            mins_left = int(
-                (close - datetime.now()).total_seconds() / 60)
+            mins_left = None
+            try:
+                clock = first_broker.get_clock()
+                if clock and clock.is_open:
+                    mins_left = max(0, int((clock.next_close - clock.timestamp).total_seconds() / 60))
+                elif clock and not clock.is_open:
+                    mins_left = 0
+            except Exception:
+                pass
 
-            print(f"  Market closes in: {mins_left} mins")
+            if mins_left is None:
+                try:
+                    import zoneinfo
+                    tz_et = zoneinfo.ZoneInfo("America/New_York")
+                    now_et = datetime.now(tz_et)
+                    close_et = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
+                    open_et = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+                    if open_et <= now_et <= close_et and now_et.weekday() < 5:
+                        mins_left = max(0, int((close_et - now_et).total_seconds() / 60))
+                    else:
+                        mins_left = 0
+                except Exception:
+                    pass
+
+            if mins_left is not None and mins_left > 0:
+                print(f"  Market closes in: {mins_left} mins")
+            else:
+                print("  Market status:    CLOSED")
             print(f"  Next scan:        in {scan_interval_mins} minutes")
 
             # Windows popup for any BUY/SELL (Windows desktop only)

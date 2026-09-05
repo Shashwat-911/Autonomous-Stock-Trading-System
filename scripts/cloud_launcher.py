@@ -34,6 +34,12 @@ import threading
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # ── Working directory: always project root, regardless of where this script is called from ──
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')  # go to project root
@@ -129,9 +135,9 @@ def is_market_hours() -> bool:
 
 def is_post_session_window() -> bool:
     """
-    Returns True in the 30-minute window just after market close (20:00–20:30 UTC).
-    This is when the post-session pipeline should run — market is definitively closed
-    and all Alpaca order fills have settled.
+    Returns True after market close (20:00–23:59 UTC) on weekdays.
+    This ensures the post-session pipeline reliably triggers once market has
+    definitively closed and all Alpaca order fills have settled.
     """
     now_utc = datetime.now(timezone.utc)
     weekday = now_utc.weekday()
@@ -140,7 +146,7 @@ def is_post_session_window() -> bool:
         return False
 
     post_open  = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
-    post_close = now_utc.replace(hour=20, minute=30, second=0, microsecond=0)
+    post_close = now_utc.replace(hour=23, minute=59, second=0, microsecond=0)
 
     return post_open <= now_utc <= post_close
 
