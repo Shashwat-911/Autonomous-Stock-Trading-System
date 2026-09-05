@@ -1,21 +1,47 @@
-2026-09-05 06:03:02,669 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=10.0%, cooldown=5min, max_pos_dollars=$5000, portfolio_heat=60%
-2026-09-05 06:03:02,669 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=40.0, overbought=70.0, confirmation=False
-Traceback (most recent call last):
-  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 659, in <module>
-    main()
-  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 649, in main
-    run_live()
-  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 402, in run_live
-    brokers[ticker] = AlpacaPaperBroker(
-                      ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/broker/alpaca.py", line 93, in __init__
-    self.client = TradingClient(api_key, secret_key, paper=True)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/trading/client.py", line 74, in __init__
-    super().__init__(
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/common/rest.py", line 61, in __init__
-    self._api_key, self._secret_key, self._oauth_token = self._validate_credentials(
-                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/common/rest.py", line 354, in _validate_credentials
-    raise ValueError("You must supply a method of authentication")
-ValueError: You must supply a method of authentication
+2026-09-05 06:14:54,670 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=10.0%, cooldown=5min, max_pos_dollars=$5000, portfolio_heat=60%
+2026-09-05 06:14:54,671 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=40.0, overbought=70.0, confirmation=False
+2026-09-05 06:14:54,671 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.70
+============================================================
+  LIVE PAPER TRADING — 1 tickers
+  NVDA
+  Interval: 1d | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=3.0×ATR, TP=2.0×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,576.01
+  Buying power: $386,141.03
+
+
+[06:14:55] Scanning 1 tickers... | SPY regime: BULL ($770.19 vs SMA-200 $709.87)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 230.36 HOLD    0.00 $   8.04         none
+
+  Equity: $99,576.01 | Long exposure: $10,136 (10.2%) | Cash: $89,440.17
+  Market status:    CLOSED — session completed.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,576.01
+2026-09-05 06:14:55,553 - analytics.metrics - INFO - Performance metrics computed: {'session_timestamp': '2026-09-05T06:14:55.552879', 'starting_equity': 100000.0, 'ending_equity': 100000.0, 'total_return_pct': 0.0, 'sharpe_ratio': 0.0, 'sortino_ratio': 0.0, 'max_drawdown_pct': 0.0, 'max_drawdown_duration_days': 0, 'total_trades': 19, 'winning_trades': 0, 'losing_trades': 0, 'win_rate': 0.0, 'expectancy': 0.0, 'profit_factor': 0.0, 'avg_gain': 0.0, 'avg_loss': 0.0, 'avg_slippage_pct': 0.0, 'avg_execution_latency_ms': 0.0}
+2026-09-05 06:14:55,553 - analytics.metrics - INFO - Performance summary saved to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/performance_summary.json
+2026-09-05 06:14:55,555 - analytics.metrics - INFO - Session stats appended to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/trade_history.csv
+============================================================
+  QUANTITATIVE PERFORMANCE SUMMARY
+============================================================
+  Total Return:       0.00%
+  Sharpe Ratio:       0.0000
+  Sortino Ratio:      0.0000
+  Max Drawdown:       0.00%
+  Drawdown Duration:  0 periods
+  Win Rate:           0.0%
+  Expectancy:         $0.00
+  Profit Factor:      0.00
+  Avg Slippage:       0.0000%
+  Avg Latency:        0ms
+  Total Trades:       19
+============================================================
+============================================================
