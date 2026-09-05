@@ -12,6 +12,11 @@ jobs:
   trade:
     runs-on: ubuntu-latest
     timeout-minutes: 400
+    env:
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID || '' }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY || '' }}
+      ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets' }}
+      ALPACA_FEED: ${{ secrets.ALPACA_FEED || 'iex' }}
 
     steps:
     # ─────────────────────────────────────────
@@ -44,11 +49,6 @@ jobs:
     # STAGE 2: Run the trading bot
     # ─────────────────────────────────────────
     - name: Run live trading session
-      env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
-        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
       run: |
         DATE=$(date +%Y_%m_%d)
         LOG_FILE="outputs/logs/session_${DATE}.txt"
@@ -63,22 +63,12 @@ jobs:
     # ─────────────────────────────────────────
     - name: Fetch Alpaca equity history
       if: always()
-      env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
-        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
       run: |
         python scripts/fetch_alpaca_equity.py --today
         echo "Equity history updated"
 
     - name: Generate session performance report
       if: always()
-      env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
-        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
       run: |
         python scripts/generate_session_report.py
         echo "Performance summary updated"
@@ -86,10 +76,6 @@ jobs:
     # ─────────────────────────────────────────
     # STAGE 4: Update chart and README
     # ─────────────────────────────────────────
-    - name: Install matplotlib for chart generation
-      if: always()
-      run: pip install matplotlib --quiet
-
     - name: Regenerate daily P&L chart
       if: always()
       run: |
@@ -98,11 +84,6 @@ jobs:
 
     - name: Update README session table
       if: always()
-      env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
-        ALPACA_FEED: ${{ secrets.ALPACA_FEED }}
       run: |
         python scripts/update_readme.py
         echo "README updated"

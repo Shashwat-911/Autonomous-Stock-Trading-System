@@ -9,6 +9,7 @@ alpaca-py>=0.20.0
 
 # Reporting & Storage
 openpyxl>=3.1.0
+matplotlib>=3.7.0
 
 # Environment & Config
 python-dotenv>=1.0.0
