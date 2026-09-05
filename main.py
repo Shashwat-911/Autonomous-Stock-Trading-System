@@ -551,26 +551,30 @@ def run_live():
 
             if mins_left is not None and mins_left > 0:
                 print(f"  Market closes in: {mins_left} mins")
+                print(f"  Next scan:        in {scan_interval_mins} minutes")
+                # Windows popup for any BUY/SELL (Windows desktop only)
+                if action_alerts and sys.platform.startswith("win"):
+                    try:
+                        alert_text = ' | '.join(action_alerts)
+                        cmd_str = f'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("{alert_text}", "AutoTrader Alert")'
+                        subprocess.Popen(['powershell', '-command', cmd_str])
+                    except Exception:
+                        pass
+                time.sleep(scan_interval_secs)
             else:
-                print("  Market status:    CLOSED")
-            print(f"  Next scan:        in {scan_interval_mins} minutes")
-
-            # Windows popup for any BUY/SELL (Windows desktop only)
-            if action_alerts and sys.platform.startswith("win"):
-                try:
-                    alert_text = ' | '.join(action_alerts)
-                    cmd_str = f'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("{alert_text}", "AutoTrader Alert")'
-                    subprocess.Popen(['powershell', '-command', cmd_str])
-                except Exception:
-                    pass
-
-            time.sleep(scan_interval_secs)
+                print("  Market status:    CLOSED — session completed.")
+                break
 
     except KeyboardInterrupt:
+        print("\n  [INFO] Session interrupted by user (Ctrl+C).")
+    finally:
         print("\n" + "=" * 60)
-        print("  SHUTTING DOWN")
-        account = first_broker.get_account_info()
-        print(f"  Final equity: ${account['equity']:,.2f}")
+        print("  SESSION WRAP-UP")
+        try:
+            account = first_broker.get_account_info()
+            print(f"  Final equity: ${account['equity']:,.2f}")
+        except Exception:
+            pass
 
         # Generate performance metrics
         try:
@@ -581,6 +585,7 @@ def run_live():
                     all_trades.append(trade_df)
 
             if all_trades:
+                import pandas as pd
                 combined = pd.concat(all_trades, ignore_index=True)
                 metrics = perf_engine.compute_from_trades(
                     combined,

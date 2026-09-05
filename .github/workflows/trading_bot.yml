@@ -1,9 +1,12 @@
-﻿name: AutoTrader Daily Session
+name: AutoTrader Daily Session
 
 on:
   schedule:
     - cron: '30 13 * * 1-5'  # 7:00 PM IST = 13:30 UTC Mon-Fri
   workflow_dispatch:           # manual trigger for testing
+
+permissions:
+  contents: write
 
 jobs:
   trade:
@@ -17,7 +20,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GIT_TOKEN }}
+        token: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
         fetch-depth: 0  # full history for git operations
 
     - name: Set up Python 3.11
@@ -141,4 +144,4 @@ except:
           echo "Session artifacts pushed to GitHub"
         fi
       env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
