@@ -94,8 +94,8 @@ jobs:
     - name: Commit and push all session artifacts
       if: always()
       run: |
-        git config user.email "autotrader-bot@github.com"
-        git config user.name "AutoTrader Bot"
+        git config user.email "shashwatyadav975@gmail.com"
+        git config user.name "SHASHWAT YADAV"
 
         DATE=$(date +%Y-%m-%d)
 

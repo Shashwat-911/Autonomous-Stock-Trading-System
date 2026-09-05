@@ -205,13 +205,15 @@ def run_post_session_pipeline():
     )
     print(f"  Commit message: {commit_msg}", flush=True)
 
-    # Configure git identity (required on fresh Railway/Render container)
+    # Configure git identity for commits
+    git_author_email = os.environ.get("GIT_AUTHOR_EMAIL", "shashwatyadav975@gmail.com")
+    git_author_name = os.environ.get("GIT_AUTHOR_NAME", "SHASHWAT YADAV")
     subprocess.run(
-        ["git", "config", "user.email", "autotrader@railway.app"],
+        ["git", "config", "user.email", git_author_email],
         check=False, capture_output=True
     )
     subprocess.run(
-        ["git", "config", "user.name", "AutoTrader Bot"],
+        ["git", "config", "user.name", git_author_name],
         check=False, capture_output=True
     )
 
