@@ -44,7 +44,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 ## Live Paper Trading Performance
 
-> **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA (Daily / 5m)
+> **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
 
 ![Daily P&L Chart](outputs/daily_pnl_chart.png)
 
@@ -348,8 +348,8 @@ All settings can be customized in `config.py`:
 ```python
 # Trading & Universe Settings
 TRADING = {
-    "ticker": "NVDA",                                  # Primary asset
-    "tickers": ["NVDA", "AAPL", "MSFT", "GOOGL", "AMZN"], # Multi-ticker universe
+    "ticker": "NVDA",                                  # Primary asset / default fallback
+    "tickers": ["NVDA", "TSLA", "META", "MSFT", "AAPL"], # 5-stock high-momentum universe
     "interval": "1h",                                  # Bar interval for live monitoring
     "interval_daily": "1d",                            # Daily bar interval for multi-timeframe check
     "initial_balance": 100000.0,                       # Starting capital ($)

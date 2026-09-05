@@ -14,8 +14,8 @@ except ImportError:
 # ---------------------------------------------------------------
 
 TRADING = {
-    "ticker": "NVDA",
-    "tickers": ["NVDA"],               # single ticker only for reset
+    "ticker": "NVDA",                  # primary asset / default fallback
+    "tickers": ["NVDA", "TSLA", "META", "MSFT", "AAPL"],  # 5-stock high-momentum universe
     "interval": "1d",                  # daily candles (simplest)
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
