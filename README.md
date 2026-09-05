@@ -45,22 +45,22 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 | **Day 3** | Aug 13 (Thu) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Rebuilt Clean |
 | **Day 4** | Aug 14 (Fri) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | 5-Ticker Stable |
 | **Day 5** | Aug 17 (Mon) | $99,514.27 | -$36.76 | -$485.73 | -0.486% | Multi-ticker Session |
-| **Day 6** | Aug 18 (Tue) | $99,515.93 | -$27.76 | -$513.49 | -0.513% | Bracket Tuning |
-| **Day 7** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$516.03 | -0.516% | RSI Experiment |
-| **Day 8** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$417.18 | -0.417% | Simple Reset - Profitable |
-| **Day 9** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$523.36 | -0.523% | Disciplined HOLD |
-| **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$430.30 | -0.430% | Post-cleanup Fresh Start |
-| **Day 11** | Aug 25 (Tue) | $99,598.94 | **+$85.83** | -$344.47 | -0.344% | Pre-earnings Watch |
-| **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$344.47 | -0.344% | NVDA Earnings - Disciplined HOLD |
-| **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$344.47 | -0.344% | Momentum Strategy - First Live Session |
-| **Day 14** | Aug 28 (Fri) | $99,598.94 | $0.00 | -$344.47 | -0.344% | Momentum Whipsaw - Hold Filter Added |
-| **Day 15** | Aug 31 (Mon) | $99,352.40 | $0.00 | -$344.47 | -0.344% | Sideways Market - Disciplined HOLD |
-| **Day 16** | Sep 01 (Tue) | $99,352.40 | $0.00 | -$344.47 | -0.344% | MACD Bearish - Disciplined HOLD |
-| **Day 17** | Sep 02 (Wed) | $99,329.81 | -$22.59 | -$367.06 | -0.367% | RSI Threshold Adjusted to 45 |
-| **Day 18** | Sep 03 (Thu) | $99,314.21 | -$15.60 | -$382.66 | -0.383% | Active Session |
-| **Day 19** | Sep 04 (Fri) | $99,491.97 | **+$177.76** | -$204.90 | -0.205% | Bullish Trend - Best Day (+0.18%) |
+| **Day 6** | Aug 18 (Tue) | $99,515.93 | +$1.66 | -$484.07 | -0.484% | Bracket Tuning - Profitable |
+| **Day 7** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$486.61 | -0.487% | RSI Experiment |
+| **Day 8** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$387.76 | -0.388% | Simple Reset - Profitable |
+| **Day 9** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$493.94 | -0.494% | Disciplined HOLD |
+| **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$400.88 | -0.401% | Post-cleanup Fresh Start |
+| **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
+| **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings - Disciplined HOLD |
+| **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | -0.401% | Momentum Strategy - First Live Session |
+| **Day 14** | Aug 28 (Fri) | $99,352.40 | -$246.54 | -$647.60 | -0.648% | Momentum Whipsaw - Hard Learning Day |
+| **Day 15** | Aug 31 (Mon) | $99,352.40 | $0.00 | -$647.60 | -0.648% | Sideways Market - Disciplined HOLD |
+| **Day 16** | Sep 01 (Tue) | $99,352.40 | $0.00 | -$647.60 | -0.648% | MACD Bearish - Disciplined HOLD |
+| **Day 17** | Sep 02 (Wed) | $99,329.81 | -$22.59 | -$670.19 | -0.670% | RSI Threshold Adjusted to 45 |
+| **Day 18** | Sep 03 (Thu) | $99,314.21 | -$15.60 | -$685.79 | -0.686% | Active Session |
+| **Day 19** | Sep 04 (Fri) | $99,491.97 | **+$177.76** | -$508.03 | -0.508% | Bullish Rally - Disciplined HOLD / Best Day (+0.18%) |
 
-> **Current Equity**: $99,491.97 | **Total P&L**: $-204.90 | **Best Day**: $+177.76 | **Win Rate**: 26.3% (5W / 9L / 5 Flat) | **Max Drawdown**: -0.523% | **Sessions**: 19
+> **Current Equity**: $99,491.97 | **Total P&L**: $-508.03 | **Best Day**: $+177.76 | **Win Rate**: 26.3% (5W / 10L / 4 Flat) | **Max Drawdown**: -0.686% | **Sessions**: 19
 ---
 
 ## System Architecture

@@ -86,11 +86,25 @@ if os.path.exists(OUTPUT_PATH) and not new_df.empty:
     merged = pd.concat([existing_df, new_df], ignore_index=True)
     merged = merged.drop_duplicates(subset=["timestamp"], keep="last")
     merged = merged.sort_values("timestamp").reset_index(drop=True)
-    merged.to_csv(OUTPUT_PATH, index=False)
     df = merged
 else:
-    new_df.to_csv(OUTPUT_PATH, index=False)
+    new_df = new_df.sort_values("timestamp").reset_index(drop=True) if not new_df.empty else new_df
     df = new_df
+
+if not df.empty:
+    # Recalculate daily_pnl directly from consecutive equity deltas to prevent weekend-comparison bugs
+    starting = 100000.0
+    pnl = []
+    pnl_pct = []
+    for i, eq in enumerate(df["equity"]):
+        prev = starting if i == 0 else df["equity"].iloc[i-1]
+        diff = round(float(eq) - float(prev), 2)
+        pct = round((diff / float(prev)) * 100, 4) if float(prev) != 0 else 0.0
+        pnl.append(diff)
+        pnl_pct.append(pct)
+    df["daily_pnl"] = pnl
+    df["daily_pnl_pct"] = pnl_pct
+    df.to_csv(OUTPUT_PATH, index=False)
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 print("\nEquity history saved to:", OUTPUT_PATH)

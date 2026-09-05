@@ -23,7 +23,7 @@ def get_session_status(date_str, pnl):
         "2026-08-13": "Rebuilt Clean",
         "2026-08-14": "5-Ticker Stable",
         "2026-08-17": "Multi-ticker Session",
-        "2026-08-18": "Bracket Tuning",
+        "2026-08-18": "Bracket Tuning - Profitable",
         "2026-08-19": "RSI Experiment",
         "2026-08-20": "Simple Reset - Profitable",
         "2026-08-21": "Disciplined HOLD",
@@ -31,12 +31,12 @@ def get_session_status(date_str, pnl):
         "2026-08-25": "Pre-earnings Watch",
         "2026-08-26": "NVDA Earnings - Disciplined HOLD",
         "2026-08-27": "Momentum Strategy - First Live Session",
-        "2026-08-28": "Momentum Whipsaw - Hold Filter Added",
+        "2026-08-28": "Momentum Whipsaw - Hard Learning Day",
         "2026-08-31": "Sideways Market - Disciplined HOLD",
         "2026-09-01": "MACD Bearish - Disciplined HOLD",
         "2026-09-02": "RSI Threshold Adjusted to 45",
         "2026-09-03": "Active Session",
-        "2026-09-04": "Bullish Trend - Best Day (+0.18%)",
+        "2026-09-04": "Bullish Rally - Disciplined HOLD / Best Day (+0.18%)",
     }
     if date_str in notes:
         return notes[date_str]
