@@ -1,0 +1,21 @@
+2026-09-05 06:03:02,669 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=10.0%, cooldown=5min, max_pos_dollars=$5000, portfolio_heat=60%
+2026-09-05 06:03:02,669 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=40.0, overbought=70.0, confirmation=False
+Traceback (most recent call last):
+  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 659, in <module>
+    main()
+  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 649, in main
+    run_live()
+  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/main.py", line 402, in run_live
+    brokers[ticker] = AlpacaPaperBroker(
+                      ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/broker/alpaca.py", line 93, in __init__
+    self.client = TradingClient(api_key, secret_key, paper=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/trading/client.py", line 74, in __init__
+    super().__init__(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/common/rest.py", line 61, in __init__
+    self._api_key, self._secret_key, self._oauth_token = self._validate_credentials(
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/alpaca/common/rest.py", line 354, in _validate_credentials
+    raise ValueError("You must supply a method of authentication")
+ValueError: You must supply a method of authentication
