@@ -126,20 +126,11 @@ jobs:
         git add outputs/daily_pnl_chart.png || true
         git add README.md || true
 
-        # Only commit if there are changes
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "auto(session): ${DATE} | $(python -c "
-import json
-try:
-    d = json.load(open('outputs/performance_summary.json'))
-    eq = d.get('ending_equity', 0)
-    ret = d.get('total_return_pct', 0)
-    print(f'equity=\${eq:,.0f} | return={ret:+.3f}%')
-except:
-    print('session complete')
-")"
+          SUMMARY=$(python -c "import json, os; d=json.load(open('outputs/performance_summary.json')) if os.path.exists('outputs/performance_summary.json') else {}; print(f'equity=\${d.get(\"ending_equity\", 0):,.0f} | return={d.get(\"total_return_pct\", 0):+.3f}%') if d else print('session complete')")
+          git commit -m "auto(session): ${DATE} | ${SUMMARY}"
           git push origin main
           echo "Session artifacts pushed to GitHub"
         fi
