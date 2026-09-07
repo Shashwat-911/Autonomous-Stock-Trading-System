@@ -370,6 +370,7 @@ def run_live():
     from risk.manager import RiskManager
     from strategy.signals import SignalGenerator
     from analytics.metrics import PerformanceEngine
+    import pandas as pd
 
     # Suppress per-indicator log spam during live scans
     for noisy_logger in ["strategy.indicators", "data.fetcher"]:
@@ -562,7 +563,13 @@ def run_live():
                         pass
                 time.sleep(scan_interval_secs)
             else:
-                print("  Market status:    CLOSED — session completed.")
+                next_open_str = ""
+                try:
+                    if clock and clock.next_open:
+                        next_open_str = f" (Next open: {clock.next_open.strftime('%Y-%m-%d %H:%M %Z')})"
+                except Exception:
+                    pass
+                print(f"  Market status:    CLOSED{next_open_str} — session completed.")
                 break
 
     except KeyboardInterrupt:
@@ -570,9 +577,11 @@ def run_live():
     finally:
         print("\n" + "=" * 60)
         print("  SESSION WRAP-UP")
+        live_eq = None
         try:
             account = first_broker.get_account_info()
-            print(f"  Final equity: ${account['equity']:,.2f}")
+            live_eq = account.get("equity")
+            print(f"  Final equity: ${live_eq:,.2f}")
         except Exception:
             pass
 
@@ -584,22 +593,43 @@ def run_live():
                 if not trade_df.empty:
                     all_trades.append(trade_df)
 
+            equity_curve = None
+            equity_file = os.path.join(OUTPUTS_DIR, "alpaca_equity_history.csv")
+            if os.path.exists(equity_file):
+                try:
+                    eq_df = pd.read_csv(equity_file)
+                    if not eq_df.empty and "equity" in eq_df.columns:
+                        equity_curve = pd.Series(
+                            eq_df["equity"].values,
+                            index=pd.to_datetime(eq_df["timestamp"]),
+                        )
+                except Exception:
+                    pass
+
             if all_trades:
                 import pandas as pd
                 combined = pd.concat(all_trades, ignore_index=True)
                 metrics = perf_engine.compute_from_trades(
                     combined,
+                    equity_curve=equity_curve,
                     starting_equity=config.TRADING["initial_balance"],
+                    live_equity=live_eq,
                 )
-                perf_engine.save_summary(
-                    os.path.join(OUTPUTS_DIR, "performance_summary.json")
-                )
-                perf_engine.append_session_stats(
-                    os.path.join(OUTPUTS_DIR, "trade_history.csv")
-                )
-                print(perf_engine.get_summary_string())
             else:
-                print("  No trades to analyze.")
+                metrics = perf_engine.compute_from_trades(
+                    pd.DataFrame(),
+                    equity_curve=equity_curve,
+                    starting_equity=config.TRADING["initial_balance"],
+                    live_equity=live_eq,
+                )
+
+            perf_engine.save_summary(
+                os.path.join(OUTPUTS_DIR, "performance_summary.json")
+            )
+            perf_engine.append_session_stats(
+                os.path.join(OUTPUTS_DIR, "trade_history.csv")
+            )
+            print(perf_engine.get_summary_string())
         except Exception as e:
             print(f"  Performance metrics error: {e}")
 

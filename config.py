@@ -16,7 +16,7 @@ except ImportError:
 TRADING = {
     "ticker": "NVDA",                  # primary asset / default fallback
     "tickers": ["NVDA", "TSLA", "META", "MSFT", "AAPL"],  # 5-stock high-momentum universe
-    "interval": "1d",                  # daily candles (simplest)
+    "interval": "5m",                  # 5-minute candles for live intraday trading
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
     "min_confidence": 0.70,  # lowered 0.75→0.70: allow slightly more trades through
@@ -65,6 +65,7 @@ ALERTS = {
 BACKTEST = {
     "start_date": "2024-01-01",
     "end_date": "2025-01-01",
+    "interval": "1d",
 }
 
 WALK_FORWARD = {

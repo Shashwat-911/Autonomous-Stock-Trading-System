@@ -132,7 +132,23 @@ def is_market_hours() -> bool:
     market_open  = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
     market_close = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
 
-    return market_open <= now_utc <= market_close
+    if not (market_open <= now_utc <= market_close):
+        return False
+
+    # Check Alpaca market clock for exchange holidays (e.g. Labor Day, Thanksgiving, etc.)
+    try:
+        import config
+        from broker.alpaca import AlpacaPaperBroker
+        b = AlpacaPaperBroker(config.ALPACA["api_key"], config.ALPACA["secret_key"], config.ALPACA["base_url"])
+        clock = b.get_clock()
+        if clock is not None:
+            if not clock.is_open:
+                print(f"  [Alpaca Clock] Market is CLOSED for holiday/observance. Next open: {clock.next_open}", flush=True)
+                return False
+    except Exception as e:
+        print(f"  [Alpaca Clock] Warning: clock check failed: {e}. Falling back to time window.", flush=True)
+
+    return True
 
 
 def is_post_session_window() -> bool:

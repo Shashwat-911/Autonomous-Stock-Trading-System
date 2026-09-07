@@ -247,8 +247,8 @@ class AlpacaPaperBroker:
         reason: str,
         current_price: float,
         atr: float,
-        stop_loss_mult: float = 2.5,
-        take_profit_mult: float = 2.0,
+        stop_loss_mult: float = 1.5,
+        take_profit_mult: float = 3.0,
         ticker: str | None = None,
     ) -> dict:
         """
@@ -459,18 +459,13 @@ class AlpacaPaperBroker:
         """
         current_price = float(df["Close"].iloc[-1])
         atr_value = float(df["ATR_14"].iloc[-1]) if "ATR_14" in df.columns else 0.0
+        market_open = self.is_market_open()
 
-        if not self.is_market_open():
-            return {
-                "signal": "HOLD",
-                "reason": "Market closed",
-                "price": current_price,
-                "time": datetime.now().isoformat(),
-                "market_open": False,
-            }
-
-        account = self.get_account_info()
-        portfolio_value = account["portfolio_value"]
+        try:
+            account = self.get_account_info()
+            portfolio_value = account["portfolio_value"]
+        except Exception:
+            portfolio_value = 100000.0
 
         can_trade, block_reason = self.risk_manager.can_trade(portfolio_value)
         position = self.get_current_position()
@@ -478,7 +473,7 @@ class AlpacaPaperBroker:
         # Update trailing stops for existing positions
         self._update_trailing_stop(self.ticker, current_price)
 
-        if position is not None:
+        if market_open and position is not None:
             entry_price = position["avg_entry_price"]
             stop_triggered, stop_reason = self.risk_manager.check_stop_loss(
                 entry_price, current_price
@@ -488,6 +483,7 @@ class AlpacaPaperBroker:
                 return {
                     "signal": "SELL",
                     "reason": stop_reason,
+                    "confidence": 1.0,
                     "price": current_price,
                     "portfolio_value": portfolio_value,
                     "position": position,
@@ -508,6 +504,20 @@ class AlpacaPaperBroker:
         signal = signal_dict["signal"]
         confidence = signal_dict["confidence"]
 
+        if not market_open:
+            return {
+                "signal": signal,
+                "confidence": confidence,
+                "reasons": signal_dict.get("reasons", []),
+                "price": current_price,
+                "portfolio_value": portfolio_value,
+                "position": position,
+                "can_trade": False,
+                "time": datetime.now().isoformat(),
+                "market_open": False,
+                "reason": "Market closed (orders paused)",
+            }
+
         if signal == "BUY" and confidence >= self.min_confidence and can_trade:
             # Portfolio heat check
             all_pos = self.get_all_positions()
@@ -520,15 +530,33 @@ class AlpacaPaperBroker:
             )
 
             if heat_ok and position is None:
-                # Simple percentage-based sizing (no ATR)
-                qty = self.risk_manager.get_position_size(
-                    portfolio_value, current_price
-                )
+                # ATR-based position sizing with dollar and percentage caps
+                if atr_value > 0 and hasattr(self.risk_manager, "get_position_size_atr"):
+                    qty = self.risk_manager.get_position_size_atr(
+                        portfolio_value, current_price, atr_value
+                    )
+                else:
+                    qty = self.risk_manager.get_position_size(
+                        portfolio_value, current_price
+                    )
 
                 if qty > 0:
-                    # TEMP: bracket orders disabled for debugging
-                    # Uses plain market order + simple position sizing
-                    self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
+                    import config
+                    bracket_cfg = getattr(config, "BRACKET", {})
+                    sl_mult = bracket_cfg.get("stop_loss_atr_mult", 1.5)
+                    tp_mult = bracket_cfg.get("take_profit_atr_mult", 3.0)
+
+                    if atr_value > 0:
+                        self.submit_bracket_buy(
+                            qty,
+                            "; ".join(signal_dict["reasons"]),
+                            current_price=current_price,
+                            atr=atr_value,
+                            stop_loss_mult=sl_mult,
+                            take_profit_mult=tp_mult,
+                        )
+                    else:
+                        self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
                     self._last_buy_time[self.ticker] = datetime.now()
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
@@ -550,6 +578,7 @@ class AlpacaPaperBroker:
         return {
             "signal": signal,
             "confidence": confidence,
+            "reasons": signal_dict.get("reasons", []),
             "price": current_price,
             "portfolio_value": portfolio_value,
             "position": position,
@@ -585,9 +614,12 @@ class AlpacaPaperBroker:
             current_price = float(df["Close"].iloc[-1])
 
             if not market_open:
+                sig_dict = self.signal_generator.generate_signal(df, portfolio_value)
                 results[ticker] = {
                     "ticker": ticker,
-                    "signal": "SKIP",
+                    "signal": sig_dict["signal"],
+                    "confidence": sig_dict["confidence"],
+                    "reasons": "; ".join(sig_dict.get("reasons", [])),
                     "reason": "Market closed",
                     "price": current_price,
                     "portfolio_value": portfolio_value,
