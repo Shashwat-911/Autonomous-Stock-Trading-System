@@ -45,10 +45,10 @@ RISK = {
 }
 
 BRACKET = {
-    "stop_loss_atr_mult": 3.0,      # widened 2.5→3.0: more breathing room per trade
-    "take_profit_atr_mult": 2.0,    # closer target, more fills
+    "stop_loss_atr_mult": 1.5,      # tighter stop: 1.5x ATR for disciplined exits
+    "take_profit_atr_mult": 3.0,    # wider target: 3.0x ATR → 2:1 R:R minimum
     "trailing_activation_atr": 1.0,
-    "trailing_stop_atr_mult": 1.0,
+    "trailing_stop_atr_mult": 0.75, # tighter trail once activated
 }
 
 MARKET_REGIME = {
