@@ -44,9 +44,22 @@ def main():
     cash = float(account.cash)
     lmv = float(account.long_market_value)
 
+    equity_curve = None
+    if os.path.exists("outputs/alpaca_equity_history.csv"):
+        try:
+            eq_df = pd.read_csv("outputs/alpaca_equity_history.csv")
+            if not eq_df.empty and "equity" in eq_df.columns:
+                equity_curve = pd.Series(
+                    eq_df["equity"].values,
+                    index=pd.to_datetime(eq_df["timestamp"]),
+                )
+        except Exception:
+            pass
+
     pe = PerformanceEngine()
     metrics = pe.compute_from_trades(
         df,
+        equity_curve=equity_curve,
         starting_equity=config.TRADING["initial_balance"],
         live_equity=real_equity,
     )
