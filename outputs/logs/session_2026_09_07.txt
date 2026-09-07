@@ -1,0 +1,70 @@
+2026-09-07 18:19:28,341 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=10.0%, cooldown=5min, max_pos_dollars=$5000, portfolio_heat=60%
+2026-09-07 18:19:28,341 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=40.0, overbought=70.0, confirmation=False
+2026-09-07 18:19:28,341 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.70
+2026-09-07 18:19:28,341 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=TSLA, feed=iex, min_confidence=0.70
+2026-09-07 18:19:28,341 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=META, feed=iex, min_confidence=0.70
+2026-09-07 18:19:28,342 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MSFT, feed=iex, min_confidence=0.70
+2026-09-07 18:19:28,342 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AAPL, feed=iex, min_confidence=0.70
+============================================================
+  LIVE PAPER TRADING — 5 tickers
+  NVDA, TSLA, META, MSFT, AAPL
+  Interval: 5m | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=1.5×ATR, TP=3.0×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,576.01
+  Buying power: $386,141.03
+
+
+[18:19:28] Scanning 5 tickers... | SPY regime: BULL ($770.19 vs SMA-200 $709.87)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-07 18:19:29,066 - strategy.signals - INFO - Evaluating signal -- Close=230.35, RSI=49.82, MACD=-0.0866, MACD_Signal=-0.1743, SMA_20=230.23, BB_Lower=229.67
+2026-09-07 18:19:29,066 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (230.35 > 230.23); Above BB_Lower (230.35 > 229.67)
+2026-09-07 18:19:29,066 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (230.35 > 230.23)', 'Above BB_Lower (230.35 > 229.67)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 230.35 BUY     0.75 $   0.39         44sh
+2026-09-07 18:19:29,346 - strategy.signals - INFO - Evaluating signal -- Close=353.95, RSI=51.02, MACD=0.3125, MACD_Signal=0.2906, SMA_20=353.92, BB_Lower=352.72
+2026-09-07 18:19:29,346 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (353.95 > 353.92); Above BB_Lower (353.95 > 352.72)
+2026-09-07 18:19:29,346 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (353.95 > 353.92)', 'Above BB_Lower (353.95 > 352.72)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 353.95 BUY     0.75 $   0.87         none
+2026-09-07 18:19:29,653 - strategy.signals - INFO - Evaluating signal -- Close=616.75, RSI=64.61, MACD=1.5823, MACD_Signal=1.4260, SMA_20=614.45, BB_Lower=609.79
+2026-09-07 18:19:29,654 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (616.75 > 614.45); Above BB_Lower (616.75 > 609.79)
+2026-09-07 18:19:29,654 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (616.75 > 614.45)', 'Above BB_Lower (616.75 > 609.79)'], 'blocked': False, 'block_reason': ''}
+  META     $ 616.75 BUY     0.75 $   1.26         none
+2026-09-07 18:19:29,963 - strategy.signals - INFO - Evaluating signal -- Close=499.68, RSI=41.96, MACD=-0.1790, MACD_Signal=-0.1972, SMA_20=500.14, BB_Lower=499.55
+2026-09-07 18:19:29,963 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-07 18:19:29,963 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 499.68 HOLD    0.00 $   0.60         none
+2026-09-07 18:19:30,306 - strategy.signals - INFO - Evaluating signal -- Close=319.99, RSI=31.84, MACD=-0.1707, MACD_Signal=0.0077, SMA_20=321.30, BB_Lower=320.22
+2026-09-07 18:19:30,306 - strategy.signals - INFO - SELL signal generated (confidence=0.66) -- MACD bearish (MACD < Signal); Below BB_Lower (319.99 < 320.22)
+2026-09-07 18:19:30,306 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.66, 'reasons': ['MACD bearish (MACD < Signal)', 'Below BB_Lower (319.99 < 320.22)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 319.99 SELL    0.66 $   0.44         none
+
+  Equity: $99,576.01 | Long exposure: $10,136 (10.2%) | Cash: $89,440.17
+  Market status:    CLOSED (Next open: 2026-09-08 09:30 -04:00) — session completed.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,576.01
+2026-09-07 18:19:30,388 - analytics.metrics - INFO - Performance metrics computed: {'session_timestamp': '2026-09-07T18:19:30.386959', 'starting_equity': 100000.0, 'ending_equity': 99576.01, 'total_return_pct': -0.424, 'sharpe_ratio': -5.177, 'sortino_ratio': -4.7688, 'max_drawdown_pct': -0.6095, 'max_drawdown_duration_days': 18, 'total_trades': 47, 'winning_trades': 0, 'losing_trades': 0, 'win_rate': 0.0, 'expectancy': 0.0, 'profit_factor': 0.0, 'avg_gain': 0.0, 'avg_loss': 0.0, 'avg_slippage_pct': 0.0, 'avg_execution_latency_ms': 0.0}
+2026-09-07 18:19:30,389 - analytics.metrics - INFO - Performance summary saved to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/performance_summary.json
+2026-09-07 18:19:30,390 - analytics.metrics - INFO - Session stats appended to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/trade_history.csv
+============================================================
+  QUANTITATIVE PERFORMANCE SUMMARY
+============================================================
+  Total Return:       -0.42%
+  Sharpe Ratio:       -5.1770
+  Sortino Ratio:      -4.7688
+  Max Drawdown:       -0.61%
+  Drawdown Duration:  18 periods
+  Win Rate:           0.0%
+  Expectancy:         $0.00
+  Profit Factor:      0.00
+  Avg Slippage:       0.0000%
+  Avg Latency:        0ms
+  Total Trades:       47
+============================================================
+============================================================
