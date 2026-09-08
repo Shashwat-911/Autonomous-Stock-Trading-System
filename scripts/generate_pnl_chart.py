@@ -41,6 +41,7 @@ session_notes = {
     "2026-09-02": "RSI Raised\n45 Live",
     "2026-09-03": "Active\nSession",
     "2026-09-04": "Bullish Trend\nBest Day (+$178)",
+    "2026-09-07": "Labor Day HOLD\nEquity $99,576",
 }
 df["note"] = df["timestamp"].map(
     lambda x: session_notes.get(x, ""))

@@ -37,6 +37,7 @@ def get_session_status(date_str, pnl):
         "2026-09-02": "RSI Threshold Adjusted to 45",
         "2026-09-03": "Active Session",
         "2026-09-04": "Bullish Rally - Disciplined HOLD / Best Day (+0.18%)",
+        "2026-09-07": "Labor Day Holiday - Disciplined HOLD / Equity $99,576",
     }
     if date_str in notes:
         return notes[date_str]
