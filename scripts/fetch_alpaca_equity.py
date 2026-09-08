@@ -99,6 +99,10 @@ try:
             }])
             new_df = pd.concat([new_df, fallback_row], ignore_index=True)
             print(f"Fallback: added live account equity for {session_date}: ${live_equity:,.2f}")
+        else:
+            # If today's bar already exists from portfolio_history, ensure equity reflects live account balance
+            new_df.loc[new_df["timestamp"] == session_date, "equity"] = live_equity
+            print(f"Live sync: updated today's equity for {session_date} to live account equity: ${live_equity:,.2f}")
 except Exception as e:
     print(f"Warning: could not fetch live account equity fallback: {e}")
 
