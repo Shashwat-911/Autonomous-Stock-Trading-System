@@ -73,8 +73,9 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 | **Day 17** | Sep 02 (Wed) | $99,329.81 | -$22.59 | -$670.19 | -0.670% | RSI Threshold Adjusted to 45 |
 | **Day 18** | Sep 03 (Thu) | $99,314.21 | -$15.60 | -$685.79 | -0.686% | Active Session |
 | **Day 19** | Sep 04 (Fri) | $99,491.97 | **+$177.76** | -$508.03 | -0.508% | Bullish Rally - Disciplined HOLD / Best Day (+0.18%) |
+| **Day 20** | Sep 07 (Mon) | $99,576.01 | **+$84.04** | -$423.99 | -0.424% | Labor Day Holiday - Disciplined HOLD / Equity $99,576 |
 
-> **Current Equity**: $99,491.97 | **Total P&L**: $-508.03 | **Best Day**: $+177.76 | **Win Rate**: 26.3% (5W / 10L / 4 Flat) | **Max Drawdown**: -0.686% | **Sessions**: 19
+> **Current Equity**: $99,576.01 | **Total P&L**: $-423.99 | **Best Day**: $+177.76 | **Win Rate**: 30.0% (6W / 10L / 4 Flat) | **Max Drawdown**: -0.686% | **Sessions**: 20
 ---
 
 ## System Architecture
