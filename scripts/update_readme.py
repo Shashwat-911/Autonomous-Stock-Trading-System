@@ -43,13 +43,14 @@ def get_session_status(date_str, pnl):
     if date_str in notes:
         return notes[date_str]
     if pnl > 50:
-        return "Profitable Session"
+        return f"Profitable Session (+${pnl:.2f})"
     elif pnl < -100:
-        return "Loss Session"
+        return f"Loss Session (-${abs(pnl):.2f})"
     elif abs(pnl) < 1:
         return "Flat Session - Disciplined HOLD"
     else:
-        return "Active Session"
+        sign = "+" if pnl > 0 else "-"
+        return f"Active Session ({sign}${abs(pnl):.2f})"
 
 
 def update_readme():

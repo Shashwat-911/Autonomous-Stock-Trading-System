@@ -44,8 +44,17 @@ session_notes = {
     "2026-09-07": "Labor Day HOLD\nEquity $99,576",
     "2026-09-08": "Active Multi-Ticker\n-$63 (-0.06%)",
 }
-df["note"] = df["timestamp"].map(
-    lambda x: session_notes.get(x, ""))
+def get_chart_note(row):
+    ts = str(row["timestamp"])
+    if ts in session_notes:
+        return session_notes[ts]
+    pnl = float(row.get("daily_pnl", 0))
+    if abs(pnl) < 1:
+        return "Flat HOLD"
+    sign = "+" if pnl > 0 else ""
+    return f"Active\n{sign}${pnl:.0f}"
+
+df["note"] = [get_chart_note(r) for _, r in df.iterrows()]
 
 # ── Computed metrics ──
 starting = 100000.0
