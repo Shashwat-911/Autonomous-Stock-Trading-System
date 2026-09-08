@@ -31,12 +31,14 @@ OUTPUT_PATH        = "outputs/alpaca_equity_history.csv"
 # ── Parse args ─────────────────────────────────────────────────────────────────
 today_only = "--today" in sys.argv
 
-# ── Date range ─────────────────────────────────────────────────────────────────
-now_utc   = datetime.now(timezone.utc)
-today_str = now_utc.strftime("%Y-%m-%d")
+import zoneinfo
+
+tz_et = zoneinfo.ZoneInfo("America/New_York")
+now_et = datetime.now(tz_et)
+today_str = now_et.strftime("%Y-%m-%d")
 
 # When --today: fetch just the last 3 days (catches today even if market closed late)
-start_str = (now_utc - timedelta(days=3)).strftime("%Y-%m-%d") if today_only else PROJECT_START_DATE
+start_str = (now_et - timedelta(days=3)).strftime("%Y-%m-%d") if today_only else PROJECT_START_DATE
 end_str   = today_str
 
 print(f"Fetching Alpaca equity history: {start_str} -> {end_str}")
@@ -65,7 +67,8 @@ for ts, eq, pl, plp in zip(
 ):
     if eq is None or eq == 0:
         continue
-    dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+    # Convert to America/New_York so Friday bars at 20:00 EDT stay on Friday (weekday == 4)
+    dt = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(tz_et)
     if dt.weekday() >= 5:          # skip weekends
         continue
     new_rows.append({
@@ -77,14 +80,44 @@ for ts, eq, pl, plp in zip(
 
 new_df = pd.DataFrame(new_rows)
 
+# ── Fallback check: live account equity ───────────────────────────────────────
+# On market holidays or intraday sessions where get_portfolio_history() does not
+# include today's completed bar, record the latest live account equity.
+try:
+    account = client.get_account()
+    clock = client.get_clock()
+    is_open = clock.is_open if clock else False
+    live_equity = round(float(account.last_equity if (not is_open and getattr(account, "last_equity", None)) else account.equity), 2)
+    session_date = now_et.strftime("%Y-%m-%d")
+    if now_et.weekday() < 5:  # Weekday session
+        if new_df.empty or session_date not in new_df["timestamp"].values:
+            fallback_row = pd.DataFrame([{
+                "timestamp": session_date,
+                "equity": live_equity,
+                "daily_pnl": 0.0,
+                "daily_pnl_pct": 0.0,
+            }])
+            new_df = pd.concat([new_df, fallback_row], ignore_index=True)
+            print(f"Fallback: added live account equity for {session_date}: ${live_equity:,.2f}")
+except Exception as e:
+    print(f"Warning: could not fetch live account equity fallback: {e}")
+
 # ── Merge with existing CSV (deduplicate by date) ─────────────────────────────
 os.makedirs("outputs", exist_ok=True)
 
 if os.path.exists(OUTPUT_PATH) and not new_df.empty:
     existing_df = pd.read_csv(OUTPUT_PATH)
-    # Combine, keep latest values for any duplicate dates (API is source of truth)
-    merged = pd.concat([existing_df, new_df], ignore_index=True)
-    merged = merged.drop_duplicates(subset=["timestamp"], keep="last")
+    if today_only:
+        # Preserve historical validated session rows, only merge unrecorded date(s) or update today
+        new_dates = new_df[~new_df["timestamp"].isin(existing_df["timestamp"])]
+        merged = pd.concat([existing_df, new_dates], ignore_index=True)
+        if today_str in new_df["timestamp"].values:
+            today_eq = new_df.loc[new_df["timestamp"] == today_str, "equity"].iloc[-1]
+            merged.loc[merged["timestamp"] == today_str, "equity"] = today_eq
+    else:
+        # Full historical fetch: combine and keep latest values for duplicate dates
+        merged = pd.concat([existing_df, new_df], ignore_index=True)
+        merged = merged.drop_duplicates(subset=["timestamp"], keep="last")
     merged = merged.sort_values("timestamp").reset_index(drop=True)
     df = merged
 else:
