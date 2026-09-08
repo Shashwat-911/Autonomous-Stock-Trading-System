@@ -112,6 +112,7 @@ jobs:
         else
           SUMMARY=$(python -c "import json, os; d=json.load(open('outputs/performance_summary.json')) if os.path.exists('outputs/performance_summary.json') else {}; print(f'equity=\${d.get(\"ending_equity\", 0):,.0f} | return={d.get(\"total_return_pct\", 0):+.3f}%') if d else print('session complete')")
           git commit -m "auto(session): ${DATE} | ${SUMMARY}"
+          git pull --rebase origin main || true
           git push origin main
           echo "Session artifacts pushed to GitHub"
         fi

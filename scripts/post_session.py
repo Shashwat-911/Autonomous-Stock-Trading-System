@@ -223,6 +223,7 @@ def run_post_session_pipeline():
         print("\n  [DRY RUN] Skipping git push. Commit made locally only.", flush=True)
     else:
         git_configure_remote()
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False)
 
         push_result = subprocess.run(
             ["git", "push", "origin", "main"],
