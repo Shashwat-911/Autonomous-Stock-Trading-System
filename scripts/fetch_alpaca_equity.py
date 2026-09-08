@@ -87,7 +87,7 @@ try:
     account = client.get_account()
     clock = client.get_clock()
     is_open = clock.is_open if clock else False
-    live_equity = round(float(account.last_equity if (not is_open and getattr(account, "last_equity", None)) else account.equity), 2)
+    live_equity = round(float(account.equity), 2)
     session_date = now_et.strftime("%Y-%m-%d")
     if now_et.weekday() < 5:  # Weekday session
         if new_df.empty or session_date not in new_df["timestamp"].values:
