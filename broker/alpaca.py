@@ -340,9 +340,40 @@ class AlpacaPaperBroker:
             )
             return self.submit_buy(quantity, reason, ticker=ticker)
 
+    def cancel_open_orders(self, ticker: Optional[str] = None) -> list:
+        """
+        Cancel all resting open orders for a ticker (e.g. bracket SL/TP orders).
+
+        Parameters
+        ----------
+        ticker : str, optional
+            Ticker symbol (default is self.ticker).
+
+        Returns
+        -------
+        list
+            List of cancelled order IDs.
+        """
+        sym = ticker or self.ticker
+        cancelled = []
+        try:
+            open_orders = self.client.get_orders(
+                GetOrdersRequest(status=QueryOrderStatus.OPEN, symbols=[sym])
+            )
+            for o in open_orders:
+                try:
+                    self.client.cancel_order_by_id(o.id)
+                    cancelled.append(str(o.id))
+                    logger.info("Cancelled open order %s for %s", o.id, sym)
+                except Exception as cancel_err:
+                    logger.warning("Could not cancel order %s for %s: %s", o.id, sym, cancel_err)
+        except Exception as e:
+            logger.warning("Failed to fetch open orders for %s: %s", sym, e)
+        return cancelled
+
     def submit_sell(self, quantity: Union[int, str], reason: str, ticker: Optional[str] = None) -> dict:
         """
-        Submit a market SELL order to Alpaca.
+        Submit a market SELL order to Alpaca or liquidate an open position.
 
         Parameters
         ----------
@@ -359,39 +390,85 @@ class AlpacaPaperBroker:
             Order metadata dictionary or empty dict if skipped.
         """
         sym = ticker or self.ticker
-        if isinstance(quantity, str) and quantity.upper() == "ALL":
-            all_pos = self.get_all_positions()
-            position = all_pos.get(sym)
-            if position is None or position["shares"] <= 0:
-                logger.warning("submit_sell skipped -- no open position for %s.", sym)
-                return {}
-            quantity = int(position["shares"])
+        is_all = isinstance(quantity, str) and quantity.upper() == "ALL"
 
-        if quantity <= 0:
+        all_pos = self.get_all_positions()
+        position = all_pos.get(sym)
+        if position is None or position["shares"] <= 0:
+            logger.warning("submit_sell skipped -- no open position for %s.", sym)
+            return {}
+
+        pos_shares = int(position["shares"])
+        if is_all:
+            sell_qty = pos_shares
+        else:
+            try:
+                sell_qty = int(quantity)
+            except (ValueError, TypeError):
+                logger.warning("submit_sell skipped -- invalid quantity %s.", quantity)
+                return {}
+
+        if sell_qty <= 0:
             logger.warning("submit_sell skipped -- invalid quantity %s.", quantity)
             return {}
 
+        # If liquidating the full position, use Alpaca's native close_position
+        # which automatically cancels resting bracket orders (stop-loss / take-profit)
+        if is_all or sell_qty >= pos_shares:
+            try:
+                order = self.client.close_position(sym)
+                order_id = getattr(order, "id", None) or getattr(order, "order_id", "CLOSED")
+                logger.info(
+                    "POSITION CLOSED (LIQUIDATED): %s | Shares: %d | Reason: %s | Order ID: %s",
+                    sym,
+                    pos_shares,
+                    reason,
+                    order_id,
+                )
+                return {
+                    "order_id": str(order_id),
+                    "qty": pos_shares,
+                    "side": "SELL",
+                    "reason": reason,
+                }
+            except Exception as e:
+                logger.warning(
+                    "close_position failed for %s (%s); attempting order cancel + market sell fallback.",
+                    sym,
+                    e,
+                )
+                self.cancel_open_orders(sym)
+
+        # For partial sell or fallback after close_position error:
+        # Cancel resting bracket orders first so shares are not 'held_for_orders'
+        self.cancel_open_orders(sym)
+
         order_data = MarketOrderRequest(
             symbol=sym,
-            qty=quantity,
+            qty=sell_qty,
             side=OrderSide.SELL,
             time_in_force=TimeInForce.DAY,
         )
 
-        order = self.client.submit_order(order_data)
-        logger.info(
-            "SELL ORDER SUBMITTED: %d shares of %s | Reason: %s | Order ID: %s",
-            quantity,
-            sym,
-            reason,
-            order.id,
-        )
-        return {
-            "order_id": str(order.id),
-            "qty": quantity,
-            "side": "SELL",
-            "reason": reason,
-        }
+        try:
+            order = self.client.submit_order(order_data)
+            logger.info(
+                "SELL ORDER SUBMITTED: %d shares of %s | Reason: %s | Order ID: %s",
+                sell_qty,
+                sym,
+                reason,
+                order.id,
+            )
+            return {
+                "order_id": str(order.id),
+                "qty": sell_qty,
+                "side": "SELL",
+                "reason": reason,
+            }
+        except Exception as e:
+            logger.error("submit_sell failed for %s (%d shares): %s", sym, sell_qty, e)
+            return {}
+
 
     def _update_trailing_stop(self, ticker: str, current_price: float) -> None:
         """
