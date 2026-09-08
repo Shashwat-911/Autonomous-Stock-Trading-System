@@ -724,10 +724,17 @@ class AlpacaPaperBroker:
                 rows.append({
                     "order_id": str(o.id),
                     "timestamp": str(o.submitted_at),
+                    "submitted_at": str(o.submitted_at),
+                    "filled_at": str(o.filled_at) if o.filled_at else None,
                     "ticker": o.symbol,
-                    "action": str(o.side.value).upper(),
-                    "quantity": float(o.qty),
-                    "status": str(o.status.value),
+                    "symbol": o.symbol,
+                    "action": str(o.side.value).upper() if hasattr(o.side, "value") else str(o.side).upper(),
+                    "side": str(o.side.value).upper() if hasattr(o.side, "value") else str(o.side).upper(),
+                    "quantity": float(o.qty or 0),
+                    "qty": float(o.qty or 0),
+                    "filled_qty": float(o.filled_qty or 0),
+                    "price": float(o.limit_price or o.stop_price or 0),
+                    "status": str(o.status.value) if hasattr(o.status, "value") else str(o.status),
                     "filled_avg_price": float(o.filled_avg_price) if o.filled_avg_price else None,
                 })
             return pd.DataFrame(rows)
