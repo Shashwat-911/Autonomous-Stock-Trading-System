@@ -137,19 +137,29 @@ def update_readme():
     with open(readme_path, "r", encoding="utf-8") as f:
         content = f.read()
 
+    new_content = content
+
+    # 1. Update chart image link with cache-busting version parameter
+    last_date = df["timestamp"].iloc[-1].replace("-", "")
+    chart_pattern = r"!\[Daily P&L Chart\]\(outputs/daily_pnl_chart\.png(?:\?[^)]*)?\)"
+    new_chart_tag = f"![Daily P&L Chart](outputs/daily_pnl_chart.png?v={last_date})"
+    new_content = re.sub(chart_pattern, new_chart_tag, new_content)
+
+    # 2. Update session breakdown table
     pattern = r"### Daily Session Breakdown.*?(?=\n---|\n## |\Z)"
-    match   = re.search(pattern, content, flags=re.DOTALL)
+    match   = re.search(pattern, new_content, flags=re.DOTALL)
 
     if not match:
         print("[WARNING] Could not find '### Daily Session Breakdown' section in README.")
         print("          The table was NOT updated. Check the README header exactly.")
         return
 
-    if match.group(0).strip() == new_table.strip():
+    new_content = new_content[:match.start()] + new_table + new_content[match.end():]
+
+    if new_content == content:
         print(f"[OK] README is already up to date with {sessions} sessions.")
         return
 
-    new_content = content[:match.start()] + new_table + content[match.end():]
     with open(readme_path, "w", encoding="utf-8") as f:
         f.write(new_content)
 
