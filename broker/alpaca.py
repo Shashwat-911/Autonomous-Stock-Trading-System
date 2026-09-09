@@ -639,18 +639,72 @@ class AlpacaPaperBroker:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
 
         if signal == "SELL" and position is not None:
-            if self.ticker in self._last_buy_time:
-                minutes_held = (
-                    datetime.now() - self._last_buy_time[self.ticker]
-                ).seconds / 60
-                if minutes_held < 60:  # minimum 60 minute hold
-                    logger.info(
-                        f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
+            # Check if shares are already committed to bracket orders
+            try:
+                pos = self.get_current_position()
+                if pos is not None:
+                    from alpaca.trading.requests import GetOrdersRequest
+                    from alpaca.trading.enums import QueryOrderStatus
+
+                    open_orders = self.client.get_orders(
+                        GetOrdersRequest(
+                            status=QueryOrderStatus.OPEN,
+                            symbols=[self.ticker],
+                        )
                     )
+                    # If there are open bracket legs (stop or limit),
+                    # skip manual sell — let bracket handle the exit
+                    bracket_legs = [
+                        o
+                        for o in open_orders
+                        if str(getattr(o.order_type, "value", o.order_type)).lower()
+                        in ("stop", "limit", "stop_limit")
+                    ]
+                    if bracket_legs:
+                        logger.info(
+                            "SELL skipped for %s — bracket exit orders active "
+                            "(%d legs). Letting broker handle exit.",
+                            self.ticker,
+                            len(bracket_legs),
+                        )
+                    else:
+                        # No bracket legs active — safe to manual sell
+                        if self.ticker in self._last_buy_time:
+                            minutes_held = (
+                                datetime.now() - self._last_buy_time[self.ticker]
+                            ).seconds / 60
+                            if minutes_held < 60:  # minimum 60 minute hold
+                                logger.info(
+                                    f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
+                                )
+                            else:
+                                self.submit_sell(
+                                    "ALL", "; ".join(signal_dict["reasons"])
+                                )
+                        else:
+                            self.submit_sell(
+                                "ALL", "; ".join(signal_dict["reasons"])
+                            )
+            except Exception as e:
+                logger.warning(
+                    "Bracket check failed: %s — proceeding with manual sell", e
+                )
+                if self.ticker in self._last_buy_time:
+                    minutes_held = (
+                        datetime.now() - self._last_buy_time[self.ticker]
+                    ).seconds / 60
+                    if minutes_held < 60:  # minimum 60 minute hold
+                        logger.info(
+                            f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
+                        )
+                    else:
+                        self.submit_sell(
+                            "ALL", "; ".join(signal_dict["reasons"])
+                        )
                 else:
-                    self.submit_sell("ALL", "; ".join(signal_dict["reasons"]))
-            else:
-                self.submit_sell("ALL", "; ".join(signal_dict["reasons"]))
+                    self.submit_sell(
+                        "ALL", "; ".join(signal_dict["reasons"])
+                    )
 
         return {
             "signal": signal,
