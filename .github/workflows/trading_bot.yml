@@ -93,11 +93,14 @@ jobs:
     # ─────────────────────────────────────────
     - name: Commit and push all session artifacts
       if: always()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
+        TZ: 'Asia/Kolkata'
       run: |
         git config user.email "shashwatyadav975@gmail.com"
         git config user.name "SHASHWAT YADAV"
 
-        DATE=$(date +%Y-%m-%d)
+        DATE=$(python -c "import pandas as pd, os; print(pd.read_csv('outputs/alpaca_equity_history.csv').iloc[-1]['timestamp']) if os.path.exists('outputs/alpaca_equity_history.csv') else print('$(date +%Y-%m-%d)')")
 
         # Stage all updated files
         git add outputs/logs/ || true
@@ -116,5 +119,4 @@ jobs:
           git push origin main
           echo "Session artifacts pushed to GitHub"
         fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
+
