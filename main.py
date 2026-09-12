@@ -87,6 +87,7 @@ def build_components(db_path: str = None) -> tuple:
         rsi_oversold=config.SIGNAL["rsi_oversold"],
         rsi_overbought=config.SIGNAL["rsi_overbought"],
         require_confirmation=config.SIGNAL["require_confirmation"],
+        adx_min=config.SIGNAL.get("adx_min", 22.0),
     )
 
     broker = LocalPaperBroker(
@@ -393,10 +394,11 @@ def run_live():
         rsi_oversold=config.SIGNAL["rsi_oversold"],
         rsi_overbought=config.SIGNAL["rsi_overbought"],
         require_confirmation=config.SIGNAL["require_confirmation"],
+        adx_min=config.SIGNAL.get("adx_min", 22.0),
     )
 
     tickers = config.TRADING["tickers"]
-    interval = config.TRADING.get("interval", "5m")
+    interval = config.TRADING.get("interval", "1h")
     lookback_intraday = config.TRADING.get("lookback_days_intraday", 30)
     brokers = {}
     for ticker in tickers:
