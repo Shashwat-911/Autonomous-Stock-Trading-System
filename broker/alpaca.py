@@ -493,16 +493,17 @@ class AlpacaPaperBroker:
         if atr <= 0:
             return
 
-        import config
-        bracket_cfg = getattr(config, "BRACKET", {})
-        activation_mult = bracket_cfg.get("trailing_activation_atr", 1.5)
+        import config as cfg
+        bracket_cfg = getattr(cfg, "BRACKET", {})
+        activation_mult = bracket_cfg.get("trailing_activation_atr", 1.8)
+        trail_mult = bracket_cfg.get("trailing_stop_atr_mult", 1.2)
 
         unrealized_gain = current_price - entry
         activation_threshold = activation_mult * atr
 
         if unrealized_gain >= activation_threshold and not state["trailing_activated"]:
             state["trailing_activated"] = True
-            new_stop = round(current_price - (1.0 * atr), 2)
+            new_stop = round(current_price - (trail_mult * atr), 2)
             logger.info(
                 "TRAILING STOP ACTIVATED for %s: gain=$%.2f >= %.1f×ATR($%.2f). "
                 "New mental stop=$%.2f (was $%.2f)",
@@ -512,7 +513,7 @@ class AlpacaPaperBroker:
             state["stop_price"] = new_stop
         elif state["trailing_activated"]:
             # Trail the stop up as price moves higher
-            trail_stop = round(current_price - (1.0 * atr), 2)
+            trail_stop = round(current_price - (trail_mult * atr), 2)
             if trail_stop > state["stop_price"]:
                 logger.info(
                     "TRAILING STOP RAISED for %s: $%.2f -> $%.2f (price=$%.2f)",
