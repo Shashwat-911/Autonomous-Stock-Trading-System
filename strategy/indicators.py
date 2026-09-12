@@ -223,10 +223,55 @@ def add_atr(
     return res
 
 
+def add_adx(df: pd.DataFrame, window: int = 14) -> pd.DataFrame:
+    """
+    Calculate Average Directional Index (ADX) using Wilder's smoothing.
+    Adds columns: ADX_14, DI_plus_14, DI_minus_14
+    """
+    logger.info(f"Calculating ADX (window={window}).")
+    res = df.copy()
+
+    high = res["High"]
+    low = res["Low"]
+    close = res["Close"]
+
+    # True Range
+    tr1 = high - low
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+
+    # Directional Movement
+    dm_plus = high - high.shift(1)
+    dm_minus = low.shift(1) - low
+
+    dm_plus = dm_plus.where((dm_plus > dm_minus) & (dm_plus > 0), 0.0)
+    dm_minus = dm_minus.where((dm_minus > dm_plus) & (dm_minus > 0), 0.0)
+
+    # Wilder's smoothing (alpha = 1/window)
+    alpha = 1.0 / window
+    atr_w = tr.ewm(alpha=alpha, min_periods=window, adjust=False).mean()
+    dmp_w = dm_plus.ewm(alpha=alpha, min_periods=window, adjust=False).mean()
+    dmm_w = dm_minus.ewm(alpha=alpha, min_periods=window, adjust=False).mean()
+
+    # Directional Indicators
+    di_plus = 100 * dmp_w / atr_w.replace(0, float('nan'))
+    di_minus = 100 * dmm_w / atr_w.replace(0, float('nan'))
+
+    # DX and ADX
+    dx = 100 * (di_plus - di_minus).abs() / (di_plus + di_minus).replace(0, float('nan'))
+    adx = dx.ewm(alpha=alpha, min_periods=window, adjust=False).mean()
+
+    res[f"ADX_{window}"] = adx
+    res[f"DI_plus_{window}"] = di_plus
+    res[f"DI_minus_{window}"] = di_minus
+    return res
+
+
 def add_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convenience function to calculate and append all technical indicators
-    (SMA, EMA, RSI, MACD, Bollinger Bands, ATR) using default parameters.
+    (SMA, EMA, RSI, MACD, Bollinger Bands, ATR, ADX) using default parameters.
 
     Parameters
     ----------
@@ -246,6 +291,7 @@ def add_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
     res = add_macd(res, fast=12, slow=26, signal=9)
     res = add_bollinger_bands(res, window=20, num_std=2)
     res = add_atr(res, window=14)
+    res = add_adx(res, window=14)
     return res
 
 
