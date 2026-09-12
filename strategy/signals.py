@@ -56,6 +56,7 @@ class SignalGenerator:
         rsi_oversold: float = 30.0,
         rsi_overbought: float = 70.0,
         require_confirmation: bool = True,
+        adx_min: float = 22.0,
     ) -> None:
         """
         Initialise the SignalGenerator.
@@ -71,18 +72,22 @@ class SignalGenerator:
         require_confirmation : bool, optional
             Require all indicators to confirm before issuing a BUY
             (default True).
+        adx_min : float, optional
+            Minimum ADX threshold required for trend trades (default 22.0).
         """
         self.risk_manager = risk_manager
         self.rsi_oversold = rsi_oversold
         self.rsi_overbought = rsi_overbought
         self.require_confirmation = require_confirmation
+        self.adx_min = adx_min
 
         logger.info(
             "SignalGenerator initialised -- RSI oversold=%.1f, "
-            "overbought=%.1f, confirmation=%s",
+            "overbought=%.1f, confirmation=%s, adx_min=%.1f",
             rsi_oversold,
             rsi_overbought,
             require_confirmation,
+            self.adx_min,
         )
 
     # ------------------------------------------------------------------
@@ -131,11 +136,12 @@ class SignalGenerator:
         close = last["Close"]
         sma_20 = last["SMA_20"]
         bb_lower = last["BB_Lower"]
+        adx = float(df["ADX_14"].iloc[-1]) if "ADX_14" in df.columns else 25.0
 
         logger.info(
             "Evaluating signal -- Close=%.2f, RSI=%.2f, MACD=%.4f, "
-            "MACD_Signal=%.4f, SMA_20=%.2f, BB_Lower=%.2f",
-            close, rsi, macd, macd_signal, sma_20, bb_lower,
+            "MACD_Signal=%.4f, SMA_20=%.2f, BB_Lower=%.2f, ADX=%.2f",
+            close, rsi, macd, macd_signal, sma_20, bb_lower, adx,
         )
 
         # ----- Risk gate (checked FIRST) -----
@@ -238,11 +244,29 @@ class SignalGenerator:
             buy_conditions_met = sum(buy_conditions)
             path1_triggered = (buy_conditions_met >= 3)
 
-        buy_triggered = (path1_triggered or momentum_buy) and not blocked and not regime_blocked
+        # ADX trend-strength gate
+        adx_blocked = adx < self.adx_min
+        if adx_blocked:
+            logger.info(
+                "BUY blocked: Market choppy/sideways "
+                "(ADX=%.1f < %.1f)", adx, self.adx_min
+            )
+
+        buy_triggered = (
+            (path1_triggered or momentum_buy)
+            and not blocked
+            and not regime_blocked
+            and not adx_blocked
+        )
 
         # Block buy if market regime is bearish
         if regime_blocked and (buy_count >= 2 or momentum_buy):
             buy_reasons.append("BLOCKED: Market regime bearish (SPY < SMA-200)")
+
+        if adx_blocked and (path1_triggered or momentum_buy):
+            buy_reasons.append(
+                f"BLOCKED: Market choppy/sideways (ADX={adx:.1f} < {self.adx_min:.1f})"
+            )
 
         sell_triggered = sell_count >= 1
 
