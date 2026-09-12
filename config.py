@@ -16,7 +16,7 @@ except ImportError:
 TRADING = {
     "ticker": "NVDA",                  # primary asset / default fallback
     "tickers": ["NVDA", "TSLA", "META", "MSFT", "AAPL"],  # 5-stock high-momentum universe
-    "interval": "5m",                  # 5-minute candles for live intraday trading
+    "interval": "1h",                  # 1-hour candles for high-conviction trend trading
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
     "min_confidence": 0.70,  # lowered 0.75→0.70: allow slightly more trades through
@@ -29,6 +29,8 @@ SIGNAL = {
     "rsi_oversold": 40.0,    # lower bound for RSI on BUY (lowered 45→40: require stronger dip before buying)
     "rsi_overbought": 70.0,  # sell when overbought
     "require_confirmation": False,
+    "adx_min": 22.0,         # minimum ADX required for trend trades (filters choppy markets)
+    "adx_period": 14,        # standard lookback for ADX calculation
 }
 
 RISK = {
@@ -47,8 +49,8 @@ RISK = {
 BRACKET = {
     "stop_loss_atr_mult": 1.5,      # tighter stop: 1.5x ATR for disciplined exits
     "take_profit_atr_mult": 3.0,    # wider target: 3.0x ATR → 2:1 R:R minimum
-    "trailing_activation_atr": 1.0,
-    "trailing_stop_atr_mult": 0.75, # tighter trail once activated
+    "trailing_activation_atr": 1.8, # allow trade to develop before trailing activates
+    "trailing_stop_atr_mult": 1.2,  # wider trail: gives normal pullbacks breathing room
 }
 
 MARKET_REGIME = {
