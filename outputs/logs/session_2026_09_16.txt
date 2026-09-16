@@ -1,0 +1,368 @@
+2026-09-16 17:40:46,794 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=10.0%, cooldown=5min, max_pos_dollars=$5000, portfolio_heat=60%
+2026-09-16 17:40:46,794 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=40.0, overbought=70.0, confirmation=False, adx_min=22.0
+2026-09-16 17:40:46,794 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.70
+2026-09-16 17:40:46,794 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=TSLA, feed=iex, min_confidence=0.70
+2026-09-16 17:40:46,795 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=META, feed=iex, min_confidence=0.70
+2026-09-16 17:40:46,795 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MSFT, feed=iex, min_confidence=0.70
+2026-09-16 17:40:46,795 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AAPL, feed=iex, min_confidence=0.70
+============================================================
+  LIVE PAPER TRADING — 5 tickers
+  NVDA, TSLA, META, MSFT, AAPL
+  Interval: 1h | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.0×ATR, TP=2.5×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,275.77
+  Buying power: $397,103.08
+
+
+[17:40:46] Scanning 5 tickers... | SPY regime: BULL ($759.51 vs SMA-200 $713.41)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 17:40:48,090 - strategy.signals - INFO - Evaluating signal -- Close=215.04, RSI=48.86, MACD=-0.9507, MACD_Signal=-1.7368, SMA_20=213.08, BB_Lower=208.95, ADX=24.39
+2026-09-16 17:40:48,090 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (215.04 > 213.08); Above BB_Lower (215.04 > 208.95); Daily trend bearish (confidence reduced)
+2026-09-16 17:40:48,090 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (215.04 > 213.08)', 'Above BB_Lower (215.04 > 208.95)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 215.04 BUY     0.50 $   1.43         none
+2026-09-16 17:40:48,683 - strategy.signals - INFO - Evaluating signal -- Close=360.74, RSI=47.95, MACD=-0.8150, MACD_Signal=-1.1610, SMA_20=360.57, BB_Lower=355.79, ADX=19.60
+2026-09-16 17:40:48,684 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=19.6 < 22.0)
+2026-09-16 17:40:48,684 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 17:40:48,684 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 360.74 HOLD    0.00 $   3.56         none
+2026-09-16 17:40:49,562 - strategy.signals - INFO - Evaluating signal -- Close=675.62, RSI=69.63, MACD=7.9363, MACD_Signal=8.1170, SMA_20=667.26, BB_Lower=650.93, ADX=60.45
+2026-09-16 17:40:49,562 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:40:49,563 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  META     $ 675.62 SELL    0.33 $   6.22         none
+2026-09-16 17:40:50,160 - strategy.signals - INFO - Evaluating signal -- Close=493.64, RSI=40.87, MACD=-1.0802, MACD_Signal=-0.0397, SMA_20=499.59, BB_Lower=489.26, ADX=23.85
+2026-09-16 17:40:50,160 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:40:50,160 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 493.64 SELL    0.33 $   2.86         none
+2026-09-16 17:40:50,771 - strategy.signals - INFO - Evaluating signal -- Close=333.17, RSI=60.72, MACD=1.4769, MACD_Signal=1.7294, SMA_20=332.31, BB_Lower=328.91, ADX=38.49
+2026-09-16 17:40:50,772 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:40:50,772 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 333.17 SELL    0.33 $   1.97         none
+
+  Equity: $99,275.77 | Long exposure: $0 (0.0%) | Cash: $99,275.77
+  Market closes in: 139 mins
+  Next scan:        in 15 minutes
+
+[17:55:50] Scanning 5 tickers... | SPY regime: BULL ($759.74 vs SMA-200 $713.41)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 17:55:51,356 - strategy.signals - INFO - Evaluating signal -- Close=214.93, RSI=48.40, MACD=-0.9599, MACD_Signal=-1.7386, SMA_20=213.07, BB_Lower=208.96, ADX=24.21
+2026-09-16 17:55:51,356 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (214.93 > 213.07); Above BB_Lower (214.93 > 208.96); Daily trend bearish (confidence reduced)
+2026-09-16 17:55:51,356 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (214.93 > 213.07)', 'Above BB_Lower (214.93 > 208.96)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 214.93 BUY     0.50 $   1.45         none
+2026-09-16 17:55:51,665 - strategy.signals - INFO - Evaluating signal -- Close=360.37, RSI=47.18, MACD=-0.8449, MACD_Signal=-1.1670, SMA_20=360.55, BB_Lower=355.78, ADX=19.65
+2026-09-16 17:55:51,665 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=19.7 < 22.0)
+2026-09-16 17:55:51,665 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 17:55:51,665 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 360.37 HOLD    0.00 $   3.57         none
+2026-09-16 17:55:51,940 - strategy.signals - INFO - Evaluating signal -- Close=674.13, RSI=66.67, MACD=7.8170, MACD_Signal=8.0932, SMA_20=667.18, BB_Lower=651.00, ADX=59.86
+2026-09-16 17:55:51,940 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:55:51,940 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  META     $ 674.13 SELL    0.33 $   6.37         none
+2026-09-16 17:55:52,252 - strategy.signals - INFO - Evaluating signal -- Close=493.11, RSI=39.89, MACD=-1.1229, MACD_Signal=-0.0483, SMA_20=499.57, BB_Lower=489.16, ADX=23.89
+2026-09-16 17:55:52,252 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:55:52,252 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 493.11 SELL    0.33 $   2.89         none
+2026-09-16 17:55:52,865 - strategy.signals - INFO - Evaluating signal -- Close=333.11, RSI=60.41, MACD=1.4718, MACD_Signal=1.7283, SMA_20=332.31, BB_Lower=328.91, ADX=38.49
+2026-09-16 17:55:52,865 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 17:55:52,865 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 333.11 SELL    0.33 $   1.98         none
+
+  Equity: $99,275.77 | Long exposure: $0 (0.0%) | Cash: $99,275.77
+  Market closes in: 124 mins
+  Next scan:        in 15 minutes
+
+[18:10:52] Scanning 5 tickers... | SPY regime: BULL ($760.27 vs SMA-200 $713.42)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 18:10:53,427 - strategy.signals - INFO - Evaluating signal -- Close=215.56, RSI=51.01, MACD=-0.9096, MACD_Signal=-1.7286, SMA_20=213.10, BB_Lower=208.92, ADX=24.21
+2026-09-16 18:10:53,427 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (215.56 > 213.10); Above BB_Lower (215.56 > 208.92); Daily trend bearish (confidence reduced)
+2026-09-16 18:10:53,427 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (215.56 > 213.10)', 'Above BB_Lower (215.56 > 208.92)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 215.56 BUY     0.50 $   1.52         none
+2026-09-16 18:10:53,720 - strategy.signals - INFO - Evaluating signal -- Close=362.57, RSI=51.91, MACD=-0.6698, MACD_Signal=-1.1320, SMA_20=360.66, BB_Lower=355.80, ADX=19.84
+2026-09-16 18:10:53,720 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=19.8 < 22.0)
+2026-09-16 18:10:53,720 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 18:10:53,720 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 362.57 HOLD    0.00 $   3.71         none
+2026-09-16 18:10:54,016 - strategy.signals - INFO - Evaluating signal -- Close=680.27, RSI=74.24, MACD=8.3068, MACD_Signal=8.1912, SMA_20=667.49, BB_Lower=650.54, ADX=60.65
+2026-09-16 18:10:54,016 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (680.27 > 667.49); Above BB_Lower (680.27 > 650.54)
+2026-09-16 18:10:54,016 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (680.27 > 667.49)', 'Above BB_Lower (680.27 > 650.54)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 18:10:54,052 - risk.manager - INFO - ATR position sizing: equity=99275.77, price=680.27, ATR=6.74, shares_atr=73, shares_cap=7 -> final=7
+2026-09-16 18:10:54,091 - broker.alpaca - INFO - BRACKET BUY ORDER: 7 shares of META @ ~$680.27 | SL=$666.78 (-2.0×ATR) | TP=$697.13 (+2.5×ATR) | Reason: MACD bullish (MACD > Signal); Above SMA_20 (680.27 > 667.49); Above BB_Lower (680.27 > 650.54) | Order ID: a723a639-5ad1-46a3-ac65-0404c89d4037
+  META     $ 680.27 BUY     0.75 $   6.74         none
+2026-09-16 18:10:54,391 - strategy.signals - INFO - Evaluating signal -- Close=493.86, RSI=41.34, MACD=-1.0626, MACD_Signal=-0.0362, SMA_20=499.61, BB_Lower=489.29, ADX=23.95
+2026-09-16 18:10:54,391 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:10:54,391 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 493.86 SELL    0.33 $   2.94         none
+2026-09-16 18:10:54,967 - strategy.signals - INFO - Evaluating signal -- Close=334.27, RSI=63.95, MACD=1.5640, MACD_Signal=1.7468, SMA_20=332.37, BB_Lower=328.87, ADX=38.76
+2026-09-16 18:10:54,967 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:10:54,967 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 334.27 SELL    0.33 $   2.04         none
+
+  Equity: $99,275.28 | Long exposure: $2,040 (2.1%) | Cash: $97,234.96
+  Market closes in: 109 mins
+  Next scan:        in 15 minutes
+
+[18:25:55] Scanning 5 tickers... | SPY regime: BULL ($759.57 vs SMA-200 $713.41)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 18:25:55,573 - strategy.signals - INFO - Evaluating signal -- Close=215.50, RSI=50.77, MACD=-0.9142, MACD_Signal=-1.7295, SMA_20=213.10, BB_Lower=208.92, ADX=24.21
+2026-09-16 18:25:55,573 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (215.50 > 213.10); Above BB_Lower (215.50 > 208.92); Daily trend bearish (confidence reduced)
+2026-09-16 18:25:55,573 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (215.50 > 213.10)', 'Above BB_Lower (215.50 > 208.92)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 215.50 BUY     0.50 $   1.52         none
+2026-09-16 18:25:56,005 - strategy.signals - INFO - Evaluating signal -- Close=360.79, RSI=48.04, MACD=-0.8116, MACD_Signal=-1.1603, SMA_20=360.57, BB_Lower=355.80, ADX=19.84
+2026-09-16 18:25:56,005 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=19.8 < 22.0)
+2026-09-16 18:25:56,005 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 18:25:56,005 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 360.79 HOLD    0.00 $   3.71         none
+2026-09-16 18:25:56,317 - strategy.signals - INFO - Evaluating signal -- Close=678.61, RSI=73.02, MACD=8.1744, MACD_Signal=8.1647, SMA_20=667.41, BB_Lower=650.71, ADX=60.65
+2026-09-16 18:25:56,317 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (678.61 > 667.41); Above BB_Lower (678.61 > 650.71)
+2026-09-16 18:25:56,317 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (678.61 > 667.41)', 'Above BB_Lower (678.61 > 650.71)'], 'blocked': False, 'block_reason': ''}
+  META     $ 678.61 BUY     0.75 $   6.74          7sh
+2026-09-16 18:25:56,889 - strategy.signals - INFO - Evaluating signal -- Close=493.64, RSI=40.87, MACD=-1.0802, MACD_Signal=-0.0397, SMA_20=499.59, BB_Lower=489.26, ADX=23.95
+2026-09-16 18:25:56,889 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:25:56,889 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 493.64 SELL    0.33 $   2.94         none
+2026-09-16 18:25:57,152 - strategy.signals - INFO - Evaluating signal -- Close=334.36, RSI=64.18, MACD=1.5711, MACD_Signal=1.7482, SMA_20=332.37, BB_Lower=328.86, ADX=38.89
+2026-09-16 18:25:57,152 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:25:57,152 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 334.36 SELL    0.33 $   2.08         none
+
+  Equity: $99,263.94 | Long exposure: $4,750 (4.8%) | Cash: $94,513.88
+  Market closes in: 94 mins
+  Next scan:        in 15 minutes
+
+[18:40:57] Scanning 5 tickers... | SPY regime: BULL ($758.41 vs SMA-200 $713.41)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 18:40:57,835 - strategy.signals - INFO - Evaluating signal -- Close=214.94, RSI=48.29, MACD=-0.7951, MACD_Signal=-1.5423, SMA_20=212.94, BB_Lower=209.39, ADX=22.84
+2026-09-16 18:40:57,835 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (214.94 > 212.94); Above BB_Lower (214.94 > 209.39); Daily trend bearish (confidence reduced)
+2026-09-16 18:40:57,836 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (214.94 > 212.94)', 'Above BB_Lower (214.94 > 209.39)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 214.94 BUY     0.50 $   1.52         none
+2026-09-16 18:40:58,387 - strategy.signals - INFO - Evaluating signal -- Close=359.41, RSI=45.11, MACD=-0.8593, MACD_Signal=-1.1003, SMA_20=360.27, BB_Lower=356.07, ADX=19.92
+2026-09-16 18:40:58,387 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=19.9 < 22.0)
+2026-09-16 18:40:58,387 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 18:40:58,387 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 359.41 HOLD    0.00 $   3.67         none
+2026-09-16 18:40:58,696 - strategy.signals - INFO - Evaluating signal -- Close=681.93, RSI=75.52, MACD=8.3298, MACD_Signal=8.1972, SMA_20=669.09, BB_Lower=653.80, ADX=61.82
+2026-09-16 18:40:58,697 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- MACD bullish (MACD > Signal); Above SMA_20 (681.93 > 669.09); Above BB_Lower (681.93 > 653.80)
+2026-09-16 18:40:58,697 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (681.93 > 669.09)', 'Above BB_Lower (681.93 > 653.80)'], 'blocked': False, 'block_reason': ''}
+  META     $ 681.93 BUY     0.75 $   6.69          7sh
+2026-09-16 18:40:59,035 - strategy.signals - INFO - Evaluating signal -- Close=493.23, RSI=40.06, MACD=-1.2375, MACD_Signal=-0.2792, SMA_20=499.48, BB_Lower=488.90, ADX=25.08
+2026-09-16 18:40:59,035 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:40:59,035 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 493.23 SELL    0.33 $   2.93         none
+2026-09-16 18:40:59,335 - strategy.signals - INFO - Evaluating signal -- Close=334.01, RSI=62.06, MACD=1.5998, MACD_Signal=1.7215, SMA_20=332.47, BB_Lower=328.86, ADX=39.21
+2026-09-16 18:40:59,335 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:40:59,335 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 334.01 SELL    0.33 $   2.08         none
+
+  Equity: $99,288.58 | Long exposure: $4,774 (4.8%) | Cash: $94,513.88
+  Market closes in: 79 mins
+  Next scan:        in 15 minutes
+
+[18:55:59] Scanning 5 tickers... | SPY regime: BULL ($755.24 vs SMA-200 $713.39)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 18:55:59,974 - strategy.signals - INFO - Evaluating signal -- Close=214.31, RSI=45.79, MACD=-0.8453, MACD_Signal=-1.5523, SMA_20=212.90, BB_Lower=209.42, ADX=22.91
+2026-09-16 18:55:59,974 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (214.31 > 212.90); Above BB_Lower (214.31 > 209.42); Daily trend bearish (confidence reduced)
+2026-09-16 18:55:59,975 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (214.31 > 212.90)', 'Above BB_Lower (214.31 > 209.42)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 214.31 BUY     0.50 $   1.53         none
+2026-09-16 18:56:00,289 - strategy.signals - INFO - Evaluating signal -- Close=357.42, RSI=41.44, MACD=-1.0180, MACD_Signal=-1.1321, SMA_20=360.17, BB_Lower=355.79, ADX=20.04
+2026-09-16 18:56:00,289 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=20.0 < 22.0)
+2026-09-16 18:56:00,289 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 18:56:00,289 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 357.42 HOLD    0.00 $   3.71         none
+2026-09-16 18:56:00,637 - strategy.signals - INFO - Evaluating signal -- Close=679.83, RSI=73.99, MACD=8.1615, MACD_Signal=8.1635, SMA_20=668.98, BB_Lower=654.04, ADX=61.93
+2026-09-16 18:56:00,637 - strategy.signals - INFO - SELL signal generated (confidence=0.66) -- RSI overbought (74.0 > 70.0); MACD bearish (MACD < Signal)
+2026-09-16 18:56:00,638 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.66, 'reasons': ['RSI overbought (74.0 > 70.0)', 'MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 18:56:00,708 - broker.alpaca - INFO - SELL skipped for META — bracket exit orders active (1 legs). Letting broker handle exit.
+  META     $ 679.83 SELL    0.66 $   6.90          7sh
+2026-09-16 18:56:01,061 - strategy.signals - INFO - Evaluating signal -- Close=491.92, RSI=37.66, MACD=-1.3420, MACD_Signal=-0.3001, SMA_20=499.41, BB_Lower=488.65, ADX=25.08
+2026-09-16 18:56:01,061 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:56:01,061 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 491.92 SELL    0.33 $   2.99         none
+2026-09-16 18:56:01,346 - strategy.signals - INFO - Evaluating signal -- Close=333.01, RSI=57.82, MACD=1.5194, MACD_Signal=1.7054, SMA_20=332.42, BB_Lower=328.88, ADX=39.21
+2026-09-16 18:56:01,347 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 18:56:01,347 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 333.01 SELL    0.33 $   2.08         none
+
+  Equity: $99,271.92 | Long exposure: $4,758 (4.8%) | Cash: $94,513.88
+  Market closes in: 63 mins
+  Next scan:        in 15 minutes
+
+[19:11:01] Scanning 5 tickers... | SPY regime: BULL ($752.32 vs SMA-200 $713.38)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 19:11:02,133 - strategy.signals - INFO - Evaluating signal -- Close=213.33, RSI=42.38, MACD=-0.9237, MACD_Signal=-1.5680, SMA_20=212.86, BB_Lower=209.43, ADX=23.34
+2026-09-16 19:11:02,133 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (213.33 > 212.86); Above BB_Lower (213.33 > 209.43); Daily trend bearish (confidence reduced)
+2026-09-16 19:11:02,133 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (213.33 > 212.86)', 'Above BB_Lower (213.33 > 209.43)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 213.33 BUY     0.50 $   1.59         none
+2026-09-16 19:11:02,484 - strategy.signals - INFO - Evaluating signal -- Close=356.30, RSI=39.63, MACD=-1.1073, MACD_Signal=-1.1499, SMA_20=360.11, BB_Lower=355.56, ADX=20.25
+2026-09-16 19:11:02,485 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=20.3 < 22.0)
+2026-09-16 19:11:02,485 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 19:11:02,485 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 356.30 HOLD    0.00 $   3.77         none
+2026-09-16 19:11:02,812 - strategy.signals - INFO - Evaluating signal -- Close=677.00, RSI=69.63, MACD=7.9362, MACD_Signal=8.1185, SMA_20=668.84, BB_Lower=654.28, ADX=61.93
+2026-09-16 19:11:02,812 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:11:02,812 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 19:11:02,876 - broker.alpaca - INFO - SELL skipped for META — bracket exit orders active (1 legs). Letting broker handle exit.
+  META     $ 677.00 SELL    0.33 $   6.90          7sh
+2026-09-16 19:11:03,596 - strategy.signals - INFO - Evaluating signal -- Close=490.85, RSI=35.90, MACD=-1.4278, MACD_Signal=-0.3172, SMA_20=499.36, BB_Lower=488.43, ADX=25.16
+2026-09-16 19:11:03,596 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:11:03,596 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 490.85 SELL    0.33 $   3.01         none
+2026-09-16 19:11:03,928 - strategy.signals - INFO - Evaluating signal -- Close=331.37, RSI=52.06, MACD=1.3890, MACD_Signal=1.6794, SMA_20=332.34, BB_Lower=328.78, ADX=38.32
+2026-09-16 19:11:03,929 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:11:03,929 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 331.37 SELL    0.33 $   2.17         none
+
+  Equity: $99,252.88 | Long exposure: $4,739 (4.8%) | Cash: $94,513.88
+  Market closes in: 48 mins
+  Next scan:        in 15 minutes
+
+[19:26:04] Scanning 5 tickers... | SPY regime: BULL ($749.82 vs SMA-200 $713.36)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 19:26:05,226 - strategy.signals - INFO - Evaluating signal -- Close=212.60, RSI=40.16, MACD=-0.9817, MACD_Signal=-1.5796, SMA_20=212.82, BB_Lower=209.40, ADX=23.71
+2026-09-16 19:26:05,227 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-09-16 19:26:05,227 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['No clear BUY or SELL conditions met'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 212.60 HOLD    0.00 $   1.64         none
+2026-09-16 19:26:05,568 - strategy.signals - INFO - Evaluating signal -- Close=355.26, RSI=38.07, MACD=-1.1907, MACD_Signal=-1.1666, SMA_20=360.06, BB_Lower=355.31, ADX=20.49
+2026-09-16 19:26:05,568 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=20.5 < 22.0)
+2026-09-16 19:26:05,568 - strategy.signals - INFO - SELL signal generated (confidence=0.66) -- MACD bearish (MACD < Signal); Below BB_Lower (355.26 < 355.31)
+2026-09-16 19:26:05,568 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.66, 'reasons': ['MACD bearish (MACD < Signal)', 'Below BB_Lower (355.26 < 355.31)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 355.26 SELL    0.66 $   3.86         none
+2026-09-16 19:26:05,896 - strategy.signals - INFO - Evaluating signal -- Close=672.49, RSI=61.51, MACD=7.5764, MACD_Signal=8.0465, SMA_20=668.62, BB_Lower=654.46, ADX=61.93
+2026-09-16 19:26:05,897 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:26:05,897 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 19:26:05,953 - broker.alpaca - INFO - SELL skipped for META — bracket exit orders active (1 legs). Letting broker handle exit.
+  META     $ 672.49 SELL    0.33 $   7.16          7sh
+2026-09-16 19:26:06,284 - strategy.signals - INFO - Evaluating signal -- Close=487.58, RSI=31.42, MACD=-1.6886, MACD_Signal=-0.3694, SMA_20=499.20, BB_Lower=487.65, ADX=25.75
+2026-09-16 19:26:06,285 - strategy.signals - INFO - SELL signal generated (confidence=0.66) -- MACD bearish (MACD < Signal); Below BB_Lower (487.58 < 487.65)
+2026-09-16 19:26:06,285 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.66, 'reasons': ['MACD bearish (MACD < Signal)', 'Below BB_Lower (487.58 < 487.65)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 487.58 SELL    0.66 $   3.23         none
+2026-09-16 19:26:06,618 - strategy.signals - INFO - Evaluating signal -- Close=330.98, RSI=50.86, MACD=1.3580, MACD_Signal=1.6732, SMA_20=332.32, BB_Lower=328.73, ADX=37.91
+2026-09-16 19:26:06,618 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:26:06,618 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 330.98 SELL    0.33 $   2.21         none
+
+  Equity: $99,220.51 | Long exposure: $4,707 (4.7%) | Cash: $94,513.88
+  Market closes in: 33 mins
+  Next scan:        in 15 minutes
+
+[19:41:06] Scanning 5 tickers... | SPY regime: BULL ($752.32 vs SMA-200 $713.38)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 19:41:07,211 - strategy.signals - INFO - Evaluating signal -- Close=213.80, RSI=44.49, MACD=-0.8831, MACD_Signal=-1.4307, SMA_20=213.02, BB_Lower=209.77, ADX=23.31
+2026-09-16 19:41:07,211 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (213.80 > 213.02); Above BB_Lower (213.80 > 209.77); Daily trend bearish (confidence reduced)
+2026-09-16 19:41:07,211 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (213.80 > 213.02)', 'Above BB_Lower (213.80 > 209.77)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 213.80 BUY     0.50 $   1.57         none
+2026-09-16 19:41:07,566 - strategy.signals - INFO - Evaluating signal -- Close=357.45, RSI=42.50, MACD=-1.2407, MACD_Signal=-1.1696, SMA_20=360.06, BB_Lower=355.40, ADX=21.15
+2026-09-16 19:41:07,566 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=21.1 < 22.0)
+2026-09-16 19:41:07,566 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:41:07,566 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 357.45 SELL    0.33 $   3.75         none
+2026-09-16 19:41:07,913 - strategy.signals - INFO - Evaluating signal -- Close=673.68, RSI=63.14, MACD=7.1602, MACD_Signal=7.8778, SMA_20=669.68, BB_Lower=657.35, ADX=63.12
+2026-09-16 19:41:07,914 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:41:07,914 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 19:41:07,976 - broker.alpaca - INFO - SELL skipped for META — bracket exit orders active (1 legs). Letting broker handle exit.
+  META     $ 673.68 SELL    0.33 $   6.86          7sh
+2026-09-16 19:41:08,381 - strategy.signals - INFO - Evaluating signal -- Close=489.11, RSI=34.07, MACD=-1.9594, MACD_Signal=-0.6739, SMA_20=498.73, BB_Lower=486.53, ADX=27.50
+2026-09-16 19:41:08,381 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:41:08,381 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 489.11 SELL    0.33 $   3.11         none
+2026-09-16 19:41:08,787 - strategy.signals - INFO - Evaluating signal -- Close=331.98, RSI=53.97, MACD=1.2792, MACD_Signal=1.6024, SMA_20=332.29, BB_Lower=328.76, ADX=37.00
+2026-09-16 19:41:08,787 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:41:08,787 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 331.98 SELL    0.33 $   2.12         none
+
+  Equity: $99,230.27 | Long exposure: $4,716 (4.8%) | Cash: $94,513.88
+  Market closes in: 18 mins
+  Next scan:        in 15 minutes
+
+[19:56:08] Scanning 5 tickers... | SPY regime: BULL ($754.00 vs SMA-200 $713.39)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 19:56:09,607 - strategy.signals - INFO - Evaluating signal -- Close=213.43, RSI=42.84, MACD=-0.9124, MACD_Signal=-1.4366, SMA_20=213.01, BB_Lower=209.77, ADX=23.31
+2026-09-16 19:56:09,607 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (213.43 > 213.01); Above BB_Lower (213.43 > 209.77); Daily trend bearish (confidence reduced)
+2026-09-16 19:56:09,607 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (213.43 > 213.01)', 'Above BB_Lower (213.43 > 209.77)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 213.43 BUY     0.50 $   1.62         none
+2026-09-16 19:56:09,946 - strategy.signals - INFO - Evaluating signal -- Close=357.89, RSI=43.48, MACD=-1.2056, MACD_Signal=-1.1626, SMA_20=360.08, BB_Lower=355.47, ADX=21.15
+2026-09-16 19:56:09,946 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=21.1 < 22.0)
+2026-09-16 19:56:09,946 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:56:09,946 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 357.89 SELL    0.33 $   3.82         none
+2026-09-16 19:56:10,263 - strategy.signals - INFO - Evaluating signal -- Close=672.48, RSI=61.41, MACD=7.0645, MACD_Signal=7.8586, SMA_20=669.62, BB_Lower=657.36, ADX=63.12
+2026-09-16 19:56:10,263 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:56:10,263 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+2026-09-16 19:56:10,324 - broker.alpaca - INFO - SELL skipped for META — bracket exit orders active (1 legs). Letting broker handle exit.
+  META     $ 672.48 SELL    0.33 $   7.05          7sh
+2026-09-16 19:56:10,751 - strategy.signals - INFO - Evaluating signal -- Close=489.81, RSI=35.95, MACD=-1.9035, MACD_Signal=-0.6627, SMA_20=498.76, BB_Lower=486.68, ADX=27.50
+2026-09-16 19:56:10,751 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:56:10,751 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 489.81 SELL    0.33 $   3.20         none
+2026-09-16 19:56:11,098 - strategy.signals - INFO - Evaluating signal -- Close=332.23, RSI=54.70, MACD=1.2991, MACD_Signal=1.6064, SMA_20=332.30, BB_Lower=328.77, ADX=37.00
+2026-09-16 19:56:11,098 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 19:56:11,098 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 332.23 SELL    0.33 $   2.13         none
+
+  Equity: $99,221.49 | Long exposure: $4,708 (4.7%) | Cash: $94,513.88
+  Market closes in: 3 mins
+  Next scan:        in 15 minutes
+
+[20:11:11] Scanning 5 tickers... | SPY regime: BULL ($754.13 vs SMA-200 $713.39)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-16 20:11:11,666 - strategy.signals - INFO - Evaluating signal -- Close=213.91, RSI=44.97, MACD=-0.8744, MACD_Signal=-1.4290, SMA_20=213.03, BB_Lower=209.77, ADX=23.31
+2026-09-16 20:11:11,667 - strategy.signals - INFO - BUY signal generated (confidence=0.50) -- MACD bullish (MACD > Signal); Above SMA_20 (213.91 > 213.03); Above BB_Lower (213.91 > 209.77); Daily trend bearish (confidence reduced)
+2026-09-16 20:11:11,667 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.5, 'reasons': ['MACD bullish (MACD > Signal)', 'Above SMA_20 (213.91 > 213.03)', 'Above BB_Lower (213.91 > 209.77)', 'Daily trend bearish (confidence reduced)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 213.91 BUY     0.50 $   1.62         none
+2026-09-16 20:11:11,914 - strategy.signals - INFO - Evaluating signal -- Close=358.13, RSI=44.01, MACD=-1.1865, MACD_Signal=-1.1587, SMA_20=360.10, BB_Lower=355.51, ADX=21.15
+2026-09-16 20:11:11,914 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=21.1 < 22.0)
+2026-09-16 20:11:11,914 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 20:11:11,914 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 358.13 SELL    0.33 $   3.82         none
+2026-09-16 20:11:12,149 - strategy.signals - INFO - Evaluating signal -- Close=673.33, RSI=62.77, MACD=7.1323, MACD_Signal=7.8722, SMA_20=669.66, BB_Lower=657.35, ADX=63.12
+2026-09-16 20:11:12,149 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 20:11:12,149 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  META     $ 673.33 SELL    0.33 $   7.05          7sh
+2026-09-16 20:11:12,485 - strategy.signals - INFO - Evaluating signal -- Close=490.36, RSI=37.36, MACD=-1.8597, MACD_Signal=-0.6539, SMA_20=498.79, BB_Lower=486.79, ADX=27.50
+2026-09-16 20:11:12,485 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 20:11:12,485 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 490.36 SELL    0.33 $   3.20         none
+2026-09-16 20:11:12,743 - strategy.signals - INFO - Evaluating signal -- Close=332.50, RSI=55.47, MACD=1.3207, MACD_Signal=1.6107, SMA_20=332.32, BB_Lower=328.79, ADX=37.00
+2026-09-16 20:11:12,744 - strategy.signals - INFO - SELL signal generated (confidence=0.33) -- MACD bearish (MACD < Signal)
+2026-09-16 20:11:12,744 - strategy.signals - INFO - Signal result: {'signal': 'SELL', 'confidence': 0.33, 'reasons': ['MACD bearish (MACD < Signal)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 332.50 SELL    0.33 $   2.13         none
+
+  Equity: $99,226.56 | Long exposure: $4,713 (4.7%) | Cash: $94,513.88
+  Market status:    CLOSED (Next open: 2026-09-17 09:30 -04:00) — session completed.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,226.56
+2026-09-16 20:11:13,082 - analytics.metrics - INFO - Performance metrics computed: {'session_timestamp': '2026-09-16T20:11:13.074833', 'starting_equity': 100000.0, 'ending_equity': 99226.56, 'total_return_pct': -0.7734, 'sharpe_ratio': -5.882, 'sortino_ratio': -6.0253, 'max_drawdown_pct': -0.6897, 'max_drawdown_duration_days': 25, 'total_trades': 207, 'winning_trades': 39, 'losing_trades': 26, 'win_rate': 0.2746, 'expectancy': 62.0492, 'profit_factor': 3306.9399, 'avg_gain': 226.1936, 'avg_loss': -0.1026, 'avg_slippage_pct': 0.03013, 'avg_execution_latency_ms': 2267.03}
+2026-09-16 20:11:13,083 - analytics.metrics - INFO - Performance summary saved to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/performance_summary.json
+2026-09-16 20:11:13,084 - analytics.metrics - INFO - Session stats appended to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/trade_history.csv
+============================================================
+  QUANTITATIVE PERFORMANCE SUMMARY
+============================================================
+  Total Return:       -0.77%
+  Sharpe Ratio:       -5.8820
+  Sortino Ratio:      -6.0253
+  Max Drawdown:       -0.69%
+  Drawdown Duration:  25 periods
+  Win Rate:           27.5%
+  Expectancy:         $62.05
+  Profit Factor:      3306.94
+  Avg Slippage:       0.0301%
+  Avg Latency:        2267ms
+  Total Trades:       207
+============================================================
+============================================================
