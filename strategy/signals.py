@@ -10,6 +10,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from risk.manager import RiskManager
 from strategy.indicators import add_all_indicators
 
+try:
+    from ml.predictor import MetaLabelPredictor
+    _META_PREDICTOR = MetaLabelPredictor()
+    _META_AVAILABLE = True
+except Exception:
+    _META_AVAILABLE = False
+    _META_PREDICTOR = None
+
 # Configure logger for signal generator module
 logger = logging.getLogger(__name__)
 if not logger.handlers:
@@ -57,6 +65,8 @@ class SignalGenerator:
         rsi_overbought: float = 70.0,
         require_confirmation: bool = True,
         adx_min: float = 22.0,
+        adx_period: int = 14,
+        **kwargs,
     ) -> None:
         """
         Initialise the SignalGenerator.
@@ -270,6 +280,23 @@ class SignalGenerator:
 
         sell_triggered = sell_count >= 1
 
+        reasons = buy_reasons
+        if buy_triggered and _META_AVAILABLE and _META_PREDICTOR:
+            should_trade, ml_prob = _META_PREDICTOR.should_trade(df)
+            if not should_trade:
+                logger.info(
+                    "MetaLabel BLOCKED trade: P(success)=%.3f < 0.65",
+                    ml_prob
+                )
+                buy_triggered = False
+                reasons.append(f"ML filter: P={ml_prob:.2f} < 0.65")
+            else:
+                logger.info(
+                    "MetaLabel APPROVED trade: P(success)=%.3f",
+                    ml_prob
+                )
+                reasons.append(f"ML filter: P={ml_prob:.2f} >= 0.65")
+
         if buy_triggered:
             signal = "BUY"
             confidence = buy_confidence
@@ -291,7 +318,8 @@ class SignalGenerator:
         else:
             signal = "HOLD"
             confidence = 0.0
-            reasons = ["No clear BUY or SELL conditions met"]
+            if not reasons:
+                reasons = ["No clear BUY or SELL conditions met"]
             logger.info("HOLD signal -- no actionable conditions detected.")
 
         result = {
