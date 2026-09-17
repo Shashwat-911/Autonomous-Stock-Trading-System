@@ -15,7 +15,12 @@ except ImportError:
 
 TRADING = {
     "ticker": "NVDA",                  # primary asset / default fallback
-    "tickers": ["NVDA", "TSLA", "META", "MSFT", "AAPL"],  # 5-stock high-momentum universe
+    "tickers": [
+        "NVDA", "AAPL", "MSFT", "TSLA", "AMZN",
+        "GOOGL", "META", "AMD", "NFLX", "CRM",
+        "JPM", "GS", "BAC", "V", "MA",
+        "LLY", "UNH", "JNJ", "PG", "XOM"
+    ],
     "interval": "1h",                  # 1-hour candles for high-conviction trend trading
     "interval_daily": "1d",            # daily bars for multi-timeframe alignment
     "initial_balance": 100000.0,
@@ -26,18 +31,18 @@ TRADING = {
 }
 
 SIGNAL = {
-    "rsi_oversold": 40.0,    # lower bound for RSI on BUY (lowered 45→40: require stronger dip before buying)
-    "rsi_overbought": 70.0,  # sell when overbought
+    "rsi_oversold": 37.0,    # was 40.0, Bayesian suggests 37.25
+    "rsi_overbought": 71.0,  # was 70.0, minor change
     "require_confirmation": False,
-    "adx_min": 22.0,         # minimum ADX required for trend trades (filters choppy markets)
+    "adx_min": 24.0,         # was 22.0, Bayesian suggests 24.30
     "adx_period": 14,        # standard lookback for ADX calculation
 }
 
 RISK = {
     "max_daily_loss_pct": 0.05,
     "max_trade_loss_pct": 0.05,        # loosened 4%→5%: fewer premature stop-outs
-    "max_position_pct": 0.10,          # 10% per trade
-    "max_position_dollars": 5000.0,    # $5000 per trade
+    "max_position_pct": 0.05,          # 5% per trade
+    "max_position_dollars": 3000.0,    # $3000 per trade
     "cooldown_minutes": 5,             # reduced 15→5 min: re-enter much faster after stop-loss
     "max_portfolio_heat_pct": 0.60,    # max 60% of equity in long positions
     # ATR-based position sizing
