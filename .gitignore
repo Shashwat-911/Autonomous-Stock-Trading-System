@@ -65,8 +65,14 @@ outputs/logs/legacy/
 .DS_Store
 Thumbs.db
 
+# ML pipeline artifacts (regenerated on deploy)
+ml/training_data.csv
+# ml/meta_model.pkl
+# ml/*.pkl
+ml/optimization_results.csv
+
 # Accidental / non-trading files
 backend/
 requirements_full.txt
 scripts/fetch_step_today.py
-*.pkl
+# *.pkl

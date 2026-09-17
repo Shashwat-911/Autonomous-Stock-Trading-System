@@ -1,0 +1,13 @@
+{
+  "best_params": {
+    "rsi_oversold": 34.73138580566327,
+    "rsi_overbought": 62.08866907152747,
+    "adx_min": 29.748795443662907,
+    "sl_pct": 0.01598480967219379,
+    "tp_pct": 0.018400885918076197,
+    "macd_confirm": true
+  },
+  "best_sharpe": -999.0,
+  "current_sharpe": -999.0,
+  "improvement_pct": 0.0
+}

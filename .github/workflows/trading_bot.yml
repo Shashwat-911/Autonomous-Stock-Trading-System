@@ -3,6 +3,7 @@ name: AutoTrader Daily Session
 on:
   schedule:
     - cron: '30 13 * * 1-5'  # 7:00 PM IST = 13:30 UTC Mon-Fri
+    - cron: '0 2 * * 0'      # Run every Sunday at 2 AM UTC (7:30 AM IST) - weekly ML retrain
   workflow_dispatch:           # manual trigger for testing
 
 permissions:
@@ -37,7 +38,21 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+        pip install lightgbm optuna scikit-learn
         echo "Dependencies installed"
+
+    - name: Train ML meta-labeling model
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      run: |
+        if [ ! -f ml/meta_model.pkl ]; then
+          echo "Training ML model..."
+          python ml/run_pipeline.py
+          echo "ML model trained"
+        else
+          echo "ML model already exists, skipping training"
+        fi
 
     - name: Create output directories
       run: |
@@ -46,9 +61,14 @@ jobs:
         echo "Directories ready"
 
     # ─────────────────────────────────────────
-    # STAGE 2: Run the trading bot
+    # STAGE 2: Run the trading bot / ML retrain
     # ─────────────────────────────────────────
+    - name: Retrain ML model (weekly)
+      if: github.event.schedule == '0 2 * * 0'
+      run: python ml/run_pipeline.py
+
     - name: Run live trading session
+      if: github.event.schedule != '0 2 * * 0'
       run: |
         DATE=$(date +%Y_%m_%d)
         LOG_FILE="outputs/logs/session_${DATE}.txt"
@@ -109,6 +129,7 @@ jobs:
         git add outputs/trade_history.csv || true
         git add outputs/daily_pnl_chart.png || true
         git add README.md || true
+        git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl || true
 
         if git diff --staged --quiet; then
           echo "No changes to commit"
