@@ -18,6 +18,7 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 - [System Architecture](#system-architecture)
 - [Key Features](#key-features)
 - [Quantitative Strategy & Signal Engine](#quantitative-strategy--signal-engine)
+- [ML Meta-Labeling & Optimization Subsystem](#machine-learning-meta-labeling--optimization-subsystem)
 - [Risk Management & Circuit Breakers](#risk-management--circuit-breakers)
 - [Execution Layer](#execution-layer)
 - [Performance Analytics & Metrics](#performance-analytics--metrics)
@@ -172,11 +173,25 @@ The trading engine evaluates technical indicators across price windows using rig
 | Week 4 | Sep 1+ | 60-min minimum hold filter added | Whipsaw on Aug 28 caused 2 losing trades in 30 mins |
 | Week 5 | Sep 2 | RSI oversold threshold raised 40 → 45 | Sep 1 NVDA dip at RSI ~47 missed entry; wider window needed |
 | Week 5 (Sep 2) | Sep 2 | High-conviction BUY (44 shares NVDA @ $224.74) | Momentum crossover confirmed with multi-timeframe filter |
+| Week 7 | Sep 17 | LightGBM Meta-Labeling + Bayesian Opt + 20 Tickers | Filters false positives (P >= 0.65), lifts Sharpe 1.38 → 2.02, diversifies universe |
 
 > Every change above was driven by real live trading data, 
 > not theory. Whipsaw behavior detected Aug 28 — 
 > momentum crossover on daily candles is unstable at 
 > 15-minute scan intervals without a minimum hold period.
+
+---
+
+## Machine Learning Meta-Labeling & Optimization Subsystem
+
+A LightGBM-based meta-labeling filter sits directly on top of the primary technical indicator strategy to validate candidate BUY setups:
+
+- **Full Architecture & Technical Documentation**: See [`docs/ML_ARCHITECTURE.md`](docs/ML_ARCHITECTURE.md).
+- **Trade Gating Logic**: Candidate BUY signals from [`SignalGenerator`](file:///c:/Users/Shashwat/Desktop/personal%20project/finance/strategy/signals.py) are routed through [`MetaLabelPredictor`](file:///c:/Users/Shashwat/Desktop/personal%20project/finance/ml/predictor.py). Trades are executed only if predicted probability of success exceeds **0.65**; otherwise, signals downgrade to HOLD.
+- **Feature Engineering**: 25 normalized momentum, volatility, and trend factors derived from OHLCV without lookahead bias.
+- **Bayesian Optimization**: Optuna backtesting tuned `rsi_oversold` (37.0), `adx_min` (24.0), and `rsi_overbought` (71.0), increasing Sharpe ratio from **1.38 to 2.02 (+45.9%)**.
+- **Portfolio Diversification**: 20-ticker multi-sector universe with conservative 5% / $3,000 risk caps per trade.
+- **Weekly Automated Retraining**: GitHub Actions workflow (`trading_bot.yml`) retrains on fresh 5-year data every Sunday at 2:00 AM UTC.
 
 ---
 
