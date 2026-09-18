@@ -295,7 +295,7 @@ class AlpacaPaperBroker:
                 symbol=sym,
                 qty=quantity,
                 side=OrderSide.BUY,
-                time_in_force=TimeInForce.DAY,
+                time_in_force=TimeInForce.GTC,
                 order_class=OrderClass.BRACKET,
                 take_profit=TakeProfitRequest(limit_price=take_profit_price),
                 stop_loss=StopLossRequest(stop_price=stop_price),
