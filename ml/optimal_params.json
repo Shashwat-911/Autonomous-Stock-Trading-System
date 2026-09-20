@@ -1,13 +1,13 @@
 {
   "best_params": {
-    "rsi_oversold": 34.73138580566327,
-    "rsi_overbought": 62.08866907152747,
-    "adx_min": 29.748795443662907,
-    "sl_pct": 0.01598480967219379,
-    "tp_pct": 0.018400885918076197,
+    "rsi_oversold": 28.781077686288516,
+    "rsi_overbought": 68.43516535882705,
+    "adx_min": 23.85981244728861,
+    "sl_pct": 0.023031810967165355,
+    "tp_pct": 0.015989207470913615,
     "macd_confirm": true
   },
-  "best_sharpe": -999.0,
-  "current_sharpe": -999.0,
-  "improvement_pct": 0.0
+  "best_sharpe": 2.3414138650455785,
+  "current_sharpe": 1.9223590566927724,
+  "improvement_pct": 21.798987389678814
 }
