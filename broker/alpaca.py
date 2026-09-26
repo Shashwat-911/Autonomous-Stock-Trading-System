@@ -98,6 +98,7 @@ class AlpacaPaperBroker:
         # Trailing stop tracking: ticker -> {order_id, entry_price, atr, activated}
         self._trailing_state: Dict[str, dict] = {}
         self._last_buy_time: Dict[str, datetime] = {}
+        self._slippage_log: list = []
 
         logger.info(
             "AlpacaPaperBroker initialized -- ticker=%s, feed=%s, min_confidence=%.2f",
@@ -196,8 +197,27 @@ class AlpacaPaperBroker:
         except Exception:
             return {}
 
-    def submit_buy(self, quantity: int, reason: str = "", ticker: Optional[str] = None) -> dict:
+    def _make_client_order_id(self, reason: str, ticker: Optional[str] = None) -> str:
+        """Generate a clean client_order_id embedding the signal reason."""
+        import re
+        sym = ticker or self.ticker
+        timestamp = datetime.now().strftime("%m%d%H%M")
+        clean_reason = re.sub(r'[^a-zA-Z0-9]', '-', reason)[:20]
+        client_id = f"{sym}-{clean_reason}-{timestamp}"
+        return client_id[:48]
+
+    def submit_buy(
+        self,
+        quantity: int = 0,
+        reason: str = "",
+        current_price: float = 0.0,
+        ticker: Optional[str] = None,
+        qty: Optional[int] = None,
+        **kwargs,
+    ) -> dict:
         """Submit a simple market buy order. Returns empty dict on failure."""
+        if qty is not None:
+            quantity = qty
         sym = ticker or self.ticker
         if quantity <= 0:
             logger.warning("submit_buy skipped -- invalid quantity %d.", quantity)
@@ -212,8 +232,18 @@ class AlpacaPaperBroker:
                 qty=quantity,
                 side=OrderSide.BUY,
                 time_in_force=TimeInForce.DAY,
+                client_order_id=self._make_client_order_id(reason, ticker=sym),
             )
             order = self.client.submit_order(order_data)
+
+            self._slippage_log.append({
+                "ticker": sym,
+                "submitted_at": datetime.now(timezone.utc).isoformat(),
+                "intended_price": current_price,
+                "order_id": str(order.id),
+                "side": "buy",
+            })
+
             logger.info(
                 f"BUY submitted: {quantity}sh {sym} | reason={reason} "
                 f"| order_id={order.id}"
@@ -234,13 +264,15 @@ class AlpacaPaperBroker:
 
     def submit_bracket_buy(
         self,
-        quantity: int,
-        reason: str,
-        current_price: float,
-        atr: float,
+        quantity: int = 0,
+        reason: str = "",
+        current_price: float = 0.0,
+        atr: float = 0.0,
         stop_loss_mult: float = 1.5,
         take_profit_mult: float = 3.0,
-        ticker: str | None = None,
+        ticker: Optional[str] = None,
+        qty: Optional[int] = None,
+        **kwargs,
     ) -> dict:
         """
         Submit a bracket BUY order with ATR-based stop-loss and take-profit.
@@ -267,6 +299,8 @@ class AlpacaPaperBroker:
         dict
             Order metadata including bracket levels.
         """
+        if qty is not None:
+            quantity = qty
         sym = ticker or self.ticker
         if quantity <= 0:
             logger.warning("submit_bracket_buy skipped -- invalid quantity %d.", quantity)
@@ -290,9 +324,18 @@ class AlpacaPaperBroker:
                 order_class=OrderClass.BRACKET,
                 take_profit=TakeProfitRequest(limit_price=take_profit_price),
                 stop_loss=StopLossRequest(stop_price=stop_price),
+                client_order_id=self._make_client_order_id(reason, ticker=sym),
             )
 
             order = self.client.submit_order(order_data)
+
+            self._slippage_log.append({
+                "ticker": sym,
+                "submitted_at": datetime.now(timezone.utc).isoformat(),
+                "intended_price": current_price,
+                "order_id": str(order.id),
+                "side": "buy",
+            })
 
             # Track for trailing stop management
             self._trailing_state[sym] = {
@@ -329,7 +372,12 @@ class AlpacaPaperBroker:
                 "Bracket order failed (%s), falling back to market order: %s",
                 sym, e,
             )
-            return self.submit_buy(quantity, reason, ticker=ticker)
+            return self.submit_buy(
+                quantity=quantity,
+                reason=reason,
+                current_price=current_price,
+                ticker=ticker,
+            )
 
     def cancel_open_orders(self, ticker: Optional[str] = None) -> list:
         """
@@ -706,9 +754,11 @@ class AlpacaPaperBroker:
         d_trend_bullish = kwargs.get("daily_trend_bullish", daily_trend_bullish)
 
         signal_dict = self.signal_generator.generate_signal(
-            df, portfolio_value,
+            df=df,
+            portfolio_value=portfolio_value,
             market_regime_bullish=m_regime_bullish,
             daily_trend_bullish=d_trend_bullish,
+            has_position=(position is not None),
         )
         signal = signal_dict["signal"]
         confidence = signal_dict["confidence"]
@@ -768,15 +818,19 @@ class AlpacaPaperBroker:
 
                     if atr_value > 0:
                         self.submit_bracket_buy(
-                            qty,
-                            "; ".join(signal_dict["reasons"]),
+                            qty=qty,
+                            reason="; ".join(signal_dict["reasons"]),
                             current_price=current_price,
                             atr=atr_value,
                             stop_loss_mult=sl_mult,
                             take_profit_mult=tp_mult,
                         )
                     else:
-                        self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
+                        self.submit_buy(
+                            qty=qty,
+                            reason="; ".join(signal_dict["reasons"]),
+                            current_price=current_price,
+                        )
                     self._last_buy_time[self.ticker] = datetime.now()
                     submitted_buy = True
                     order_val = qty * current_price
@@ -897,7 +951,11 @@ class AlpacaPaperBroker:
             current_price = float(raw_price)
 
             if not market_open:
-                sig_dict = self.signal_generator.generate_signal(df, portfolio_value)
+                sig_dict = self.signal_generator.generate_signal(
+                    df,
+                    portfolio_value,
+                    has_position=(all_positions.get(ticker) is not None),
+                )
                 results[ticker] = {
                     "ticker": ticker,
                     "signal": sig_dict["signal"],
@@ -938,14 +996,23 @@ class AlpacaPaperBroker:
                     }
                     continue
 
-            signal_dict = self.signal_generator.generate_signal(df, portfolio_value)
+            signal_dict = self.signal_generator.generate_signal(
+                df,
+                portfolio_value,
+                has_position=(position is not None),
+            )
             signal = signal_dict["signal"]
             confidence = signal_dict["confidence"]
 
             if signal == "BUY" and confidence >= self.min_confidence and can_trade:
                 qty = self.risk_manager.get_position_size(portfolio_value, current_price)
                 if qty > 0 and position is None:
-                    self.submit_buy(qty, "; ".join(signal_dict["reasons"]), ticker=ticker)
+                    self.submit_buy(
+                        qty=qty,
+                        reason="; ".join(signal_dict["reasons"]),
+                        current_price=current_price,
+                        ticker=ticker,
+                    )
 
             if signal == "SELL" and position is not None:
                 self.submit_sell("ALL", "; ".join(signal_dict["reasons"]), ticker=ticker)
