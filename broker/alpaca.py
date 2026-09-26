@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Union
 
 # Prevent local module (broker/alpaca.py) from shadowing installed 'alpaca' package
@@ -196,50 +196,41 @@ class AlpacaPaperBroker:
         except Exception:
             return {}
 
-    def submit_buy(self, quantity: int, reason: str, ticker: Optional[str] = None) -> dict:
-        """
-        Submit a market BUY order to Alpaca.
-
-        Parameters
-        ----------
-        quantity : int
-            Number of shares to buy.
-        reason : str
-            Reason for submitting the trade.
-        ticker : str, optional
-            Ticker symbol (default is self.ticker).
-
-        Returns
-        -------
-        dict
-            Order metadata dictionary or empty dict if skipped.
-        """
+    def submit_buy(self, quantity: int, reason: str = "", ticker: Optional[str] = None) -> dict:
+        """Submit a simple market buy order. Returns empty dict on failure."""
         sym = ticker or self.ticker
         if quantity <= 0:
             logger.warning("submit_buy skipped -- invalid quantity %d.", quantity)
             return {}
 
-        order_data = MarketOrderRequest(
-            symbol=sym,
-            qty=quantity,
-            side=OrderSide.BUY,
-            time_in_force=TimeInForce.DAY,
-        )
+        try:
+            from alpaca.trading.requests import MarketOrderRequest
+            from alpaca.trading.enums import OrderSide, TimeInForce
 
-        order = self.client.submit_order(order_data)
-        logger.info(
-            "BUY ORDER SUBMITTED: %d shares of %s | Reason: %s | Order ID: %s",
-            quantity,
-            sym,
-            reason,
-            order.id,
-        )
-        return {
-            "order_id": str(order.id),
-            "qty": quantity,
-            "side": "BUY",
-            "reason": reason,
-        }
+            order_data = MarketOrderRequest(
+                symbol=sym,
+                qty=quantity,
+                side=OrderSide.BUY,
+                time_in_force=TimeInForce.DAY,
+            )
+            order = self.client.submit_order(order_data)
+            logger.info(
+                f"BUY submitted: {quantity}sh {sym} | reason={reason} "
+                f"| order_id={order.id}"
+            )
+            return {
+                "id": str(order.id),
+                "order_id": str(order.id),
+                "status": str(order.status),
+                "qty": quantity,
+                "side": "BUY",
+                "reason": reason,
+            }
+        except Exception as e:
+            logger.error(
+                f"BUY order failed for {sym} (qty={quantity}): {e}"
+            )
+            return {}
 
     def submit_bracket_buy(
         self,
@@ -469,6 +460,105 @@ class AlpacaPaperBroker:
             logger.error("submit_sell failed for %s (%d shares): %s", sym, sell_qty, e)
             return {}
 
+    def _has_pending_buy_order(self) -> bool:
+        """
+        Return True if there is any open BUY order for this ticker 
+        that has not yet been filled. Prevents duplicate order submission.
+        """
+        try:
+            open_orders = self.client.get_orders(
+                filter=GetOrdersRequest(
+                    status=QueryOrderStatus.OPEN,
+                    symbols=[self.ticker],
+                    limit=10,
+                )
+            )
+            for order in open_orders:
+                if hasattr(order, 'side') and str(order.side).lower() in ('buy', 'ordersidebuy', 'orderside.buy'):
+                    logger.info(
+                        f"Dedup: Pending BUY order exists for {self.ticker} "
+                        f"(id={order.id}, status={order.status}) — skipping new BUY"
+                    )
+                    return True
+            return False
+        except Exception as e:
+            logger.warning(f"Dedup check failed for {self.ticker}: {e}")
+            return False  # Fail open: if we can't check, allow the order
+
+    def eod_liquidate_all(self, reason: str = "EOD force-close") -> dict:
+        """
+        Cancel all open bracket legs for this ticker and submit a market SELL
+        for any remaining position. Called ~10 minutes before market close.
+        Safe to call even when no position exists (returns early).
+        
+        Returns: dict with keys: cancelled_orders (int), position_closed (bool), 
+                 qty_closed (int), error (str or None)
+        """
+        result = {"cancelled_orders": 0, "position_closed": False,
+                  "qty_closed": 0, "error": None}
+        try:
+            # Step 1: Cancel all open orders for this ticker
+            try:
+                open_orders = self.client.get_orders(
+                    filter=GetOrdersRequest(
+                        status=QueryOrderStatus.OPEN,
+                        symbols=[self.ticker],
+                        limit=50,
+                    )
+                )
+                for order in open_orders:
+                    try:
+                        self.client.cancel_order_by_id(order.id)
+                        result["cancelled_orders"] += 1
+                        logger.info(f"EOD: Cancelled order {order.id} for {self.ticker}")
+                    except Exception as e:
+                        logger.warning(f"EOD: Failed to cancel order {order.id}: {e}")
+            except Exception as e:
+                logger.warning(f"EOD: Could not fetch open orders for {self.ticker}: {e}")
+
+            # Step 2: Check if position exists
+            position = self.get_current_position()
+            if position is None:
+                logger.info(f"EOD: No open position for {self.ticker} — nothing to close.")
+                return result
+
+            qty = int(float(position["shares"] if isinstance(position, dict) else position.qty))
+            if qty <= 0:
+                return result
+
+            # Step 3: Submit market SELL to close position
+            import time
+            time.sleep(0.5)  # Brief pause after cancellations to let Alpaca process
+            
+            from alpaca.trading.requests import MarketOrderRequest
+            from alpaca.trading.enums import OrderSide, TimeInForce
+
+            order_req = MarketOrderRequest(
+                symbol=self.ticker,
+                qty=qty,
+                side=OrderSide.SELL,
+                time_in_force=TimeInForce.DAY,
+            )
+            order = self.client.submit_order(order_req)
+            result["position_closed"] = True
+            result["qty_closed"] = qty
+            logger.info(
+                f"EOD force-close: Submitted SELL {qty}sh {self.ticker} "
+                f"| reason={reason} | order_id={order.id}"
+            )
+            
+            # Reset internal tracking
+            self._entry_price = None
+            self._trailing_stop = None
+            if hasattr(self, "_trailing_state"):
+                self._trailing_state.pop(self.ticker, None)
+
+        except Exception as e:
+            result["error"] = str(e)
+            logger.error(f"EOD liquidation failed for {self.ticker}: {e}")
+
+        return result
+
 
     def _update_trailing_stop(self, ticker: str, current_price: float) -> None:
         """
@@ -521,7 +611,14 @@ class AlpacaPaperBroker:
                 )
                 state["stop_price"] = trail_stop
 
-    def run_tick(self, df: pd.DataFrame, **kwargs) -> dict:
+    def run_tick(
+        self,
+        df: pd.DataFrame,
+        market_regime_bullish: bool = True,
+        daily_trend_bullish: bool = True,
+        pending_exposure: float = 0.0,
+        **kwargs,
+    ) -> dict:
         """
         Process a single time bar against the live Alpaca paper environment.
 
@@ -529,15 +626,49 @@ class AlpacaPaperBroker:
         ----------
         df : pd.DataFrame
             DataFrame containing technical indicators.
+        market_regime_bullish : bool, optional
+            Whether broad market regime (SPY) is bullish (default True).
+        daily_trend_bullish : bool, optional
+            Whether higher-timeframe daily trend is bullish (default True).
+        pending_exposure : float, optional
+            Dollar value of pending/unconfirmed orders from this scan (default 0.0).
 
         Returns
         -------
         dict
             Tick status output dictionary.
         """
-        current_price = float(df["Close"].iloc[-1])
-        atr_value = float(df["ATR_14"].iloc[-1]) if "ATR_14" in df.columns else 0.0
+        if df is None or df.empty or "Close" not in df.columns:
+            logger.warning(
+                f"Invalid or empty DataFrame for {self.ticker} — skipping tick"
+            )
+            return {
+                "action": "SKIP",
+                "reason": "Invalid or empty DataFrame",
+                "ticker": self.ticker,
+                "signal": "HOLD",
+                "confidence": 0.0,
+            }
+
+        raw_price = df["Close"].iloc[-1]
+        if pd.isna(raw_price) or raw_price <= 0:
+            logger.warning(
+                f"Invalid price for {self.ticker}: {raw_price} — skipping tick"
+            )
+            return {
+                "action": "SKIP",
+                "reason": f"Invalid price: {raw_price}",
+                "ticker": self.ticker,
+                "signal": "HOLD",
+                "confidence": 0.0,
+            }
+        current_price = float(raw_price)
+
+        raw_atr = df["ATR_14"].iloc[-1] if "ATR_14" in df.columns else 0.0
+        atr_value = 0.0 if pd.isna(raw_atr) else float(raw_atr)
         market_open = self.is_market_open()
+        submitted_buy = False
+        order_val = 0.0
 
         try:
             account = self.get_account_info()
@@ -570,14 +701,14 @@ class AlpacaPaperBroker:
                     "market_open": True,
                 }
 
-        # Extract extra context for signal generation
-        market_regime_bullish = kwargs.get("market_regime_bullish", True)
-        daily_trend_bullish = kwargs.get("daily_trend_bullish", True)
+        # Extract extra context for signal generation (also check kwargs for backward compatibility)
+        m_regime_bullish = kwargs.get("market_regime_bullish", market_regime_bullish)
+        d_trend_bullish = kwargs.get("daily_trend_bullish", daily_trend_bullish)
 
         signal_dict = self.signal_generator.generate_signal(
             df, portfolio_value,
-            market_regime_bullish=market_regime_bullish,
-            daily_trend_bullish=daily_trend_bullish,
+            market_regime_bullish=m_regime_bullish,
+            daily_trend_bullish=d_trend_bullish,
         )
         signal = signal_dict["signal"]
         confidence = signal_dict["confidence"]
@@ -597,17 +728,28 @@ class AlpacaPaperBroker:
             }
 
         if signal == "BUY" and confidence >= self.min_confidence and can_trade:
-            # Portfolio heat check
+            # Portfolio heat check augmented with pending orders from this scan
             all_pos = self.get_all_positions()
             long_exposure = sum(
                 p["shares"] * p["current_price"]
                 for p in all_pos.values()
             )
+            augmented_exposure = long_exposure + pending_exposure
             heat_ok, heat_reason = self.risk_manager.check_portfolio_heat(
-                long_exposure, portfolio_value
+                augmented_exposure, portfolio_value
             )
 
             if heat_ok and position is None:
+                # Deduplication: skip if a pending BUY order already exists
+                if self._has_pending_buy_order():
+                    return {
+                        "action": "SKIP",
+                        "reason": "Pending BUY order already exists — dedup protection",
+                        "ticker": self.ticker,
+                        "signal": "HOLD",
+                        "confidence": 0.0,
+                    }
+
                 # ATR-based position sizing with dollar and percentage caps
                 if atr_value > 0 and hasattr(self.risk_manager, "get_position_size_atr"):
                     qty = self.risk_manager.get_position_size_atr(
@@ -636,6 +778,8 @@ class AlpacaPaperBroker:
                     else:
                         self.submit_buy(qty, "; ".join(signal_dict["reasons"]))
                     self._last_buy_time[self.ticker] = datetime.now()
+                    submitted_buy = True
+                    order_val = qty * current_price
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
 
@@ -673,7 +817,7 @@ class AlpacaPaperBroker:
                         if self.ticker in self._last_buy_time:
                             minutes_held = (
                                 datetime.now() - self._last_buy_time[self.ticker]
-                            ).seconds / 60
+                            ).total_seconds() / 60
                             if minutes_held < 60:  # minimum 60 minute hold
                                 logger.info(
                                     f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
@@ -693,7 +837,7 @@ class AlpacaPaperBroker:
                 if self.ticker in self._last_buy_time:
                     minutes_held = (
                         datetime.now() - self._last_buy_time[self.ticker]
-                    ).seconds / 60
+                    ).total_seconds() / 60
                     if minutes_held < 60:  # minimum 60 minute hold
                         logger.info(
                             f"Hold filter: only held {minutes_held:.0f}m, skipping SELL"
@@ -707,7 +851,7 @@ class AlpacaPaperBroker:
                         "ALL", "; ".join(signal_dict["reasons"])
                     )
 
-        return {
+        ret = {
             "signal": signal,
             "confidence": confidence,
             "reasons": signal_dict.get("reasons", []),
@@ -718,6 +862,10 @@ class AlpacaPaperBroker:
             "time": datetime.now().isoformat(),
             "market_open": True,
         }
+        if submitted_buy:
+            ret["action"] = "BUY"
+            ret["order_value"] = order_val
+        return ret
 
     def run_tick_multi(self, ticker_dfs: Dict[str, pd.DataFrame]) -> Dict[str, dict]:
         """
@@ -740,10 +888,13 @@ class AlpacaPaperBroker:
         all_positions = self.get_all_positions()
 
         for ticker, df in ticker_dfs.items():
-            if df is None or df.empty:
+            if df is None or df.empty or "Close" not in df.columns:
                 continue
 
-            current_price = float(df["Close"].iloc[-1])
+            raw_price = df["Close"].iloc[-1]
+            if pd.isna(raw_price) or raw_price <= 0:
+                continue
+            current_price = float(raw_price)
 
             if not market_open:
                 sig_dict = self.signal_generator.generate_signal(df, portfolio_value)
@@ -836,19 +987,77 @@ class AlpacaPaperBroker:
             "buying_power": account["buying_power"],
         }
 
+    def _build_round_trips(self, orders_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Match BUY fills to subsequent SELL fills for the same ticker.
+        Returns a DataFrame with one row per completed round-trip trade containing:
+        - ticker, entry_time, exit_time, entry_price, exit_price,
+          qty, pnl, pnl_pct, hold_duration_minutes, side='round_trip'
+        Unmatched open BUY positions are excluded (no exit yet).
+        """
+        if orders_df.empty:
+            return pd.DataFrame()
+
+        # Filter to filled orders only
+        status_s = orders_df["status"].astype(str).str.lower()
+        filled = orders_df[status_s == "filled"].copy()
+        if filled.empty:
+            return pd.DataFrame()
+        filled = filled.sort_values("filled_at").reset_index(drop=True)
+
+        round_trips = []
+        open_buys = []  # stack of open BUY fills
+
+        for _, row in filled.iterrows():
+            side = str(row["side"]).lower()
+            if side == "buy":
+                open_buys.append(row)
+            elif side == "sell" and open_buys:
+                buy = open_buys.pop(0)  # FIFO matching
+                qty = min(float(buy["filled_qty"]), float(row["filled_qty"]))
+                entry_price = float(buy["filled_avg_price"])
+                exit_price = float(row["filled_avg_price"])
+                pnl = (exit_price - entry_price) * qty
+                pnl_pct = (exit_price - entry_price) / entry_price * 100
+
+                entry_time = pd.to_datetime(buy["filled_at"])
+                exit_time = pd.to_datetime(row["filled_at"])
+                hold_minutes = (exit_time - entry_time).total_seconds() / 60
+
+                round_trips.append({
+                    "ticker": self.ticker,
+                    "entry_time": entry_time,
+                    "exit_time": exit_time,
+                    "entry_price": entry_price,
+                    "exit_price": exit_price,
+                    "qty": qty,
+                    "pnl": pnl,
+                    "pnl_pct": pnl_pct,
+                    "hold_duration_minutes": hold_minutes,
+                    "side": "round_trip",
+                    "entry_reason": buy.get("reason", ""),
+                    "exit_reason": row.get("reason", ""),
+                })
+
+        return pd.DataFrame(round_trips)
+
     def get_trade_history(self) -> pd.DataFrame:
         """
-        Fetch order history directly from Alpaca API for this ticker.
+        Fetch order history directly from Alpaca API for this ticker,
+        and build round-trip trades.
 
         Returns
         -------
         pd.DataFrame
-            DataFrame of executed/submitted trade orders.
+            DataFrame of completed round-trip trades.
         """
         try:
+            after_date = datetime.now(timezone.utc) - timedelta(days=7)
             req = GetOrdersRequest(
                 status=QueryOrderStatus.ALL,
-                symbols=[self.ticker]
+                symbols=[self.ticker],
+                after=after_date,
+                limit=500,
             )
             orders = self.client.get_orders(filter=req)
             rows = []
@@ -860,16 +1069,17 @@ class AlpacaPaperBroker:
                     "filled_at": str(o.filled_at) if o.filled_at else None,
                     "ticker": o.symbol,
                     "symbol": o.symbol,
-                    "action": str(o.side.value).upper() if hasattr(o.side, "value") else str(o.side).upper(),
-                    "side": str(o.side.value).upper() if hasattr(o.side, "value") else str(o.side).upper(),
+                    "action": str(o.side.value).lower() if hasattr(o.side, "value") else str(o.side).lower(),
+                    "side": str(o.side.value).lower() if hasattr(o.side, "value") else str(o.side).lower(),
                     "quantity": float(o.qty or 0),
                     "qty": float(o.qty or 0),
                     "filled_qty": float(o.filled_qty or 0),
                     "price": float(o.limit_price or o.stop_price or 0),
-                    "status": str(o.status.value) if hasattr(o.status, "value") else str(o.status),
+                    "status": str(o.status.value).lower() if hasattr(o.status, "value") else str(o.status).lower(),
                     "filled_avg_price": float(o.filled_avg_price) if o.filled_avg_price else None,
                 })
-            return pd.DataFrame(rows)
+            orders_df = pd.DataFrame(rows)
+            return self._build_round_trips(orders_df)
         except Exception as e:
             logger.error("Failed to fetch order history from Alpaca: %s", e)
             return pd.DataFrame()
