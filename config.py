@@ -83,8 +83,8 @@ WALK_FORWARD = {
 }
 
 ALPACA = {
-    "api_key": os.getenv("ALPACA_API_KEY") or os.getenv("APCA_API_KEY_ID") or "PKGF7GGSEMWZ6SETQW53AB3QSR",
-    "secret_key": os.getenv("ALPACA_SECRET_KEY") or os.getenv("APCA_API_SECRET_KEY") or "7Ks1aALfwLCVsxPPfzEZFruQ3i4ii86nTrLcgqsom3pb",
-    "base_url": os.getenv("ALPACA_BASE_URL") or "https://paper-api.alpaca.markets",
-    "feed": os.getenv("ALPACA_FEED") or "iex",
+    "api_key": os.getenv("ALPACA_API_KEY"),
+    "secret_key": os.getenv("ALPACA_SECRET_KEY"),
+    "base_url": "https://paper-api.alpaca.markets",
+    "feed": "iex",
 }
