@@ -465,7 +465,9 @@ class LocalPaperBroker:
                 return status
 
         # (d) Generate signal
-        signal = self.signal_generator.generate_signal(df, portfolio_value)
+        signal = self.signal_generator.generate_signal(
+            df, portfolio_value, has_position=(self.shares > 0)
+        )
         status["signal"] = signal
 
         # (e) BUY if signal is strong enough and not blocked

@@ -107,9 +107,11 @@ class SignalGenerator:
     def generate_signal(
         self,
         df: pd.DataFrame,
-        current_portfolio_value: float,
+        portfolio_value: float = 100000.0,
         market_regime_bullish: bool = True,
         daily_trend_bullish: bool = True,
+        has_position: bool = False,
+        **kwargs,
     ) -> dict:
         """
         Evaluate the latest row of indicator data and produce a trading
@@ -121,7 +123,7 @@ class SignalGenerator:
             DataFrame that **must** already contain indicator columns
             (SMA_20, EMA_20, RSI_14, MACD, MACD_Signal, MACD_Hist,
             BB_Upper, BB_Middle, BB_Lower).
-        current_portfolio_value : float
+        portfolio_value : float
             Current total portfolio value passed to the risk manager.
         market_regime_bullish : bool, optional
             Whether the broad market (SPY) is above its 200-SMA.
@@ -129,6 +131,8 @@ class SignalGenerator:
         daily_trend_bullish : bool, optional
             Whether the daily-timeframe trend supports a long entry.
             When False, buy confidence is reduced (default True).
+        has_position : bool, optional
+            Whether an open position is currently held for this ticker (default False).
 
         Returns
         -------
@@ -137,6 +141,9 @@ class SignalGenerator:
             ``signal``, ``confidence``, ``reasons``, ``blocked``,
             ``block_reason``.
         """
+        if "current_portfolio_value" in kwargs:
+            portfolio_value = kwargs["current_portfolio_value"]
+        current_portfolio_value = portfolio_value
         # Use the LAST row for all evaluations
         last = df.iloc[-1]
 
@@ -278,7 +285,13 @@ class SignalGenerator:
                 f"BLOCKED: Market choppy/sideways (ADX={adx:.1f} < {self.adx_min:.1f})"
             )
 
-        sell_triggered = sell_count >= 1
+        # Position-aware SELL threshold:
+        # When holding a position: 1 condition is enough (protect capital)
+        # When flat (no position): require 2 conditions (reduce noise)
+        if has_position:
+            sell_triggered = sell_count >= 1   # Protect open position aggressively
+        else:
+            sell_triggered = sell_count >= 2   # Require confirmation when flat
 
         reasons = buy_reasons
         if buy_triggered and _META_AVAILABLE and _META_PREDICTOR:
