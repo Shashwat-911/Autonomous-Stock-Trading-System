@@ -55,6 +55,37 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 OUTPUTS_DIR = os.path.join(PROJECT_ROOT, "outputs")
 
 
+def _validate_credentials():
+    """Raise immediately if Alpaca credentials are missing from environment."""
+    missing = []
+    if not config.ALPACA.get("api_key"):
+        missing.append("ALPACA_API_KEY")
+    if not config.ALPACA.get("secret_key"):
+        missing.append("ALPACA_SECRET_KEY")
+    if missing:
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing)}\n"
+            f"Copy .env.example to .env and fill in your credentials.\n"
+            f"Then run: set -a && source .env && set +a (Linux/Mac) "
+            f"or use python-dotenv."
+        )
+
+
+def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
+    """Return True if market closes within `minutes_before` minutes."""
+    if clock is None or not getattr(clock, "is_open", False):
+        return False
+    from datetime import timezone
+    now = datetime.now(timezone.utc)
+    close_time = clock.next_close
+    if close_time.tzinfo is None:
+        next_close = close_time.replace(tzinfo=timezone.utc)
+    else:
+        next_close = close_time.astimezone(timezone.utc)
+    minutes_remaining = (next_close - now).total_seconds() / 60
+    return 0 < minutes_remaining <= minutes_before
+
+
 # ======================================================================
 # Component factory -- builds every object from config.py
 # ======================================================================
@@ -355,6 +386,7 @@ def run_walkforward() -> None:
 # ======================================================================
 
 def run_live():
+    _validate_credentials()
     import sys
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
@@ -434,12 +466,23 @@ def run_live():
     print(f"  Equity:       ${account['equity']:,.2f}")
     print(f"  Buying power: ${account['buying_power']:,.2f}\n")
 
+    # Sync circuit breaker baseline to actual broker equity (not config hardcode)
+    initial_account = brokers[tickers[0]].get_account_info()
+    actual_equity = initial_account.get("equity", config.TRADING["initial_balance"])
+    rm.sync_day_start_balance(actual_equity)
+    rm.reset_daily_state()
+    logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
+
     # Performance engine for session wrap-up
     perf_engine = PerformanceEngine()
+
+    _eod_triggered = False
+    pending_exposure_dollars = 0.0  # Tracks BUY orders submitted this scan iteration
 
     try:
         while True:
             now = datetime.now().strftime("%H:%M:%S")
+            pending_exposure_dollars = 0.0  # Reset each scan
 
             # --- Market regime check (SPY SMA-200) ---
             regime_cfg = getattr(config, "MARKET_REGIME", {})
@@ -486,7 +529,17 @@ def run_live():
                         df,
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
+                        pending_exposure=pending_exposure_dollars,
                     )
+
+                    # Track pending exposure for subsequent tickers in this scan
+                    if tick.get("action") == "BUY":
+                        order_value = tick.get("order_value", 0.0)
+                        pending_exposure_dollars += order_value
+                        logger.info(
+                            f"Pending exposure updated: +${order_value:.0f} "
+                            f"(total pending: ${pending_exposure_dollars:.0f})"
+                        )
 
                     price = tick.get("price", 0)
                     signal = tick.get("signal", "HOLD")
@@ -526,6 +579,23 @@ def run_live():
                       f"Cash: ${account['cash']:,.2f}")
             except Exception:
                 pass
+
+            # EOD force-close: liquidate all positions 10 minutes before market close
+            try:
+                clock = first_broker.get_clock()
+                if _is_near_market_close(clock, minutes_before=10) and not _eod_triggered:
+                    _eod_triggered = True
+                    logger.warning("EOD LIQUIDATION TRIGGERED — market closes in <10 minutes")
+                    for ticker in tickers:
+                        eod_result = brokers[ticker].eod_liquidate_all(
+                            reason="EOD_auto_close"
+                        )
+                        if eod_result["position_closed"]:
+                            logger.warning(
+                                f"EOD closed {eod_result['qty_closed']}sh {ticker}"
+                            )
+            except Exception as e:
+                logger.error(f"EOD liquidation check failed: {e}")
 
             # Market close countdown
             mins_left = None
