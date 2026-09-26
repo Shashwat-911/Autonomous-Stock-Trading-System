@@ -1,5 +1,7 @@
+import json
 import logging
-from datetime import datetime, timedelta
+import os
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 # Configure logger for risk manager module
@@ -106,6 +108,9 @@ class RiskManager:
             max_portfolio_heat_pct * 100,
         )
 
+        # Load persisted circuit breaker state from disk
+        self._load_state()
+
     # ------------------------------------------------------------------
     # Public methods
     # ------------------------------------------------------------------
@@ -146,6 +151,7 @@ class RiskManager:
         )
         if daily_loss_pct >= self.max_daily_loss_pct:
             self._daily_loss_breached = True
+            self._save_state()
             reason = (
                 f"Daily loss limit breached: portfolio down {daily_loss_pct:.2%} "
                 f"(limit {self.max_daily_loss_pct:.2%}) from day-start "
@@ -272,6 +278,7 @@ class RiskManager:
             self._stop_loss_count += 1
             now = as_of if as_of is not None else datetime.now()
             self._cooldown_until = now + timedelta(minutes=self.cooldown_minutes)
+            self._save_state()
             reason = (
                 f"STOP-LOSS triggered: price dropped {loss_pct:.2%} "
                 f"(limit {self.max_trade_loss_pct:.2%}), "
@@ -394,6 +401,21 @@ class RiskManager:
         )
         return True, "OK"
 
+    def sync_day_start_balance(self, current_equity: float) -> None:
+        """
+        Sync the daily loss baseline to actual broker equity at session start.
+        Must be called once at the beginning of each live session AFTER
+        fetching account info from the broker.
+        """
+        if current_equity > 0:
+            self._day_start_balance = current_equity
+            self._daily_loss_breached = False
+            self._save_state()
+            logger.info(
+                f"Day-start balance synced from broker: ${current_equity:,.2f} "
+                f"(was: ${self.initial_balance:,.2f})"
+            )
+
     def reset_daily_state(self) -> None:
         """
         Reset all daily risk-tracking state.
@@ -403,9 +425,79 @@ class RiskManager:
         """
         self._daily_loss_breached = False
         self._cooldown_until = None
+        self._stop_loss_count = 0
+        self._save_state()
         logger.info(
             "Daily state reset -- day-start balance=%.2f", self._day_start_balance
         )
+
+    def _state_filepath(self) -> str:
+        os.makedirs("outputs", exist_ok=True)
+        return "outputs/risk_state.json"
+
+    def _save_state(self) -> None:
+        """Persist circuit breaker state to disk after every mutation."""
+        state = {
+            "daily_loss_breached": self._daily_loss_breached,
+            "cooldown_until": (
+                self._cooldown_until.isoformat()
+                if self._cooldown_until is not None else None
+            ),
+            "stop_loss_count": self._stop_loss_count,
+            "day_start_balance": self._day_start_balance,
+            "saved_at": datetime.now(timezone.utc).isoformat(),
+        }
+        try:
+            with open(self._state_filepath(), "w") as f:
+                json.dump(state, f, indent=2)
+        except Exception as e:
+            logger.warning(f"Could not save risk state: {e}")
+
+    def _load_state(self) -> None:
+        """Load persisted circuit breaker state at startup. Clears stale cooldowns."""
+        fp = self._state_filepath()
+        if not os.path.exists(fp):
+            return
+        try:
+            with open(fp) as f:
+                state = json.load(f)
+
+            saved_at_str = state.get("saved_at")
+            if saved_at_str:
+                saved_at = datetime.fromisoformat(saved_at_str)
+                if saved_at.tzinfo is None:
+                    saved_at = saved_at.replace(tzinfo=timezone.utc)
+                age_hours = (
+                    datetime.now(timezone.utc) - saved_at
+                ).total_seconds() / 3600
+                # State older than 18 hours is from a previous session — ignore it
+                if age_hours > 18:
+                    logger.info("Risk state file is stale (>18h) — starting fresh.")
+                    return
+
+            self._daily_loss_breached = state.get("daily_loss_breached", False)
+            self._stop_loss_count = state.get("stop_loss_count", 0)
+
+            cooldown_str = state.get("cooldown_until")
+            if cooldown_str:
+                cd = datetime.fromisoformat(cooldown_str)
+                if cd.tzinfo is None:
+                    cd = cd.replace(tzinfo=timezone.utc)
+                # Only restore cooldown if it hasn't expired yet
+                if cd > datetime.now(timezone.utc):
+                    self._cooldown_until = cd
+                    logger.warning(
+                        f"Restored active cooldown from disk — expires at {cd}"
+                    )
+                else:
+                    logger.info("Cooldown from disk has already expired — cleared.")
+
+            logger.info(
+                f"Risk state loaded: breached={self._daily_loss_breached}, "
+                f"stop_loss_count={self._stop_loss_count}"
+            )
+        except Exception as e:
+            logger.warning(f"Could not load risk state: {e}")
 
     def get_status(self) -> dict:
         """

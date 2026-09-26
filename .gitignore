@@ -45,6 +45,7 @@ authentication code.txt
 # Logs & Session Dumps
 *.log
 outputs/*.log
+outputs/risk_state.json
 /seeion*.txt
 /session*.txt
 outputs/seeion*.txt
