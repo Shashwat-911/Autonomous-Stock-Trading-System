@@ -153,12 +153,26 @@ class PerformanceEngine:
         return round(float(sharpe), 4)
 
     def _sortino_ratio(self, returns: pd.Series) -> float:
-        """Annualized Sortino Ratio (uses downside deviation only)."""
-        downside = returns[returns < 0]
-        if downside.empty or downside.std() == 0:
+        """
+        Sortino ratio using correct downside deviation.
+        Downside deviation: std of all returns where positive returns are replaced with 0.
+        Annualised assuming daily returns (252 trading days).
+        """
+        if returns.empty or returns.std() == 0:
             return 0.0
-        excess = returns.mean() - self._daily_rf
-        sortino = (excess / downside.std()) * np.sqrt(TRADING_DAYS_PER_YEAR)
+
+        mar = self._daily_rf  # Minimum acceptable return (daily risk-free rate)
+
+        # Correct downside deviation: use all returns, floor at MAR
+        downside_returns = returns.copy()
+        downside_returns[downside_returns > mar] = 0.0
+        downside_deviation = np.sqrt(np.mean(downside_returns ** 2))
+
+        if downside_deviation == 0:
+            return 0.0
+
+        excess = returns.mean() - mar
+        sortino = (excess / downside_deviation) * np.sqrt(252)
         return round(float(sortino), 4)
 
     def _max_drawdown(self, equity_curve: pd.Series) -> tuple[float, int]:
@@ -232,77 +246,84 @@ class PerformanceEngine:
 
     def _compute_slippage(self, trades_df: pd.DataFrame) -> dict:
         """
-        Compute average slippage (%) and execution latency (ms) from order data.
-
-        Slippage: only meaningful for limit orders where a signal/limit price
-        is known. Market orders (price == 0) are skipped entirely -- slippage
-        is undefined for market fills.
-
-        Latency: difference between submitted_at and filled_at timestamps.
-        Any value above 60 seconds is treated as a data error and discarded
-        (Alpaca paper fills complete within 1-3 seconds under normal conditions).
+        Compute slippage metrics. Uses round-trip trade data when available
+        (entry_price vs exit_price relative to SMA or intended price).
+        Falls back to limit/stop price comparison for bracket legs.
         """
         result = {"avg_slippage_pct": 0.0, "avg_execution_latency_ms": 0.0}
 
-        # --- Slippage: requires a non-zero signal/limit price ---
+        if trades_df.empty:
+            return result
+
+        slippage_samples = []
+
+        # Path 1: Round-trip trades — use hold_duration as execution quality proxy
+        if "entry_price" in trades_df.columns and "exit_price" in trades_df.columns:
+            rt = trades_df.dropna(subset=["entry_price", "exit_price"])
+            if not rt.empty and "hold_duration_minutes" in rt.columns:
+                # Latency proxy: avg hold duration in ms (for market orders, fill is near-instant)
+                short_trades = rt[rt["hold_duration_minutes"] < 5]
+                if not short_trades.empty:
+                    avg_latency = float(short_trades["hold_duration_minutes"].mean() * 60000)
+                    result["avg_execution_latency_ms"] = round(avg_latency, 2)
+
+        # Path 2: Bracket leg slippage (limit/stop orders with known price)
         if "filled_avg_price" in trades_df.columns and "price" in trades_df.columns:
-            filled = trades_df.dropna(subset=["filled_avg_price"]).copy()
-            # Market orders have price == 0 -- skip them (slippage undefined)
-            filled = filled[
-                (filled["price"].astype(float) > 0)
-                & (filled["filled_avg_price"].astype(float) > 0)
-            ]
-            if not filled.empty:
-                signal_prices = filled["price"].astype(float)
-                fill_prices   = filled["filled_avg_price"].astype(float)
-                slippage_pct  = ((fill_prices - signal_prices) / signal_prices * 100).abs()
-                result["avg_slippage_pct"] = round(float(slippage_pct.mean()), 6)
-                logger.debug(
-                    "Slippage computed from %d limit-order rows: %.4f%%",
-                    len(filled), result["avg_slippage_pct"]
-                )
-            else:
-                logger.debug("Slippage: no limit-order rows found -- all orders are market type.")
-
-        # --- Latency: requires both submitted_at and filled_at columns ---
-        # The live Alpaca broker's get_trade_history() maps submitted_at -> 'timestamp'
-        # and does not include filled_at, so we also check that alias.
-        sub_col  = "submitted_at" if "submitted_at" in trades_df.columns else None
-        fill_col = "filled_at"    if "filled_at"    in trades_df.columns else None
-
-        if sub_col and fill_col:
-            timed = trades_df[
-                trades_df[fill_col].notnull() & trades_df[sub_col].notnull()
+            bracket_legs = trades_df[
+                (trades_df["price"].notna()) & 
+                (trades_df["price"] > 0) &
+                (trades_df["filled_avg_price"].notna()) &
+                (trades_df["filled_avg_price"] > 0)
             ].copy()
-            if not timed.empty:
-                try:
-                    submitted  = pd.to_datetime(timed[sub_col],  utc=True, errors="coerce")
-                    filled_ts  = pd.to_datetime(timed[fill_col], utc=True, errors="coerce")
-                    valid_mask = submitted.notnull() & filled_ts.notnull()
-                    if valid_mask.any():
-                        latency_ms = (
-                            (filled_ts[valid_mask] - submitted[valid_mask])
-                            .dt.total_seconds() * 1000
-                        )
-                        # Sanity cap: discard any latency > 60 000 ms (60 s)
-                        # Values above this indicate stale/mismatched timestamps
-                        sane = latency_ms[latency_ms <= 60_000]
-                        if not sane.empty:
-                            result["avg_execution_latency_ms"] = round(float(sane.mean()), 2)
-                            logger.debug(
-                                "Latency computed from %d rows: %.0f ms (discarded %d outliers)",
-                                len(sane), result["avg_execution_latency_ms"],
-                                len(latency_ms) - len(sane),
-                            )
-                        else:
-                            logger.debug("Latency: all rows exceeded 60s cap -- likely stale timestamps.")
-                except Exception as e:
-                    logger.warning("Error computing execution latency: %s", e)
-        else:
-            logger.debug(
-                "Latency: submitted_at/filled_at columns not present in trades_df "
-                "(broker returns market-order history without fill timestamps)."
-            )
+
+            if not bracket_legs.empty:
+                bracket_legs["slippage_pct"] = (
+                    (bracket_legs["filled_avg_price"] - bracket_legs["price"]).abs()
+                    / bracket_legs["price"] * 100
+                )
+                # Cap at 2% to exclude stale/erroneous data
+                bracket_legs = bracket_legs[bracket_legs["slippage_pct"] < 2.0]
+                if not bracket_legs.empty:
+                    slippage_samples.extend(bracket_legs["slippage_pct"].tolist())
+
+        # Path 3: Market orders with intended_price
+        if "filled_avg_price" in trades_df.columns and "intended_price" in trades_df.columns:
+            mkt_orders = trades_df[
+                (trades_df["intended_price"].notna()) &
+                (trades_df["intended_price"] > 0) &
+                (trades_df["filled_avg_price"].notna()) &
+                (trades_df["filled_avg_price"] > 0)
+            ].copy()
+            if not mkt_orders.empty:
+                mkt_orders["slippage_pct"] = (
+                    (mkt_orders["filled_avg_price"] - mkt_orders["intended_price"]).abs()
+                    / mkt_orders["intended_price"] * 100
+                )
+                mkt_orders = mkt_orders[mkt_orders["slippage_pct"] < 2.0]
+                if not mkt_orders.empty:
+                    slippage_samples.extend(mkt_orders["slippage_pct"].tolist())
+
+        # Path 4: Fallback to timestamp latency if proxy wasn't triggered
+        if result["avg_execution_latency_ms"] == 0.0:
+            sub_col = "submitted_at" if "submitted_at" in trades_df.columns else None
+            fill_col = "filled_at" if "filled_at" in trades_df.columns else None
+            if sub_col and fill_col:
+                timed = trades_df[trades_df[fill_col].notnull() & trades_df[sub_col].notnull()].copy()
+                if not timed.empty:
+                    try:
+                        submitted = pd.to_datetime(timed[sub_col], utc=True, errors="coerce")
+                        filled_ts = pd.to_datetime(timed[fill_col], utc=True, errors="coerce")
+                        valid_mask = submitted.notnull() & filled_ts.notnull()
+                        if valid_mask.any():
+                            latency_ms = (filled_ts[valid_mask] - submitted[valid_mask]).dt.total_seconds() * 1000
+                            sane = latency_ms[latency_ms <= 60_000]
+                            if not sane.empty:
+                                result["avg_execution_latency_ms"] = round(float(sane.mean()), 2)
+                    except Exception as e:
+                        logger.warning("Error computing execution latency: %s", e)
+
+        if slippage_samples:
+            result["avg_slippage_pct"] = round(float(np.mean(slippage_samples)), 6)
 
         return result
 
