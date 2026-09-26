@@ -188,56 +188,41 @@ class PerformanceEngine:
         return round(max_dd, 4), int(max_duration)
 
     def _trade_metrics(self, trades_df: pd.DataFrame) -> dict:
-        """Compute win rate, expectancy, and profit factor from trades."""
-        action_col = "action" if "action" in trades_df.columns else ("side" if "side" in trades_df.columns else None)
+        """Compute win rate, expectancy, profit factor from round-trip trades."""
+        empty = {
+            "total_trades": 0, "winning_trades": 0, "losing_trades": 0,
+            "win_rate": 0.0, "expectancy": 0.0, "profit_factor": 0.0,
+            "avg_gain": 0.0, "avg_loss": 0.0,
+        }
 
-        # Try to extract PnL from trades
-        if "pnl" in trades_df.columns:
-            pnls = trades_df["pnl"].dropna().astype(float)
-        elif action_col and "filled_avg_price" in trades_df.columns and "price" in trades_df.columns:
-            # Estimate PnL from price difference for SELL trades
-            sells = trades_df[trades_df[action_col].astype(str).str.upper() == "SELL"].copy()
-            if not sells.empty and "filled_avg_price" in sells.columns:
-                pnls = sells["filled_avg_price"].astype(float) - sells["price"].astype(float)
-            else:
-                pnls = pd.Series(dtype=float)
-        else:
-            pnls = pd.Series(dtype=float)
+        if trades_df.empty or "pnl" not in trades_df.columns:
+            return empty
 
-        total = len(pnls)
-        if total == 0:
-            return {
-                "total_trades": len(trades_df),
-                "winning_trades": 0,
-                "losing_trades": 0,
-                "win_rate": 0.0,
-                "expectancy": 0.0,
-                "profit_factor": 0.0,
-                "avg_gain": 0.0,
-                "avg_loss": 0.0,
-            }
+        # Drop rows with NaN pnl
+        trades = trades_df.dropna(subset=["pnl"]).copy()
+        if trades.empty:
+            return empty
 
-        wins = pnls[pnls > 0]
-        losses = pnls[pnls < 0]
+        wins = trades[trades["pnl"] > 0]["pnl"]
+        losses = trades[trades["pnl"] < 0]["pnl"]
+        total = len(trades)
+        n_wins = len(wins)
+        n_losses = len(losses)
 
-        win_rate = len(wins) / total if total > 0 else 0.0
-        avg_gain = float(wins.mean()) if len(wins) > 0 else 0.0
-        avg_loss = float(losses.mean()) if len(losses) > 0 else 0.0
+        win_rate = n_wins / total if total > 0 else 0.0
+        avg_gain = float(wins.mean()) if n_wins > 0 else 0.0
+        avg_loss = float(losses.mean()) if n_losses > 0 else 0.0
 
-        # Expectancy: E = (W × avg_gain) - ((1-W) × |avg_loss|)
-        expectancy = (win_rate * avg_gain) - ((1 - win_rate) * abs(avg_loss))
+        gross_gains = float(wins.sum()) if n_wins > 0 else 0.0
+        gross_losses = abs(float(losses.sum())) if n_losses > 0 else 0.0
+        profit_factor = (gross_gains / gross_losses) if gross_losses > 0 else 0.0
 
-        # Profit Factor: gross gains / gross losses
-        gross_gains = float(wins.sum()) if len(wins) > 0 else 0.0
-        gross_losses = abs(float(losses.sum())) if len(losses) > 0 else 0.0
-        profit_factor = (
-            gross_gains / gross_losses if gross_losses > 0 else float("inf")
-        )
+        expectancy = (win_rate * avg_gain) + ((1 - win_rate) * avg_loss)
 
         return {
-            "total_trades": len(trades_df),
-            "winning_trades": len(wins),
-            "losing_trades": len(losses),
+            "total_trades": total,
+            "winning_trades": n_wins,
+            "losing_trades": n_losses,
             "win_rate": round(win_rate, 4),
             "expectancy": round(expectancy, 4),
             "profit_factor": round(profit_factor, 4),
@@ -368,32 +353,55 @@ class PerformanceEngine:
 
         logger.info("Performance summary saved to %s", filepath)
 
+    def _build_session_row(self) -> dict:
+        """Return a copy of the current session metrics as a row dict."""
+        return dict(self._metrics)
+
     def append_session_stats(
         self,
         filepath: str = "outputs/trade_history.csv",
     ) -> None:
-        """
-        Append current session metrics as a single row to a CSV file.
-
-        Parameters
-        ----------
-        filepath : str
-            Output CSV file path.
-        """
+        """Append session stats to CSV, deduplicating by date."""
         if not self._metrics:
             logger.warning("No metrics to append. Run compute_from_trades first.")
             return
 
+        import os
+        from datetime import date
+
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-        row_df = pd.DataFrame([self._metrics])
+        today_str = date.today().isoformat()
+        new_row = self._build_session_row()
+        new_row["date"] = today_str
 
         if os.path.exists(filepath):
-            row_df.to_csv(filepath, mode="a", header=False, index=False)
-        else:
-            row_df.to_csv(filepath, mode="w", header=True, index=False)
+            try:
+                existing = pd.read_csv(filepath)
+            except Exception:
+                existing = pd.DataFrame()
 
-        logger.info("Session stats appended to %s", filepath)
+            if not existing.empty:
+                # Add date column if not present, backfilling from session_timestamp
+                if "date" not in existing.columns:
+                    if "session_timestamp" in existing.columns:
+                        existing["date"] = existing["session_timestamp"].astype(str).str[:10]
+                    else:
+                        existing["date"] = ""
+
+                # Remove any existing rows for today (overwrite with latest)
+                existing = existing[existing["date"] != today_str]
+                updated = pd.concat(
+                    [existing, pd.DataFrame([new_row])],
+                    ignore_index=True
+                )
+            else:
+                updated = pd.DataFrame([new_row])
+        else:
+            updated = pd.DataFrame([new_row])
+
+        updated.to_csv(filepath, index=False)
+        logger.info(f"Session stats saved to {filepath} (date: {today_str})")
 
     def get_summary_string(self) -> str:
         """Return a formatted string summary of the metrics."""
