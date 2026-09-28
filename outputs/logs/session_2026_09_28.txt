@@ -1,0 +1,86 @@
+2026-09-28 20:11:26,480 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=5.0%, cooldown=5min, max_pos_dollars=$3000, portfolio_heat=60%
+2026-09-28 20:11:26,480 - strategy.signals - INFO - SignalGenerator initialised -- RSI oversold=37.0, overbought=71.0, confirmation=False, adx_min=24.0
+2026-09-28 20:11:26,480 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,481 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AAPL, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,481 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MSFT, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,481 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=TSLA, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AMZN, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=GOOGL, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=META, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AMD, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NFLX, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=CRM, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=JPM, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=GS, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=BAC, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=V, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MA, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=LLY, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=UNH, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=JNJ, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=PG, feed=iex, min_confidence=0.70
+2026-09-28 20:11:26,482 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=XOM, feed=iex, min_confidence=0.70
+============================================================
+  LIVE PAPER TRADING — 20 tickers
+  NVDA, AAPL, MSFT, TSLA, AMZN, GOOGL, META, AMD, NFLX, CRM, JPM, GS, BAC, V, MA, LLY, UNH, JNJ, PG, XOM
+  Interval: 1h | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.0×ATR, TP=2.5×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,659.55
+  Buying power: $394,942.13
+
+2026-09-28 20:11:26,669 - risk.manager - INFO - Day-start balance synced from broker: $99,659.55 (was: $100,000.00)
+2026-09-28 20:11:26,669 - risk.manager - INFO - Daily state reset -- day-start balance=99659.55
+2026-09-28 20:11:26,669 - main - INFO - Session started. Actual broker equity: $99,659.55
+
+[20:11:26] Scanning 20 tickers... | SPY regime: BULL ($765.55 vs SMA-200 $715.29)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-09-28 20:11:28,060 - strategy.signals - INFO - Evaluating signal -- Close=228.88, RSI=57.85, MACD=1.4821, MACD_Signal=1.1177, SMA_20=226.20, BB_Lower=219.88, ADX=30.68
+  NVDA     $ 228.88 HOLD    0.00 $   1.97         none
+  AAPL     $ 338.36 SELL    0.33 $   1.74          1sh
+  MSFT     $ 509.47 HOLD    0.00 $   4.08         none
+  TSLA     $ 357.39 HOLD    0.00 $   3.60         none
+  AMZN     $ 246.26 HOLD    0.00 $   1.71         none
+  GOOGL    $ 342.80 HOLD    0.00 $   2.26          8sh
+  META     $ 715.72 HOLD    0.00 $   8.90         none
+  AMD      $ 607.86 HOLD    0.00 $   7.34         none
+  NFLX     $  69.25 HOLD    0.00 $   0.50         none
+  CRM      $ 227.27 HOLD    0.00 $   2.41         none
+  JPM      $ 336.83 HOLD    0.00 $   1.86         none
+  GS       $ 916.55 HOLD    0.00 $   6.86         none
+  BAC      $  55.46 HOLD    0.00 $   0.31         none
+  V        $ 367.82 HOLD    0.00 $   1.88         none
+  MA       $ 568.24 HOLD    0.00 $   2.70         none
+  LLY      $1185.98 HOLD    0.00 $   9.43         none
+  UNH      $ 377.81 HOLD    0.00 $   2.57         none
+  JNJ      $ 271.99 HOLD    0.00 $   1.53         none
+  PG       $ 149.04 BUY     0.75 $   0.81         none
+  XOM      $ 162.53 HOLD    0.00 $   1.18         none
+
+  Equity: $99,658.62 | Long exposure: $3,079 (3.1%) | Cash: $96,579.49
+  Market status:    CLOSED (Next open: 2026-09-29 09:30 -04:00) — session completed.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,658.62
+============================================================
+  QUANTITATIVE PERFORMANCE SUMMARY
+============================================================
+  Total Return:       -0.34%
+  Sharpe Ratio:       -2.3937
+  Sortino Ratio:      -3.6432
+  Max Drawdown:       -0.70%
+  Drawdown Duration:  28 periods
+  Win Rate:           30.0%
+  Expectancy:         $-12.51
+  Profit Factor:      0.65
+  Avg Slippage:       0.0000%
+  Avg Latency:        0ms
+  Total Trades:       10
+============================================================
+============================================================
