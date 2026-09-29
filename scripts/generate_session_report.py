@@ -56,12 +56,17 @@ def main():
         except Exception:
             pass
 
+    from broker.alpaca import AlpacaPaperBroker
+    broker = AlpacaPaperBroker(api_key, secret_key)
+    round_trips = broker._build_round_trips(df)
+
     pe = PerformanceEngine()
     metrics = pe.compute_from_trades(
-        df,
+        round_trips,
         equity_curve=equity_curve,
         starting_equity=config.TRADING["initial_balance"],
         live_equity=real_equity,
+        raw_orders_df=df,
     )
     pe.save_summary("outputs/performance_summary.json")
     pe.append_session_stats("outputs/trade_history.csv")

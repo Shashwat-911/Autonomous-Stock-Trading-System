@@ -1,8 +1,8 @@
 {
-  "session_timestamp": "2026-09-28T20:11:42.161791",
+  "session_timestamp": "2026-09-29T09:06:46.764560",
   "starting_equity": 100000.0,
-  "ending_equity": 99658.62,
-  "total_return_pct": -0.3414,
+  "ending_equity": 99653.64,
+  "total_return_pct": -0.3464,
   "sharpe_ratio": -2.4441,
   "sortino_ratio": -3.7175,
   "max_drawdown_pct": -0.6972,
@@ -15,6 +15,6 @@
   "profit_factor": 0.0,
   "avg_gain": 0.0,
   "avg_loss": 0.0,
-  "avg_slippage_pct": 0.099994,
-  "avg_execution_latency_ms": 1506.16
+  "avg_slippage_pct": 0.102363,
+  "avg_execution_latency_ms": 1560.08
 }

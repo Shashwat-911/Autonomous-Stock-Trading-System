@@ -1054,13 +1054,21 @@ class AlpacaPaperBroker:
             "buying_power": account["buying_power"],
         }
 
-    def _build_round_trips(self, orders_df: pd.DataFrame) -> pd.DataFrame:
+    def _build_round_trips(
+        self,
+        orders_df: pd.DataFrame,
+        session_start: Optional[datetime] = None,
+    ) -> pd.DataFrame:
         """
         Match BUY fills to subsequent SELL fills for the same ticker.
         Returns a DataFrame with one row per completed round-trip trade containing:
         - ticker, entry_time, exit_time, entry_price, exit_price,
           qty, pnl, pnl_pct, hold_duration_minutes, side='round_trip'
         Unmatched open BUY positions are excluded (no exit yet).
+
+        If session_start is provided, only round-trips whose entry or exit
+        occurred on or after session_start are returned, preventing historical
+        trades from prior days from being counted as current session trades.
         """
         if orders_df.empty:
             return pd.DataFrame()
@@ -1091,6 +1099,15 @@ class AlpacaPaperBroker:
                 exit_time = pd.to_datetime(row["filled_at"])
                 hold_minutes = (exit_time - entry_time).total_seconds() / 60
 
+                # Filter by session_start if provided
+                if session_start is not None:
+                    sess_start_ts = pd.to_datetime(session_start, utc=True)
+                    exit_ts = pd.to_datetime(exit_time, utc=True)
+                    entry_ts = pd.to_datetime(entry_time, utc=True)
+                    # Exclude trade if both entry and exit happened before this session started
+                    if exit_ts < sess_start_ts and entry_ts < sess_start_ts:
+                        continue
+
                 round_trips.append({
                     "ticker": self.ticker,
                     "entry_time": entry_time,
@@ -1108,10 +1125,16 @@ class AlpacaPaperBroker:
 
         return pd.DataFrame(round_trips)
 
-    def get_trade_history(self) -> pd.DataFrame:
+    def get_trade_history(self, session_start: Optional[datetime] = None) -> pd.DataFrame:
         """
         Fetch order history directly from Alpaca API for this ticker,
         and build round-trip trades.
+
+        Parameters
+        ----------
+        session_start : datetime or None, optional
+            Timestamp when current trading session started. When provided,
+            trades completed in prior sessions are filtered out.
 
         Returns
         -------
@@ -1146,10 +1169,19 @@ class AlpacaPaperBroker:
                     "filled_avg_price": float(o.filled_avg_price) if o.filled_avg_price else None,
                 })
             orders_df = pd.DataFrame(rows)
-            return self._build_round_trips(orders_df)
+            self._last_orders_df = orders_df
+            return self._build_round_trips(orders_df, session_start=session_start)
         except Exception as e:
             logger.error("Failed to fetch order history from Alpaca: %s", e)
             return pd.DataFrame()
+
+    def get_raw_orders(self) -> pd.DataFrame:
+        """Return the raw orders DataFrame fetched during the last get_trade_history call."""
+        return getattr(self, "_last_orders_df", pd.DataFrame())
+
+    def get_slippage_log(self) -> list:
+        """Return recorded slippage records for this broker instance."""
+        return list(self._slippage_log)
 
     def export_trade_history(self, filepath: str) -> None:
         """

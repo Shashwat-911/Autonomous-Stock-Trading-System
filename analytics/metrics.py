@@ -55,6 +55,8 @@ class PerformanceEngine:
         equity_curve: Optional[pd.Series] = None,
         starting_equity: float = 100000.0,
         live_equity: Optional[float] = None,
+        raw_orders_df: Optional[pd.DataFrame] = None,
+        slippage_log: Optional[list] = None,
     ) -> dict:
         """
         Compute all performance metrics from trade history.
@@ -71,6 +73,10 @@ class PerformanceEngine:
             Starting portfolio value (default 100000).
         live_equity : float, optional
             Actual live portfolio equity balance from broker.
+        raw_orders_df : pd.DataFrame, optional
+            Raw orders DataFrame from broker for accurate slippage and latency metrics.
+        slippage_log : list, optional
+            List of intended price order submissions logged by the broker.
 
         Returns
         -------
@@ -129,12 +135,12 @@ class PerformanceEngine:
             })
 
         # --- Slippage & Latency ---
-        if not trades_df.empty:
-            slippage = self._compute_slippage(trades_df)
-            metrics.update(slippage)
-        else:
-            metrics["avg_slippage_pct"] = 0.0
-            metrics["avg_execution_latency_ms"] = 0.0
+        slippage = self._compute_slippage(
+            trades_df,
+            raw_orders_df=raw_orders_df,
+            slippage_log=slippage_log,
+        )
+        metrics.update(slippage)
 
         self._metrics = metrics
         logger.info("Performance metrics computed: %s", metrics)
@@ -244,86 +250,106 @@ class PerformanceEngine:
             "avg_loss": round(avg_loss, 4),
         }
 
-    def _compute_slippage(self, trades_df: pd.DataFrame) -> dict:
+    def _compute_slippage(
+        self,
+        trades_df: pd.DataFrame,
+        raw_orders_df: Optional[pd.DataFrame] = None,
+        slippage_log: Optional[list] = None,
+    ) -> dict:
         """
-        Compute slippage metrics. Uses round-trip trade data when available
-        (entry_price vs exit_price relative to SMA or intended price).
-        Falls back to limit/stop price comparison for bracket legs.
+        Compute slippage metrics.
+        Uses slippage_log and raw_orders_df when provided.
+        Falls back to trades_df columns when raw_orders_df is None.
         """
         result = {"avg_slippage_pct": 0.0, "avg_execution_latency_ms": 0.0}
-
-        if trades_df.empty:
-            return result
-
         slippage_samples = []
+        latency_samples = []
 
-        # Path 1: Round-trip trades — use hold_duration as execution quality proxy
-        if "entry_price" in trades_df.columns and "exit_price" in trades_df.columns:
-            rt = trades_df.dropna(subset=["entry_price", "exit_price"])
-            if not rt.empty and "hold_duration_minutes" in rt.columns:
-                # Latency proxy: avg hold duration in ms (for market orders, fill is near-instant)
-                short_trades = rt[rt["hold_duration_minutes"] < 5]
-                if not short_trades.empty:
-                    avg_latency = float(short_trades["hold_duration_minutes"].mean() * 60000)
-                    result["avg_execution_latency_ms"] = round(avg_latency, 2)
+        # Target DataFrame for order-level metrics (prefer raw_orders_df, fallback to trades_df)
+        orders = raw_orders_df if raw_orders_df is not None and not raw_orders_df.empty else trades_df
 
-        # Path 2: Bracket leg slippage (limit/stop orders with known price)
-        if "filled_avg_price" in trades_df.columns and "price" in trades_df.columns:
-            bracket_legs = trades_df[
-                (trades_df["price"].notna()) & 
-                (trades_df["price"] > 0) &
-                (trades_df["filled_avg_price"].notna()) &
-                (trades_df["filled_avg_price"] > 0)
-            ].copy()
+        # Path A: Broker-recorded intended price from slippage_log
+        if slippage_log and orders is not None and not orders.empty:
+            for item in slippage_log:
+                intended = item.get("intended_price", 0.0)
+                order_id = str(item.get("order_id", ""))
+                if intended > 0 and order_id and "order_id" in orders.columns:
+                    match = orders[orders["order_id"] == order_id]
+                    if not match.empty:
+                        filled_price = float(match.iloc[0].get("filled_avg_price") or 0.0)
+                        if filled_price > 0:
+                            slip = abs(filled_price - intended) / intended * 100.0
+                            if slip < 5.0:  # Sanity cap (5%)
+                                slippage_samples.append(slip)
 
-            if not bracket_legs.empty:
-                bracket_legs["slippage_pct"] = (
-                    (bracket_legs["filled_avg_price"] - bracket_legs["price"]).abs()
-                    / bracket_legs["price"] * 100
-                )
-                # Cap at 2% to exclude stale/erroneous data
-                bracket_legs = bracket_legs[bracket_legs["slippage_pct"] < 2.0]
-                if not bracket_legs.empty:
-                    slippage_samples.extend(bracket_legs["slippage_pct"].tolist())
-
-        # Path 3: Market orders with intended_price
-        if "filled_avg_price" in trades_df.columns and "intended_price" in trades_df.columns:
-            mkt_orders = trades_df[
-                (trades_df["intended_price"].notna()) &
-                (trades_df["intended_price"] > 0) &
-                (trades_df["filled_avg_price"].notna()) &
-                (trades_df["filled_avg_price"] > 0)
+        # Path B: Orders with filled_avg_price and intended_price column
+        if orders is not None and not orders.empty and "filled_avg_price" in orders.columns and "intended_price" in orders.columns:
+            mkt_orders = orders[
+                (orders["intended_price"].notna()) &
+                (orders["intended_price"] > 0) &
+                (orders["filled_avg_price"].notna()) &
+                (orders["filled_avg_price"] > 0)
             ].copy()
             if not mkt_orders.empty:
                 mkt_orders["slippage_pct"] = (
                     (mkt_orders["filled_avg_price"] - mkt_orders["intended_price"]).abs()
                     / mkt_orders["intended_price"] * 100
                 )
-                mkt_orders = mkt_orders[mkt_orders["slippage_pct"] < 2.0]
-                if not mkt_orders.empty:
-                    slippage_samples.extend(mkt_orders["slippage_pct"].tolist())
+                valid = mkt_orders[mkt_orders["slippage_pct"] < 5.0]
+                if not valid.empty:
+                    slippage_samples.extend(valid["slippage_pct"].tolist())
 
-        # Path 4: Fallback to timestamp latency if proxy wasn't triggered
-        if result["avg_execution_latency_ms"] == 0.0:
-            sub_col = "submitted_at" if "submitted_at" in trades_df.columns else None
-            fill_col = "filled_at" if "filled_at" in trades_df.columns else None
+        # Path C: Bracket leg slippage (limit/stop orders with known price)
+        if orders is not None and not orders.empty and "filled_avg_price" in orders.columns and "price" in orders.columns:
+            bracket_legs = orders[
+                (orders["price"].notna()) & 
+                (orders["price"] > 0) &
+                (orders["filled_avg_price"].notna()) &
+                (orders["filled_avg_price"] > 0)
+            ].copy()
+            if not bracket_legs.empty:
+                bracket_legs["slippage_pct"] = (
+                    (bracket_legs["filled_avg_price"] - bracket_legs["price"]).abs()
+                    / bracket_legs["price"] * 100
+                )
+                bracket_legs = bracket_legs[bracket_legs["slippage_pct"] < 2.0]
+                if not bracket_legs.empty:
+                    slippage_samples.extend(bracket_legs["slippage_pct"].tolist())
+
+        # Latency Path 1: Precise order timestamps (submitted_at vs filled_at)
+        if orders is not None and not orders.empty:
+            sub_col = "submitted_at" if "submitted_at" in orders.columns else None
+            fill_col = "filled_at" if "filled_at" in orders.columns else None
             if sub_col and fill_col:
-                timed = trades_df[trades_df[fill_col].notnull() & trades_df[sub_col].notnull()].copy()
+                timed = orders[orders[fill_col].notnull() & orders[sub_col].notnull()].copy()
                 if not timed.empty:
                     try:
                         submitted = pd.to_datetime(timed[sub_col], utc=True, errors="coerce")
                         filled_ts = pd.to_datetime(timed[fill_col], utc=True, errors="coerce")
                         valid_mask = submitted.notnull() & filled_ts.notnull()
                         if valid_mask.any():
-                            latency_ms = (filled_ts[valid_mask] - submitted[valid_mask]).dt.total_seconds() * 1000
-                            sane = latency_ms[latency_ms <= 60_000]
+                            lat = (filled_ts[valid_mask] - submitted[valid_mask]).dt.total_seconds() * 1000
+                            sane = lat[(lat >= 0) & (lat <= 60_000)]
                             if not sane.empty:
-                                result["avg_execution_latency_ms"] = round(float(sane.mean()), 2)
+                                latency_samples.extend(sane.tolist())
                     except Exception as e:
-                        logger.warning("Error computing execution latency: %s", e)
+                        logger.warning("Error computing execution latency from timestamps: %s", e)
+
+        # Latency Path 2: Fallback to short round-trip hold duration proxy if timestamp latency unavailable
+        if not latency_samples and trades_df is not None and not trades_df.empty:
+            if "entry_price" in trades_df.columns and "exit_price" in trades_df.columns:
+                rt = trades_df.dropna(subset=["entry_price", "exit_price"])
+                if not rt.empty and "hold_duration_minutes" in rt.columns:
+                    short_trades = rt[rt["hold_duration_minutes"] < 5]
+                    if not short_trades.empty:
+                        avg_proxy = float(short_trades["hold_duration_minutes"].mean() * 60000)
+                        latency_samples.append(avg_proxy)
 
         if slippage_samples:
             result["avg_slippage_pct"] = round(float(np.mean(slippage_samples)), 6)
+
+        if latency_samples:
+            result["avg_execution_latency_ms"] = round(float(np.mean(latency_samples)), 2)
 
         return result
 
