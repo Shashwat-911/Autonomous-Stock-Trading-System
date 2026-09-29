@@ -71,6 +71,45 @@ def _validate_credentials():
         )
 
 
+def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
+    """
+    Return True if there are at least min_hours of trading time remaining today.
+    Prevents the bot from starting a session when GitHub Actions queue delay
+    has pushed startup past the point where meaningful trading can occur.
+    """
+    try:
+        import pytz
+        et = pytz.timezone("America/New_York")
+        now_et = datetime.now(et)
+    except Exception:
+        from datetime import timezone
+        now_utc = datetime.now(timezone.utc)
+        today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
+        today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
+        if now_utc >= today_close_utc:
+            return False
+        if now_utc < today_open_utc:
+            return True
+        remaining = (today_close_utc - now_utc).total_seconds() / 3600
+        return remaining >= min_hours
+
+    # Market closes at 4:00 PM ET
+    market_close = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
+
+    # If market already closed, no trading time
+    if now_et >= market_close:
+        return False
+
+    # If market not yet open (before 9:30 AM ET), plenty of time
+    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+    if now_et < market_open:
+        return True
+
+    # Check remaining hours
+    remaining = (market_close - now_et).total_seconds() / 3600
+    return remaining >= min_hours
+
+
 def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
     """Return True if market closes within `minutes_before` minutes."""
     if clock is None or not getattr(clock, "is_open", False):
@@ -387,6 +426,16 @@ def run_walkforward() -> None:
 
 def run_live():
     _validate_credentials()
+
+    # Guard: skip session if less than 2 hours of trading time remain
+    if not _has_sufficient_trading_time(min_hours=2.0):
+        logger.warning(
+            "Insufficient trading time remaining (<2 hours). "
+            "Session skipped — likely caused by GitHub Actions queue delay. "
+            "Next session will run tomorrow."
+        )
+        return  # Exit run_live() cleanly — finally block still runs
+
     import sys
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
@@ -467,11 +516,14 @@ def run_live():
     print(f"  Buying power: ${account['buying_power']:,.2f}\n")
 
     # Sync circuit breaker baseline to actual broker equity (not config hardcode)
-    initial_account = brokers[tickers[0]].get_account_info()
-    actual_equity = initial_account.get("equity", config.TRADING["initial_balance"])
+    actual_equity = account.get("equity", config.TRADING["initial_balance"])
     rm.sync_day_start_balance(actual_equity)
     rm.reset_daily_state()
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
+
+    # Track session start timestamp for filtering trade history to this session
+    from datetime import timezone
+    session_start_time = datetime.now(timezone.utc)
 
     # Performance engine for session wrap-up
     perf_engine = PerformanceEngine()
@@ -660,10 +712,16 @@ def run_live():
         # Generate performance metrics
         try:
             all_trades = []
+            all_raw_orders = []
+            all_slippage_logs = []
             for ticker in tickers:
-                trade_df = brokers[ticker].get_trade_history()
+                trade_df = brokers[ticker].get_trade_history(session_start=session_start_time)
                 if not trade_df.empty:
                     all_trades.append(trade_df)
+                raw_df = brokers[ticker].get_raw_orders()
+                if not raw_df.empty:
+                    all_raw_orders.append(raw_df)
+                all_slippage_logs.extend(brokers[ticker].get_slippage_log())
 
             equity_curve = None
             equity_file = os.path.join(OUTPUTS_DIR, "alpaca_equity_history.csv")
@@ -678,22 +736,23 @@ def run_live():
                 except Exception:
                     pass
 
-            if all_trades:
-                import pandas as pd
-                combined = pd.concat(all_trades, ignore_index=True)
-                metrics = perf_engine.compute_from_trades(
-                    combined,
-                    equity_curve=equity_curve,
-                    starting_equity=config.TRADING["initial_balance"],
-                    live_equity=live_eq,
-                )
-            else:
-                metrics = perf_engine.compute_from_trades(
-                    pd.DataFrame(),
-                    equity_curve=equity_curve,
-                    starting_equity=config.TRADING["initial_balance"],
-                    live_equity=live_eq,
-                )
+            combined_trades = (
+                pd.concat(all_trades, ignore_index=True)
+                if all_trades else pd.DataFrame()
+            )
+            combined_raw = (
+                pd.concat(all_raw_orders, ignore_index=True)
+                if all_raw_orders else pd.DataFrame()
+            )
+
+            metrics = perf_engine.compute_from_trades(
+                combined_trades,
+                equity_curve=equity_curve,
+                starting_equity=config.TRADING["initial_balance"],
+                live_equity=live_eq,
+                raw_orders_df=combined_raw,
+                slippage_log=all_slippage_logs,
+            )
 
             perf_engine.save_summary(
                 os.path.join(OUTPUTS_DIR, "performance_summary.json")

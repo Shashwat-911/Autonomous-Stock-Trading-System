@@ -42,16 +42,14 @@ jobs:
         echo "Dependencies installed"
 
     - name: Train ML meta-labeling model
-      env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      if: github.event.schedule != '0 2 * * 0'
       run: |
         if [ ! -f ml/meta_model.pkl ]; then
-          echo "Training ML model..."
+          echo "No model found — training..."
           python ml/run_pipeline.py
           echo "ML model trained"
         else
-          echo "ML model already exists, skipping training"
+          echo "Model exists — skipping training (weekly retrain handles updates)"
         fi
 
     - name: Create output directories
@@ -66,6 +64,14 @@ jobs:
     - name: Retrain ML model (weekly)
       if: github.event.schedule == '0 2 * * 0'
       run: python ml/run_pipeline.py
+
+    - name: Pre-session position cleanup
+      if: github.event.schedule != '0 2 * * 0'
+      run: |
+        echo "Running pre-session cleanup..."
+        python scripts/force_close_all.py || echo "Cleanup completed (non-fatal warnings OK)"
+        sleep 5
+        echo "Cleanup done"
 
     - name: Run live trading session
       if: github.event.schedule != '0 2 * * 0'
