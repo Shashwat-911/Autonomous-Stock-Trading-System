@@ -836,6 +836,16 @@ class AlpacaPaperBroker:
                     order_val = qty * current_price
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
+        elif signal == "BUY" and confidence < self.min_confidence:
+            logger.info(
+                "BUY order withheld for %s: confidence (%.2f) below min_confidence threshold (%.2f)",
+                self.ticker, confidence, self.min_confidence
+            )
+        elif signal == "BUY" and not can_trade:
+            logger.info(
+                "BUY order withheld for %s: risk manager can_trade is False (%s)",
+                self.ticker, block_reason
+            )
 
         if signal == "SELL" and position is not None:
             # Check if shares are already committed to bracket orders
@@ -904,6 +914,11 @@ class AlpacaPaperBroker:
                     self.submit_sell(
                         "ALL", "; ".join(signal_dict["reasons"])
                     )
+        elif signal == "SELL" and position is None:
+            logger.info(
+                "SELL signal for %s ignored -- flat position (0 shares held)",
+                self.ticker
+            )
 
         ret = {
             "signal": signal,
