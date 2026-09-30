@@ -273,6 +273,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
     <div class="nav">
       <a href="/">Health</a>
       <a href="/logs">Latest Log</a>
+      <a href="/debug">Debug Log</a>
     </div>
   </div>
   <div class="content">
@@ -332,6 +333,32 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                     self.send_header("Content-Type", "text/plain")
                     self.end_headers()
                     self.wfile.write(f"Log file not found: {safe_name}\n".encode())
+                return
+
+            # --- /debug: Show debug/stderr log for today ---
+            if self.path.rstrip("/") in ("/debug", "/stderr"):
+                now_utc = datetime.now(timezone.utc)
+                debug_content = None
+                debug_label = None
+                for delta_days in range(0, 3):
+                    dt = now_utc - timedelta(days=delta_days)
+                    tag = dt.strftime("%Y_%m_%d")
+                    dpath = os.path.join("outputs", "logs", f"debug_{tag}.log")
+                    if os.path.exists(dpath) and os.path.getsize(dpath) > 0:
+                        with open(dpath, "r", encoding="utf-8", errors="replace") as f:
+                            debug_content = f.read()
+                        debug_label = f"debug_{tag}.log"
+                        break
+                available_logs = self._list_available_logs()
+                page = self._render_logs_page(
+                    debug_content or "No debug log found.",
+                    debug_label or "debug (empty)",
+                    available_logs,
+                )
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(page.encode("utf-8"))
                 return
 
             # --- Default: Health check endpoint ---
