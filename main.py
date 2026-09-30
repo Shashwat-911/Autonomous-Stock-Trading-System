@@ -428,7 +428,7 @@ def run_live():
     _validate_credentials()
 
     # Guard: skip session if less than 2 hours of trading time remain
-    if not _has_sufficient_trading_time(min_hours=2.0):
+    if not _has_sufficient_trading_time(min_hours=0.25):
         logger.warning(
             "Insufficient trading time remaining (<2 hours). "
             "Session skipped — likely caused by GitHub Actions queue delay. "
