@@ -427,12 +427,11 @@ def run_walkforward() -> None:
 def run_live():
     _validate_credentials()
 
-    # Guard: skip session if less than 2 hours of trading time remain
+    # Guard: skip session if less than 15 minutes of trading time remain
     if not _has_sufficient_trading_time(min_hours=0.25):
         logger.warning(
-            "Insufficient trading time remaining (<2 hours). "
-            "Session skipped — likely caused by GitHub Actions queue delay. "
-            "Next session will run tomorrow."
+            "Insufficient trading time remaining (<15 minutes). "
+            "Session skipped. Next session will run tomorrow."
         )
         return  # Exit run_live() cleanly — finally block still runs
 
