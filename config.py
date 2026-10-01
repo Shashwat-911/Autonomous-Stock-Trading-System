@@ -31,11 +31,13 @@ TRADING = {
 }
 
 SIGNAL = {
-    "rsi_oversold": 37.0,    # was 40.0, Bayesian suggests 37.25
-    "rsi_overbought": 71.0,  # was 70.0, minor change
+    "rsi_oversold": 37.0,              # Dip entry fallback threshold
+    "rsi_overbought": 70.0,            # Momentum exhaustion / take-profit threshold
+    "rsi_momentum_min": 40.0,          # Pure momentum corridor minimum
+    "rsi_momentum_max": 65.0,          # Pure momentum corridor maximum
     "require_confirmation": False,
-    "adx_min": 24.0,         # was 22.0, Bayesian suggests 24.30
-    "adx_period": 14,        # standard lookback for ADX calculation
+    "adx_min": 20.0,                   # Calibrated 24.0 -> 20.0: prevents blocking healthy 1h consolidations
+    "adx_period": 14,                  # standard lookback for ADX calculation
 }
 
 RISK = {
