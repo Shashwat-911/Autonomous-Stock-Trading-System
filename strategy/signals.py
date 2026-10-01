@@ -13,7 +13,12 @@ from strategy.indicators import add_all_indicators
 try:
     from ml.predictor import MetaLabelPredictor
     _META_PREDICTOR = MetaLabelPredictor()
-    _META_AVAILABLE = True
+    # ML filter DISABLED: model was trained on daily bars (INTERVAL="1d" in ml/data_pipeline.py)
+    # but is applied to hourly signals. Feature distributions differ enough that the model
+    # returns systematically low probabilities (P~0.27-0.35) for valid momentum setups,
+    # blocking all trades. Re-enable after retraining on 1h bars (Audit Priority #15).
+    # To re-enable: set _META_AVAILABLE = True
+    _META_AVAILABLE = False
 except Exception:
     _META_AVAILABLE = False
     _META_PREDICTOR = None
@@ -61,43 +66,54 @@ class SignalGenerator:
     def __init__(
         self,
         risk_manager: RiskManager,
-        rsi_oversold: float = 30.0,
+        rsi_oversold: float = 37.0,
         rsi_overbought: float = 70.0,
-        require_confirmation: bool = True,
-        adx_min: float = 22.0,
+        rsi_momentum_min: float = 40.0,
+        rsi_momentum_max: float = 65.0,
+        require_confirmation: bool = False,
+        adx_min: float = 20.0,
         adx_period: int = 14,
         **kwargs,
     ) -> None:
         """
-        Initialise the SignalGenerator.
+        Initialise the SignalGenerator for Pure Momentum Trading (Section 7.2).
 
         Parameters
         ----------
         risk_manager : RiskManager
             Risk management engine consulted before every signal.
         rsi_oversold : float, optional
-            RSI oversold threshold (default 30.0).
+            RSI oversold threshold for fallback dip entries (default 37.0).
         rsi_overbought : float, optional
-            RSI overbought threshold (default 70.0).
+            RSI overbought threshold for momentum exhaustion exit (default 70.0).
+        rsi_momentum_min : float, optional
+            Minimum RSI for momentum entry corridor (default 40.0).
+        rsi_momentum_max : float, optional
+            Maximum RSI for momentum entry corridor (default 65.0).
         require_confirmation : bool, optional
-            Require all indicators to confirm before issuing a BUY
-            (default True).
+            When True, requires all confirmation conditions (default False).
         adx_min : float, optional
-            Minimum ADX threshold required for trend trades (default 22.0).
+            Minimum ADX threshold for trend strength (default 20.0).
+        adx_period : int, optional
+            Lookback period for ADX (default 14).
         """
         self.risk_manager = risk_manager
         self.rsi_oversold = rsi_oversold
         self.rsi_overbought = rsi_overbought
+        self.rsi_momentum_min = kwargs.get("rsi_momentum_min", rsi_momentum_min)
+        self.rsi_momentum_max = kwargs.get("rsi_momentum_max", rsi_momentum_max)
         self.require_confirmation = require_confirmation
-        self.adx_min = adx_min
+        self.adx_min = kwargs.get("adx_min", adx_min)
+        self.adx_period = kwargs.get("adx_period", adx_period)
 
         logger.info(
-            "SignalGenerator initialised -- RSI oversold=%.1f, "
-            "overbought=%.1f, confirmation=%s, adx_min=%.1f",
-            rsi_oversold,
-            rsi_overbought,
-            require_confirmation,
+            "SignalGenerator initialised (Pure Momentum) -- RSI momentum band=[%.1f, %.1f], "
+            "RSI overbought=%.1f, ADX min=%.1f, confirmation=%s",
+            self.rsi_momentum_min,
+            self.rsi_momentum_max,
+            self.rsi_overbought,
             self.adx_min,
+            self.require_confirmation,
         )
 
     # ------------------------------------------------------------------
@@ -114,46 +130,49 @@ class SignalGenerator:
         **kwargs,
     ) -> dict:
         """
-        Evaluate the latest row of indicator data and produce a trading
-        signal dictionary.
+        Evaluate technical indicators using Section 7.2 Pure Momentum logic:
+        1. MACD Bullish Trend / Expansion (MACD > Signal with positive histogram or fresh cross)
+        2. Uptrend Alignment: Close > 20-period SMA & Close > BB_Lower
+        3. RSI Momentum Corridor: 40.0 <= RSI <= 65.0 (growth runway before overbought)
+        4. Trend Strength Gate: ADX >= adx_min (default 20.0)
 
         Parameters
         ----------
         df : pd.DataFrame
-            DataFrame that **must** already contain indicator columns
-            (SMA_20, EMA_20, RSI_14, MACD, MACD_Signal, MACD_Hist,
-            BB_Upper, BB_Middle, BB_Lower).
+            DataFrame containing indicator columns.
         portfolio_value : float
-            Current total portfolio value passed to the risk manager.
+            Current total portfolio value.
         market_regime_bullish : bool, optional
-            Whether the broad market (SPY) is above its 200-SMA.
-            When False, all BUY signals are blocked (default True).
+            Whether broad market regime (SPY > 200-SMA) is bullish (default True).
         daily_trend_bullish : bool, optional
-            Whether the daily-timeframe trend supports a long entry.
-            When False, buy confidence is reduced (default True).
+            Whether daily timeframe trend is bullish (default True).
         has_position : bool, optional
             Whether an open position is currently held for this ticker (default False).
 
         Returns
         -------
         dict
-            A signal dictionary with keys:
-            ``signal``, ``confidence``, ``reasons``, ``blocked``,
-            ``block_reason``.
+            Signal dictionary with signal, confidence, reasons, blocked, block_reason.
         """
         if "current_portfolio_value" in kwargs:
             portfolio_value = kwargs["current_portfolio_value"]
         current_portfolio_value = portfolio_value
-        # Use the LAST row for all evaluations
-        last = df.iloc[-1]
 
-        rsi = last["RSI_14"]
-        macd = last["MACD"]
-        macd_signal = last["MACD_Signal"]
-        close = last["Close"]
-        sma_20 = last["SMA_20"]
-        bb_lower = last["BB_Lower"]
-        adx = float(df["ADX_14"].iloc[-1]) if "ADX_14" in df.columns else 25.0
+        last = df.iloc[-1]
+        prev = df.iloc[-2] if len(df) >= 2 else last
+
+        rsi = float(last["RSI_14"])
+        macd = float(last["MACD"])
+        macd_signal = float(last["MACD_Signal"])
+        macd_hist = float(last["MACD_Hist"]) if "MACD_Hist" in last else (macd - macd_signal)
+        close = float(last["Close"])
+        sma_20 = float(last["SMA_20"])
+        bb_lower = float(last["BB_Lower"])
+        adx = float(last["ADX_14"]) if "ADX_14" in df.columns else 25.0
+
+        prev_macd = float(prev["MACD"])
+        prev_signal = float(prev["MACD_Signal"])
+        prev_hist = float(prev["MACD_Hist"]) if "MACD_Hist" in prev else (prev_macd - prev_signal)
 
         logger.info(
             "Evaluating signal -- Close=%.2f, RSI=%.2f, MACD=%.4f, "
@@ -176,55 +195,108 @@ class SignalGenerator:
             regime_blocked = True
             logger.info("Market regime BEARISH (SPY < SMA-200) -- BUY signals blocked.")
 
-        # ----- Evaluate BUY conditions -----
-        buy_conditions = []
-        buy_reasons = []
+        # ----- ADX trend-strength gate -----
+        adx_blocked = adx < self.adx_min
+        if adx_blocked:
+            logger.info(
+                "BUY blocked: Market choppy/sideways (ADX=%.1f < %.1f)",
+                adx, self.adx_min,
+            )
 
-        cond_rsi_oversold = rsi < self.rsi_oversold
-        if cond_rsi_oversold:
-            buy_reasons.append(f"RSI oversold ({rsi:.1f} < {self.rsi_oversold})")
-        buy_conditions.append(cond_rsi_oversold)
-
-        cond_macd_bullish = macd > macd_signal
-        if cond_macd_bullish:
-            buy_reasons.append("MACD bullish (MACD > Signal)")
-        buy_conditions.append(cond_macd_bullish)
-
+        # ----- Evaluate Pure Momentum Conditions (Section 7.2) -----
+        # 1. Price is in an established uptrend above 20-period SMA
         cond_above_sma = close > sma_20
-        if cond_above_sma:
-            buy_reasons.append(f"Above SMA_20 ({close:.2f} > {sma_20:.2f})")
-        buy_conditions.append(cond_above_sma)
-
+        # 2. MACD is bullish (line above signal)
+        cond_macd_bullish = macd > macd_signal
+        # 3. RSI is in the momentum expansion corridor (40.0 to 65.0)
+        cond_rsi_momentum = self.rsi_momentum_min <= rsi <= self.rsi_momentum_max
+        # 4. Price holds above lower Bollinger Band support
         cond_above_bb = close > bb_lower
-        if cond_above_bb:
-            buy_reasons.append(f"Above BB_Lower ({close:.2f} > {bb_lower:.2f})")
-        buy_conditions.append(cond_above_bb)
 
-        # MACD bullish crossover (new condition)
-        macd_cross_up = (
-            float(df['MACD'].iloc[-1]) > float(df['MACD_Signal'].iloc[-1])
-            and float(df['MACD'].iloc[-2]) <= float(df['MACD_Signal'].iloc[-2])
-        ) if len(df) >= 2 else False
+        # Momentum crossovers and accelerations
+        macd_cross_up = (macd > macd_signal) and (prev_macd <= prev_signal)
+        hist_accelerating = (macd_hist > prev_hist) and (macd_hist > 0)
 
-        # Path 2: Momentum crossover logic (MACD cross + above SMA + RSI 40-65)
-        momentum_buy = macd_cross_up and (close > sma_20) and (40.0 <= rsi <= 65.0)
+        # Primary entry: Pure Momentum
+        momentum_buy = (
+            cond_above_sma
+            and cond_macd_bullish
+            and cond_rsi_momentum
+            and cond_above_bb
+        )
+
+        # Fallback entry: Oversold dip bounce
+        dip_buy = (
+            (rsi < self.rsi_oversold)
+            and cond_above_sma
+            and cond_macd_bullish
+            and cond_above_bb
+        )
+
+        buy_reasons = []
         if momentum_buy:
-            buy_reasons.append("Momentum crossover (MACD cross up + above SMA_20 + RSI 40-65)")
-
-        buy_count = sum(buy_conditions)
-        buy_confidence = min(buy_count * 0.25, 1.0)
-        if momentum_buy and buy_confidence < 0.75:
+            # Base confidence: 0.75 (comfortably clears 0.70 confidence floor)
             buy_confidence = 0.75
+            buy_reasons.append(
+                f"Momentum confirmed (Close > SMA_20, MACD > Signal, RSI {rsi:.1f} in [{self.rsi_momentum_min:.0f}, {self.rsi_momentum_max:.0f}])"
+            )
+            if macd_cross_up:
+                buy_confidence += 0.10
+                buy_reasons.append("Fresh MACD bullish crossover")
+            elif hist_accelerating:
+                buy_confidence += 0.05
+                buy_reasons.append("MACD histogram accelerating positive")
 
-        # Daily trend penalty: reduce confidence if daily trend is bearish
-        if not daily_trend_bullish and buy_count >= 2:
-            buy_confidence = max(0.0, buy_confidence - 0.25)
-            buy_reasons.append("Daily trend bearish (confidence reduced)")
+            if daily_trend_bullish:
+                buy_confidence += 0.05
+                buy_reasons.append("Daily trend bullish alignment")
+            else:
+                buy_confidence -= 0.05
+                buy_reasons.append("Daily trend neutral/bearish (confidence adjusted)")
+        elif dip_buy:
+            buy_confidence = 0.75
+            buy_reasons.append(f"Oversold dip bounce (RSI {rsi:.1f} < {self.rsi_oversold:.1f})")
+            if daily_trend_bullish:
+                buy_confidence += 0.05
+                buy_reasons.append("Daily trend bullish alignment")
+        else:
+            buy_confidence = 0.0
+            if cond_macd_bullish:
+                buy_reasons.append("MACD bullish (MACD > Signal)")
+            if cond_above_sma:
+                buy_reasons.append(f"Above SMA_20 ({close:.2f} > {sma_20:.2f})")
+            if cond_above_bb:
+                buy_reasons.append(f"Above BB_Lower ({close:.2f} > {bb_lower:.2f})")
+            if cond_rsi_momentum:
+                buy_reasons.append(f"RSI in momentum corridor ({rsi:.1f})")
+            elif rsi < self.rsi_oversold:
+                buy_reasons.append(f"RSI oversold ({rsi:.1f} < {self.rsi_oversold:.1f})")
+            elif rsi > self.rsi_overbought:
+                buy_reasons.append(f"RSI overbought ({rsi:.1f} > {self.rsi_overbought:.1f})")
+
+        buy_confidence = min(max(buy_confidence, 0.0), 1.0)
+
+        # Final BUY decision gating
+        buy_triggered = (
+            (momentum_buy or dip_buy)
+            and not blocked
+            and not regime_blocked
+            and not adx_blocked
+        )
+
+        if regime_blocked and (momentum_buy or dip_buy):
+            buy_reasons.append("BLOCKED: Market regime bearish (SPY < SMA-200)")
+
+        if adx_blocked and (momentum_buy or dip_buy):
+            buy_reasons.append(
+                f"BLOCKED: Market choppy/sideways (ADX={adx:.1f} < {self.adx_min:.1f})"
+            )
 
         # ----- Evaluate SELL conditions -----
         sell_conditions = []
         sell_reasons = []
 
+        # 1. RSI Overbought (momentum exhaustion / take-profit)
         cond_rsi_overbought = rsi > self.rsi_overbought
         if cond_rsi_overbought:
             sell_reasons.append(
@@ -232,11 +304,13 @@ class SignalGenerator:
             )
         sell_conditions.append(cond_rsi_overbought)
 
+        # 2. MACD Bearish (momentum loss / crossover down)
         cond_macd_bearish = macd < macd_signal
         if cond_macd_bearish:
             sell_reasons.append("MACD bearish (MACD < Signal)")
         sell_conditions.append(cond_macd_bearish)
 
+        # 3. Breakdown below lower Bollinger Band
         cond_below_bb = close < bb_lower
         if cond_below_bb:
             sell_reasons.append(
@@ -244,6 +318,7 @@ class SignalGenerator:
             )
         sell_conditions.append(cond_below_bb)
 
+        # 4. Forced exit from risk manager
         cond_forced_exit = blocked
         if cond_forced_exit:
             sell_reasons.append(f"Forced exit -- risk block: {block_reason}")
@@ -251,39 +326,6 @@ class SignalGenerator:
 
         sell_count = sum(sell_conditions)
         sell_confidence = min(sell_count * 0.33, 1.0)
-
-        # ----- Determine final signal -----
-        if self.require_confirmation:
-            # ALL 4 conditions must be true (original strict mode)
-            path1_triggered = (buy_count == len(buy_conditions))
-        else:
-            # At least 3 out of 4 conditions must agree (raised from 2 -> ensures 0.75 floor)
-            buy_conditions_met = sum(buy_conditions)
-            path1_triggered = (buy_conditions_met >= 3)
-
-        # ADX trend-strength gate
-        adx_blocked = adx < self.adx_min
-        if adx_blocked:
-            logger.info(
-                "BUY blocked: Market choppy/sideways "
-                "(ADX=%.1f < %.1f)", adx, self.adx_min
-            )
-
-        buy_triggered = (
-            (path1_triggered or momentum_buy)
-            and not blocked
-            and not regime_blocked
-            and not adx_blocked
-        )
-
-        # Block buy if market regime is bearish
-        if regime_blocked and (buy_count >= 2 or momentum_buy):
-            buy_reasons.append("BLOCKED: Market regime bearish (SPY < SMA-200)")
-
-        if adx_blocked and (path1_triggered or momentum_buy):
-            buy_reasons.append(
-                f"BLOCKED: Market choppy/sideways (ADX={adx:.1f} < {self.adx_min:.1f})"
-            )
 
         # Position-aware SELL threshold:
         # When holding a position: 1 condition is enough (protect capital)
@@ -293,6 +335,7 @@ class SignalGenerator:
         else:
             sell_triggered = sell_count >= 2   # Require confirmation when flat
 
+        # ----- ML Meta-Label Filter -----
         reasons = buy_reasons
         if buy_triggered and _META_AVAILABLE and _META_PREDICTOR:
             should_trade, ml_prob = _META_PREDICTOR.should_trade(df)
@@ -310,6 +353,7 @@ class SignalGenerator:
                 )
                 reasons.append(f"ML filter: P={ml_prob:.2f} >= 0.65")
 
+        # ----- Priority & Output Resolution -----
         if buy_triggered:
             signal = "BUY"
             confidence = buy_confidence
@@ -479,10 +523,12 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     print("\n--- Scenario 4: Diagnostic Check Across Dataset ---")
     rm_diag = RiskManager(initial_balance=BALANCE)
+    rm_diag.reset_daily_state()
     sg_diag = SignalGenerator(
         risk_manager=rm_diag,
-        rsi_oversold=45.0,
-        rsi_overbought=60.0,
+        rsi_momentum_min=40.0,
+        rsi_momentum_max=65.0,
+        rsi_overbought=70.0,
         require_confirmation=False,
     )
 
@@ -500,7 +546,7 @@ if __name__ == "__main__":
         bb_low = last_row["BB_Lower"]
 
         b_conds = [
-            rsi < sg_diag.rsi_oversold,
+            sg_diag.rsi_momentum_min <= rsi <= sg_diag.rsi_momentum_max,
             macd > macd_sig,
             close > sma20,
             close > bb_low,
