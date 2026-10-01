@@ -154,10 +154,7 @@ def build_components(db_path: str = None) -> tuple:
 
     sg = SignalGenerator(
         risk_manager=rm,
-        rsi_oversold=config.SIGNAL["rsi_oversold"],
-        rsi_overbought=config.SIGNAL["rsi_overbought"],
-        require_confirmation=config.SIGNAL["require_confirmation"],
-        adx_min=config.SIGNAL.get("adx_min", 22.0),
+        **config.SIGNAL,
     )
 
     broker = LocalPaperBroker(
@@ -471,10 +468,7 @@ def run_live():
     )
     sg = SignalGenerator(
         rm,
-        rsi_oversold=config.SIGNAL["rsi_oversold"],
-        rsi_overbought=config.SIGNAL["rsi_overbought"],
-        require_confirmation=config.SIGNAL["require_confirmation"],
-        adx_min=config.SIGNAL.get("adx_min", 22.0),
+        **config.SIGNAL,
     )
 
     tickers = config.TRADING["tickers"]
