@@ -47,7 +47,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 > **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
 
-![Daily P&L Chart](outputs/daily_pnl_chart.png?v=20261001)
+![Daily P&L Chart](outputs/daily_pnl_chart.png?v=20261002)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
@@ -93,8 +93,9 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 | **Day 36** | Sep 29 (Tue) | $99,631.80 | -$26.82 | -$368.20 | -0.368% | Active Session (-$26.82) |
 | **Day 37** | Sep 30 (Wed) | $99,631.71 | -$0.09 | -$368.29 | -0.368% | Flat Session - Disciplined HOLD |
 | **Day 38** | Oct 01 (Thu) | $99,449.40 | -$182.31 | -$550.60 | -0.551% | Loss Session (-$182.31) |
+| **Day 39** | Oct 02 (Fri) | $99,368.96 | -$80.44 | -$631.04 | -0.631% | Active Session (-$80.44) |
 
-> **Current Equity**: $99,449.40 | **Total P&L**: $-550.60 | **Best Day**: $+575.51 | **Win Rate**: 31.6% (12W / 22L / 4 Flat) | **Max Drawdown**: -0.773% | **Sessions**: 38
+> **Current Equity**: $99,368.96 | **Total P&L**: $-631.04 | **Best Day**: $+575.51 | **Win Rate**: 30.8% (12W / 23L / 4 Flat) | **Max Drawdown**: -0.773% | **Sessions**: 39
 ---
 
 ## System Architecture
