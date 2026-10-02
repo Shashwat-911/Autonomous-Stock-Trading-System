@@ -110,6 +110,33 @@ def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
     return remaining >= min_hours
 
 
+def _should_allow_new_entries(min_hours_for_entries: float = 1.5) -> bool:
+    """
+    Return True if there is enough trading time remaining to justify
+    opening NEW positions. Existing positions are always managed regardless.
+
+    With ATR bracket orders at SL=2×ATR and TP=2.5×ATR on 1-hour bars,
+    positions need at least 90 minutes to develop. Entering in the last
+    90 minutes guarantees EOD liquidation before brackets can work.
+
+    Default: blocks new entries if less than 1.5 hours remain.
+    """
+    from datetime import datetime, timezone
+    now_utc = datetime.now(timezone.utc)
+    today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
+    today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
+
+    # Before market open — entries will be fine
+    if now_utc < today_open_utc:
+        return True
+    # After close — irrelevant
+    if now_utc >= today_close_utc:
+        return False
+
+    remaining = (today_close_utc - now_utc).total_seconds() / 3600
+    return remaining >= min_hours_for_entries
+
+
 def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
     """Return True if market closes within `minutes_before` minutes."""
     if clock is None or not getattr(clock, "is_open", False):
@@ -546,6 +573,14 @@ def run_live():
 
             action_alerts = []
 
+            # Block new BUY entries if less than 90 minutes remain
+            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=1.5)
+            if not allow_new_entries:
+                logger.info(
+                    "Late session (<90 min to close): blocking new BUY entries. "
+                    "Existing positions managed by brackets."
+                )
+
             for ticker in tickers:
                 try:
                     # Fetch 5-minute intraday bars
@@ -575,6 +610,7 @@ def run_live():
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
                         pending_exposure=pending_exposure_dollars,
+                        allow_new_entries=allow_new_entries,
                     )
 
                     # Track pending exposure for subsequent tickers in this scan

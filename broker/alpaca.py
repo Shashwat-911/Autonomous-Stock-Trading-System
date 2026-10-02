@@ -665,6 +665,7 @@ class AlpacaPaperBroker:
         market_regime_bullish: bool = True,
         daily_trend_bullish: bool = True,
         pending_exposure: float = 0.0,
+        allow_new_entries: bool = True,
         **kwargs,
     ) -> dict:
         """
@@ -680,6 +681,8 @@ class AlpacaPaperBroker:
             Whether higher-timeframe daily trend is bullish (default True).
         pending_exposure : float, optional
             Dollar value of pending/unconfirmed orders from this scan (default 0.0).
+        allow_new_entries : bool, optional
+            Whether to permit opening new BUY positions (default True).
 
         Returns
         -------
@@ -776,6 +779,18 @@ class AlpacaPaperBroker:
                 "market_open": False,
                 "reason": "Market closed (orders paused)",
             }
+
+        if signal == "BUY" and confidence >= self.min_confidence and position is None:
+            if not allow_new_entries:
+                logger.info(
+                    f"New entry blocked for {self.ticker} — "
+                    f"<90 min to market close."
+                )
+                return {
+                    "action": "SKIP",
+                    "reason": "Late session entry blocked",
+                    "ticker": self.ticker,
+                }
 
         if signal == "BUY" and confidence >= self.min_confidence and can_trade:
             # Portfolio heat check augmented with pending orders from this scan
