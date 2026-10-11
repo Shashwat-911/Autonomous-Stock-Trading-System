@@ -1,8 +1,8 @@
 {
-  "session_timestamp": "2026-10-09T20:11:23.417784",
+  "session_timestamp": "2026-10-11T08:27:45.261385",
   "starting_equity": 100000.0,
-  "ending_equity": 100006.95,
-  "total_return_pct": 0.0069,
+  "ending_equity": 100006.19,
+  "total_return_pct": 0.0062,
   "sharpe_ratio": -1.4528,
   "sortino_ratio": -2.3027,
   "max_drawdown_pct": -0.6972,
