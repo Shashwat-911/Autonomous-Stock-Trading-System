@@ -16,5 +16,12 @@
   "avg_gain": 1139.6604,
   "avg_loss": -1014.9929,
   "avg_slippage_pct": 0.025986,
-  "avg_execution_latency_ms": 1491.32
+  "avg_execution_latency_ms": 1491.32,
+  "fix_deployed": {
+    "date": "2026-10-17",
+    "description": "Late-entry cutoff raised from 90 min to 150 min (1.5h -> 2.5h). Effective from next session.",
+    "root_cause": "Oct 14-16 losses caused by entries with <143 min to close drifting into EOD force-closes. SPY remained BULL throughout; no regime failure.",
+    "config_key": "TRADING.late_entry_cutoff_hours",
+    "effective_entry_window_et": "09:30-13:30"
+  }
 }
