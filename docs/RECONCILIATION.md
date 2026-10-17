@@ -82,6 +82,12 @@ observation before the start; no assumed $100,000 value is substituted when miss
 Inspect the baseline date: changes span consecutive available observations.
 
 The report remains `REQUIRES_REVIEW`. A zero residual does not establish strategy edge.
+The summary also provides a retained-history bridge to current equity using all
+funding/cash activities, realized outcomes and current marked FIFO inventory.
+This complements the requested-window bridge when its opening inventory is non-flat.
+
+See [the October 17 broker-backed findings](RECONCILIATION_FINDINGS_2026-10-17.md)
+for the completed initial audit and remaining process-attribution questions.
 
 ## Local log attribution
 

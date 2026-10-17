@@ -4,6 +4,9 @@
 > reports are unverified because the reporting path can match fills across symbols.
 > Use the standalone [read-only reconciliation diagnostic](docs/RECONCILIATION.md)
 > before interpreting strategy performance. This audit does not change trading rules.
+> [Broker-backed audit findings](docs/RECONCILIATION_FINDINGS_2026-10-17.md): retained
+> funding, fills and fees reconcile to $99,612.27 with zero residual; earlier trading
+> outside the saved runs explains much of the October loss-attribution discrepancy.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Alpaca API](https://img.shields.io/badge/broker-Alpaca%20Trading%20API-green.svg)](https://alpaca.markets/)
