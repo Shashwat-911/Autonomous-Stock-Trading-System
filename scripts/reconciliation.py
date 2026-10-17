@@ -9,7 +9,10 @@ def amount(value):
 
 
 def timestamp(value):
-    return datetime.fromisoformat(str(value).replace("Z", "+00:00")).astimezone(timezone.utc)
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("Execution/valuation timestamp requires an explicit timezone")
+    return parsed.astimezone(timezone.utc)
 
 
 def match_fills(activities):
@@ -33,7 +36,7 @@ def match_fills(activities):
             raise ValueError("Unsupported fill side")
         sign = 1 if side in ("buy", "buy_to_cover") else -1
         qty, price = amount(fill["qty"]), amount(fill["price"])
-        if qty <= 0 or price <= 0 or not fill.get("symbol"):
+        if not qty.is_finite() or not price.is_finite() or qty <= 0 or price <= 0 or not fill.get("symbol"):
             raise ValueError("Invalid fill quantity, price or symbol")
         queue = lots[fill["symbol"]]
         while qty and queue and queue[0]["sign"] != sign:
