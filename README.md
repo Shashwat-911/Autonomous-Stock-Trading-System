@@ -1,5 +1,10 @@
 # Autonomous Stock Trading & Quantitative Backtesting System
 
+> **Measurement audit (October 2026):** Existing production win-rate and expectancy
+> reports are unverified because the reporting path can match fills across symbols.
+> Use the standalone [read-only reconciliation diagnostic](docs/RECONCILIATION.md)
+> before interpreting strategy performance. This audit does not change trading rules.
+
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Alpaca API](https://img.shields.io/badge/broker-Alpaca%20Trading%20API-green.svg)](https://alpaca.markets/)
 [![Render Service](https://img.shields.io/badge/Render-Live%20Service-46E3B7.svg?logo=render&logoColor=white)](https://autonomous-stock-trader.onrender.com/)
