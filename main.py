@@ -76,6 +76,10 @@ def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
     Return True if there are at least min_hours of trading time remaining today.
     Prevents the bot from starting a session when GitHub Actions queue delay
     has pushed startup past the point where meaningful trading can occur.
+
+    Note: this is a session-start gate (run or skip entirely).
+    For mid-session entry blocking see _should_allow_new_entries(), which uses
+    config.TRADING["late_entry_cutoff_hours"] (default 2.5h).
     """
     try:
         import pytz
