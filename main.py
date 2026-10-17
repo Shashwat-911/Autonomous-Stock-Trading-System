@@ -147,7 +147,19 @@ def _should_allow_new_entries(min_hours_for_entries: float = 2.5) -> bool:
 
 
 def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
-    """Return True if market closes within `minutes_before` minutes."""
+    """
+    Return True if market closes within `minutes_before` minutes (default 10).
+
+    This is the EOD force-liquidation trigger — it fires when the session is
+    nearly over and ensures all open positions are closed before market close.
+    It is distinct from _should_allow_new_entries(), which blocks NEW entries
+    earlier in the session (default: 2.5h before close via config).
+
+    Three-gate summary:
+      1. _has_sufficient_trading_time()   — session-start gate (skip entire run)
+      2. _should_allow_new_entries()      — mid-session entry gate (stop opening new positions)
+      3. _is_near_market_close()          — EOD liquidation gate (force-close all open positions)
+    """
     if clock is None or not getattr(clock, "is_open", False):
         return False
     from datetime import timezone
