@@ -57,6 +57,7 @@ class ReconciliationTests(unittest.TestCase):
         calls = []
         def get(path, params):
             calls.append(params)
+            self.assertEqual(params["nested"], "false")
             if len(calls) == 1:
                 return [{"id": str(i)} for i in range(500)]
             return [{"id": "boundary"}, {"id": str(len(calls))}]

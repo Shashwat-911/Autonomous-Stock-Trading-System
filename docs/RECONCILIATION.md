@@ -99,7 +99,9 @@ Deployment/job logs may still be needed to identify the process behind an order.
 
 ## Retrieval guarantees
 
-Activities paginate using activity-ID tokens. Orders recursively split saturated
+Activities paginate using activity-ID tokens. Orders are requested flat, including
+bracket children: nested responses can collapse a full page into fewer parents,
+making a short-page completion check unsafe. Orders recursively split saturated
 500-order timestamp windows with overlap, preserving ties. Unsplittable saturated
 timestamps fail instead of silently truncating. Orders referenced by fills but
 absent from list results are fetched individually. Network retries are bounded;

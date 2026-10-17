@@ -113,7 +113,10 @@ def order_pages(get, lower, upper):
     """
     from datetime import timedelta
     def collect(lo, hi):
-        rows = get("/v2/orders", {"status": "all", "limit": 500, "nested": "true",
+        # Nested responses collapse legs into parents AFTER applying the limit:
+        # a page shorter than 500 can therefore still be truncated. Flat orders
+        # preserve the pagination count and include bracket children independently.
+        rows = get("/v2/orders", {"status": "all", "limit": 500, "nested": "false",
                                  "direction": "asc", "after": lo.isoformat(),
                                  "until": hi.isoformat()})
         if not isinstance(rows, list):
