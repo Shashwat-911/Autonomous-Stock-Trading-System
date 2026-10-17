@@ -36,11 +36,13 @@ class PaperAuditTests(unittest.TestCase):
             (root / "logs").mkdir()
             (root / "ledger.csv").write_text("timestamp,equity\n2026-10-14,1000\n2026-10-15,1019\n")
             acts = [fill(1, "A", "buy", 2, 10), fill(2, "A", "sell", 2, 20),
+                    {"id": "fund", "activity_type": "JNLC", "date": "2026-10-14", "net_amount": "1000"},
                     {"id": "fee", "activity_type": "FEE", "date": "2026-10-15", "net_amount": "-1"}]
             snapshot = {"activities": acts, "orders": [
                 {"id": "order-1", "symbol": "A", "filled_qty": "2"},
                 {"id": "order-2", "symbol": "A", "filled_qty": "2"}],
-                "positions_now": [], "fetched_at": "2026-10-16T00:00:00Z",
+                "positions_now": [], "account_snapshot": {"equity": "1019"},
+                "fetched_at": "2026-10-16T00:00:00Z",
                 "portfolio_history": {"timestamp": [
                     datetime(2026, 10, d, 20, tzinfo=timezone.utc).timestamp() for d in (14, 15)],
                     "equity": [1000, 1019]}}
@@ -50,6 +52,7 @@ class PaperAuditTests(unittest.TestCase):
             self.assertEqual(result["fills_without_direct_log_id"], 2)
             self.assertEqual(result["order_activity_quantity_mismatches"], 0)
             self.assertEqual(result["gross_realized_pnl_provisional"], "20")
+            self.assertEqual(result["retained_history_current_equity_bridge"]["residual"], "0")
             self.assertEqual(result["orders_without_direct_log_id"], 2)
             self.assertTrue((root / "report.md").exists())
 

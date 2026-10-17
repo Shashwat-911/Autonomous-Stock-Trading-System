@@ -231,7 +231,7 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
     gross = sum((amount(m["gross_pnl"]) for m in matches), amount(0))
     nontrade_total = sum((amount(a.get("net_amount")) for a in nontrade), amount(0))
     bridge_residual = final - baseline - gross - nontrade_total if baseline is not None and final is not None else None
-    _, current_lots = match_fills(fills)
+    lifetime_matches, current_lots = match_fills(fills)
     derived_qty, observed_qty = {}, {}
     for lot in current_lots:
         sym = lot["symbol"]
@@ -246,6 +246,16 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
     for a in nontrade:
         kind = a["activity_type"]
         nontrade_by_type[kind] = nontrade_by_type.get(kind, amount(0)) + amount(a.get("net_amount"))
+    lifetime_gross = sum((amount(m["gross_pnl"]) for m in lifetime_matches), amount(0))
+    lifetime_cash = sum((amount(a.get("net_amount")) for a in activities
+                         if a.get("activity_type") != "FILL"), amount(0))
+    signed_basis = sum((amount(l["signed_qty"]) * amount(l["entry_price"])
+                        for l in current_lots), amount(0))
+    market_value = sum((amount(p.get("market_value")) for p in snapshot["positions_now"]), amount(0))
+    inferred_unrealized = market_value - signed_basis
+    account_equity = snapshot.get("account_snapshot", {}).get("equity")
+    lifetime_residual = (amount(account_equity) - lifetime_cash - lifetime_gross - inferred_unrealized
+                         if account_equity is not None else None)
     summary = {
         "period": [str(start), str(end)], "fetched_at": snapshot["fetched_at"],
         "retained_activities": len(activities), "orders_including_legs": len(orders),
@@ -266,6 +276,13 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
             "ending_equity": str(final) if final is not None else None,
             "residual_including_unrealized": str(bridge_residual) if bridge_residual is not None else None,
             "both_inventory_boundaries_flat": not start_lots and not end_lots,
+        },
+        "retained_history_current_equity_bridge": {
+            "gross_realized": str(lifetime_gross), "net_nontrade_cash": str(lifetime_cash),
+            "unrealized_from_current_marks_and_fifo_basis": str(inferred_unrealized),
+            "observed_account_equity": account_equity,
+            "residual": str(lifetime_residual) if lifetime_residual is not None else None,
+            "assumption": "All initial funding and inventory retained; no unmodeled basis-changing events. Snapshots are non-atomic.",
         },
         "status": "REQUIRES_REVIEW",
         "limitations": [
