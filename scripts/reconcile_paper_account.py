@@ -135,6 +135,20 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
     window_fills = [a for a in through_end if start <= local_date(a["transaction_time"])]
     sessions, mentions = session_evidence(log_dir)
     orders = {o["id"]: o for o in snapshot["orders"]}
+    window_order_ids = {a["order_id"] for a in window_fills}
+    order_rows = []
+    for oid, order in orders.items():
+        submitted = order.get("submitted_at") or order.get("created_at")
+        if oid not in window_order_ids and not (submitted and start <= local_date(submitted) <= end):
+            continue
+        direct = mentions.get(oid.lower(), [])
+        order_rows.append({"order_id": oid, "symbol": order.get("symbol"),
+                           "submitted_at": submitted, "filled_at": order.get("filled_at"),
+                           "side": order.get("side"), "status": order.get("status"),
+                           "type": order.get("type"), "filled_qty": order.get("filled_qty"),
+                           "client_order_id": order.get("client_order_id"),
+                           "log_evidence": "direct_order_id" if direct else "no_id_match",
+                           "log_files": ";".join(direct)})
     fill_rows = []
     for f in window_fills:
         order = orders.get(f["order_id"], {})
@@ -236,6 +250,8 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
         "period": [str(start), str(end)], "fetched_at": snapshot["fetched_at"],
         "retained_activities": len(activities), "orders_including_legs": len(orders),
         "window_fill_events": len(window_fills), "fifo_matched_fragments": len(matches),
+        "window_orders": len(order_rows),
+        "orders_without_direct_log_id": sum(r["log_evidence"] != "direct_order_id" for r in order_rows),
         "gross_realized_pnl_provisional": str(sum((amount(m["gross_pnl"]) for m in matches), amount(0))),
         "nontrade_net_amount": str(sum((amount(a.get("net_amount")) for a in nontrade), amount(0))),
         "opening_lots": len(start_lots), "ending_lots": len(end_lots),
@@ -263,6 +279,7 @@ def analyze(snapshot, start, end, output, ledger_path, log_dir):
         ],
     }
     write_csv(output / "fills_with_log_evidence.csv", fill_rows)
+    write_csv(output / "orders_with_log_evidence.csv", order_rows)
     write_csv(output / "matched_lots.csv", matches)
     write_csv(output / "opening_lots.csv", start_lots)
     write_csv(output / "ending_lots.csv", end_lots)

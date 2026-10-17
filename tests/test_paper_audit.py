@@ -50,6 +50,7 @@ class PaperAuditTests(unittest.TestCase):
             self.assertEqual(result["fills_without_direct_log_id"], 2)
             self.assertEqual(result["order_activity_quantity_mismatches"], 0)
             self.assertEqual(result["gross_realized_pnl_provisional"], "20")
+            self.assertEqual(result["orders_without_direct_log_id"], 2)
             self.assertTrue((root / "report.md").exists())
 
     def test_session_equity_gap_does_not_assume_origin(self):

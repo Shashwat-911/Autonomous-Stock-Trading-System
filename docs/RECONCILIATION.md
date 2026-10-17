@@ -41,6 +41,7 @@ trading is stopped. Current positions are retrieval-time observations.
 |---|---|
 | `snapshot.json` | Private broker data for replay |
 | `fills_with_log_evidence.csv` | Fills, client order IDs and direct/parent/no local log match |
+| `orders_with_log_evidence.csv` | Submitted orders, including canceled/unfilled orders, and local log matches |
 | `matched_lots.csv` | Symbol-aware FIFO quantities and gross realized P&L |
 | `opening_lots.csv`, `ending_lots.csv` | Reconstructed boundary inventory |
 | `nontrade_activities.csv` | Cash movements, fees, dividends and adjustments |
