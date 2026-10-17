@@ -28,6 +28,11 @@ TRADING = {
     "lookback_days": 60,               # hourly lookback (yfinance max ~60d for 1h)
     "lookback_days_intraday": 30,      # 5m lookback (yfinance max ~60d for 5m)
     "scan_interval_minutes": 15,       # scan and trade every 15 minutes
+    # Entry window cutoff: block new BUY entries if less than this many hours
+    # remain before market close. Raised from 1.5h→2.5h on 2026-10-17 after
+    # live data confirmed entries with <143 min to close drift into EOD force-
+    # closes (Oct 15 JNJ, Oct 16 JPM/BAC). Brackets need ~2.5-3h to resolve.
+    "late_entry_cutoff_hours": 2.5,
 }
 
 SIGNAL = {

@@ -101,11 +101,12 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 | **Day 44** | Oct 09 (Fri) | $100,006.95 | **+$109.92** | +$6.95 | +0.007% | Profitable Session (+$109.92) |
 | **Day 45** | Oct 12 (Mon) | $100,042.75 | +$35.80 | +$42.75 | +0.043% | Active Session (+$35.80) |
 | **Day 46** | Oct 13 (Tue) | $100,189.49 | **+$146.74** | +$189.49 | +0.189% | Profitable Session (+$146.74) |
-| **Day 47** | Oct 14 (Wed) | $99,940.50 | -$248.99 | -$59.50 | -0.059% | Loss Session (-$248.99) |
-| **Day 48** | Oct 15 (Thu) | $99,865.67 | -$74.83 | -$134.33 | -0.134% | Active Session (-$74.83) |
-| **Day 49** | Oct 16 (Fri) | $99,612.93 | -$252.74 | -$387.07 | -0.387% | Loss Session (-$252.74) |
+| **Day 47** | Oct 14 (Wed) | $99,940.50 | -$248.99 | -$59.50 | -0.059% | No entries — all tickers below signal threshold; loss is cumulative stale-trade lag |
+| **Day 48** | Oct 15 (Thu) | $99,865.67 | -$74.83 | -$134.33 | -0.134% | JNJ entered 17:51 UTC (128 min to close) — bracket unresolved → EOD force-close at loss |
+| **Day 49** | Oct 16 (Fri) | $99,612.93 | -$252.74 | -$387.07 | -0.387% | JPM/BAC entered 17:35 UTC (143 min to close) — ADX collapsed mid-session → EOD force-close |
 
 > **Current Equity**: $99,612.93 | **Total P&L**: $-387.07 | **Best Day**: $+575.51 | **Win Rate**: 36.7% (18W / 27L / 4 Flat) | **Max Drawdown**: -0.773% | **Sessions**: 49
+> **Oct 14–16 root cause**: Late-day entries with insufficient bracket resolution time. Fix deployed 2026-10-17: entry window tightened from 90 min → 150 min cutoff.
 ---
 
 ## System Architecture
@@ -196,10 +197,11 @@ The trading engine evaluates technical indicators across price windows using rig
 | Week 5 | Sep 2 | RSI oversold threshold raised 40 → 45 | Sep 1 NVDA dip at RSI ~47 missed entry; wider window needed |
 | Week 5 (Sep 2) | Sep 2 | High-conviction BUY (44 shares NVDA @ $224.74) | Momentum crossover confirmed with multi-timeframe filter |
 | Week 7 | Sep 17 | LightGBM Meta-Labeling + Bayesian Opt + 20 Tickers | Filters false positives (P >= 0.65), lifts Sharpe 1.38 → 2.02, diversifies universe |
+| **Oct 17** | Oct 17 | **Late-entry cutoff raised: 90 min → 150 min** | Log analysis of Oct 14–16 confirmed bracket orders (SL=2×ATR, TP=2.5×ATR) need ≥2.5h to resolve. JNJ, JPM, BAC all entered with <143 min to close and drifted into EOD force-closes. SPY stayed BULL — not a regime failure. Entry window now 09:30–13:30 ET. Value moved to `config.TRADING["late_entry_cutoff_hours"]`. |
 
-> Every change above was driven by real live trading data, 
-> not theory. Whipsaw behavior detected Aug 28 — 
-> momentum crossover on daily candles is unstable at 
+> Every change above was driven by real live trading data,
+> not theory. Whipsaw behavior detected Aug 28 —
+> momentum crossover on daily candles is unstable at
 > 15-minute scan intervals without a minimum hold period.
 
 ---

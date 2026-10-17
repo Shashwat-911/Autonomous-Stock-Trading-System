@@ -110,16 +110,21 @@ def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
     return remaining >= min_hours
 
 
-def _should_allow_new_entries(min_hours_for_entries: float = 1.5) -> bool:
+def _should_allow_new_entries(min_hours_for_entries: float = 2.5) -> bool:
     """
     Return True if there is enough trading time remaining to justify
     opening NEW positions. Existing positions are always managed regardless.
 
-    With ATR bracket orders at SL=2×ATR and TP=2.5×ATR on 1-hour bars,
-    positions need at least 90 minutes to develop. Entering in the last
-    90 minutes guarantees EOD liquidation before brackets can work.
+    Bracket orders (SL=2×ATR, TP=2.5×ATR) on 1-hour bars need ~2.5–3 hours
+    to resolve naturally. Live session data (Oct 14–16) confirmed that entries
+    made with only 128–143 minutes to close consistently drifted into EOD
+    force-closes at a loss — neither the stop-loss nor take-profit was reached.
 
-    Default: blocks new entries if less than 1.5 hours remain.
+    Threshold raised from 1.5h (90 min) to 2.5h (150 min) on 2026-10-17.
+    This blocks new entries after ~12:30 PM EDT / 17:30 UTC, giving the full
+    afternoon for bracket legs to fill before the 4:00 PM ET close.
+
+    Default: blocks new entries if less than 2.5 hours remain.
     """
     from datetime import datetime, timezone
     now_utc = datetime.now(timezone.utc)
@@ -573,11 +578,14 @@ def run_live():
 
             action_alerts = []
 
-            # Block new BUY entries if less than 90 minutes remain
-            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=1.5)
+            # Block new BUY entries when insufficient time remains for brackets to resolve.
+            # Threshold is read from config.TRADING["late_entry_cutoff_hours"] so it can
+            # be tuned without touching this file.
+            _cutoff_hours = config.TRADING.get("late_entry_cutoff_hours", 2.5)
+            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=_cutoff_hours)
             if not allow_new_entries:
                 logger.info(
-                    "Late session (<90 min to close): blocking new BUY entries. "
+                    f"Late session (<{int(_cutoff_hours * 60)} min to close): blocking new BUY entries. "
                     "Existing positions managed by brackets."
                 )
 
