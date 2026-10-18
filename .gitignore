@@ -77,4 +77,5 @@ scripts/fetch_step_today.py
 
 # Read-only broker audit: raw account snapshots and execution identifiers stay local
 outputs/private_reconciliation/
+outputs/reporting_private/
 

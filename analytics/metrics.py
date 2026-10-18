@@ -83,6 +83,20 @@ class PerformanceEngine:
         dict
             Dictionary containing all computed metrics.
         """
+        if trades_df.attrs.get("measurement_basis") == "fill_activity_position_episodes":
+            # Never manufacture an equity curve from episode exits or mix it with
+            # a retrieval-time balance. Account returns belong to reporting v2.
+            from analytics.measurement import episode_metrics
+            metrics = episode_metrics(trades_df.to_dict("records"))
+            metrics.update({"measurement_basis": "fill_activity_position_episodes",
+                            "equity_metrics_status": "use_account_reporting_v2",
+                            "ending_equity": None, "total_return_pct": None,
+                            "sharpe_ratio": None, "sortino_ratio": None,
+                            "max_drawdown_pct": None, "avg_slippage_pct": None,
+                            "avg_execution_latency_ms": None})
+            self._metrics = metrics
+            return metrics
+
         metrics = {
             "session_timestamp": datetime.now().isoformat(),
             "starting_equity": starting_equity,
@@ -237,7 +251,8 @@ class PerformanceEngine:
         gross_losses = abs(float(losses.sum())) if n_losses > 0 else 0.0
         profit_factor = (gross_gains / gross_losses) if gross_losses > 0 else 0.0
 
-        expectancy = (win_rate * avg_gain) + ((1 - win_rate) * avg_loss)
+        # Breakeven episodes belong in the denominator, not in the loss group.
+        expectancy = float(trades["pnl"].mean())
 
         return {
             "total_trades": total,
@@ -456,6 +471,10 @@ class PerformanceEngine:
             return "No metrics computed."
 
         m = self._metrics
+        if m.get("measurement_basis") == "fill_activity_position_episodes":
+            return ("Gross completed position episodes: " + str(m["total_trades"]) +
+                    "\nGross expectancy: " + str(m["expectancy"]) +
+                    "\nAccount equity/return metrics: see reporting v2 (not inferred from trades).")
         lines = [
             "=" * 60,
             "  QUANTITATIVE PERFORMANCE SUMMARY",

@@ -1089,121 +1089,52 @@ class AlpacaPaperBroker:
         orders_df: pd.DataFrame,
         session_start: Optional[datetime] = None,
     ) -> pd.DataFrame:
+        """Build symbol-isolated position episodes from FILL activities.
+
+        The legacy parameter name is retained, but order aggregates are rejected:
+        they cannot represent individual partial-fill execution times reliably.
+        All history must be supplied before selecting episodes by exit timestamp.
         """
-        Match BUY fills to subsequent SELL fills for the same ticker.
-        Returns a DataFrame with one row per completed round-trip trade containing:
-        - ticker, entry_time, exit_time, entry_price, exit_price,
-          qty, pnl, pnl_pct, hold_duration_minutes, side='round_trip'
-        Unmatched open BUY positions are excluded (no exit yet).
-
-        If session_start is provided, only round-trips whose entry or exit
-        occurred on or after session_start are returned, preventing historical
-        trades from prior days from being counted as current session trades.
-        """
-        if orders_df.empty:
-            return pd.DataFrame()
-
-        # Filter to filled orders only
-        status_s = orders_df["status"].astype(str).str.lower()
-        filled = orders_df[status_s == "filled"].copy()
-        if filled.empty:
-            return pd.DataFrame()
-        filled = filled.sort_values("filled_at").reset_index(drop=True)
-
-        round_trips = []
-        open_buys = []  # stack of open BUY fills
-
-        for _, row in filled.iterrows():
-            side = str(row["side"]).lower()
-            if side == "buy":
-                open_buys.append(row)
-            elif side == "sell" and open_buys:
-                buy = open_buys.pop(0)  # FIFO matching
-                qty = min(float(buy["filled_qty"]), float(row["filled_qty"]))
-                entry_price = float(buy["filled_avg_price"])
-                exit_price = float(row["filled_avg_price"])
-                pnl = (exit_price - entry_price) * qty
-                pnl_pct = (exit_price - entry_price) / entry_price * 100
-
-                entry_time = pd.to_datetime(buy["filled_at"])
-                exit_time = pd.to_datetime(row["filled_at"])
-                hold_minutes = (exit_time - entry_time).total_seconds() / 60
-
-                # Filter by session_start if provided
-                if session_start is not None:
-                    sess_start_ts = pd.to_datetime(session_start, utc=True)
-                    exit_ts = pd.to_datetime(exit_time, utc=True)
-                    entry_ts = pd.to_datetime(entry_time, utc=True)
-                    # Exclude trade if both entry and exit happened before this session started
-                    if exit_ts < sess_start_ts and entry_ts < sess_start_ts:
-                        continue
-
-                round_trips.append({
-                    "ticker": self.ticker,
-                    "entry_time": entry_time,
-                    "exit_time": exit_time,
-                    "entry_price": entry_price,
-                    "exit_price": exit_price,
-                    "qty": qty,
-                    "pnl": pnl,
-                    "pnl_pct": pnl_pct,
-                    "hold_duration_minutes": hold_minutes,
-                    "side": "round_trip",
-                    "entry_reason": buy.get("reason", ""),
-                    "exit_reason": row.get("reason", ""),
-                })
-
-        return pd.DataFrame(round_trips)
+        from analytics.measurement import position_episodes
+        from scripts.reconciliation import timestamp
+        if not orders_df.empty and "activity_type" not in orders_df.columns:
+            raise ValueError("Authoritative round trips require FILL activities, not cumulative orders")
+        activities = orders_df.to_dict("records")
+        episodes, unfinished = position_episodes(activities)
+        if session_start is not None:
+            boundary = timestamp(session_start)
+            episodes = [e for e in episodes if timestamp(e["exit_time"]) >= boundary]
+        result = pd.DataFrame(episodes)
+        for name in ("pnl", "qty", "entry_price", "exit_price", "pnl_pct"):
+            if name in result:
+                result[name] = pd.to_numeric(result[name])
+        result.attrs["measurement_basis"] = "fill_activity_position_episodes"
+        result.attrs["unfinished_episodes"] = unfinished
+        return result
 
     def get_trade_history(self, session_start: Optional[datetime] = None) -> pd.DataFrame:
-        """
-        Fetch order history directly from Alpaca API for this ticker,
-        and build round-trip trades.
+        """Complete retained execution history; failures are not zero-trade success.
 
-        Parameters
-        ----------
-        session_start : datetime or None, optional
-            Timestamp when current trading session started. When provided,
-            trades completed in prior sessions are filtered out.
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame of completed round-trip trades.
+        Live wrap-up uses one account-wide report, avoiding repeated downloads per
+        ticker. This public per-symbol method shares its validation and accounting.
         """
-        try:
-            after_date = datetime.now(timezone.utc) - timedelta(days=7)
-            req = GetOrdersRequest(
-                status=QueryOrderStatus.ALL,
-                symbols=[self.ticker],
-                after=after_date,
-                limit=500,
-            )
-            orders = self.client.get_orders(filter=req)
-            rows = []
-            for o in orders:
-                rows.append({
-                    "order_id": str(o.id),
-                    "timestamp": str(o.submitted_at),
-                    "submitted_at": str(o.submitted_at),
-                    "filled_at": str(o.filled_at) if o.filled_at else None,
-                    "ticker": o.symbol,
-                    "symbol": o.symbol,
-                    "action": str(o.side.value).lower() if hasattr(o.side, "value") else str(o.side).lower(),
-                    "side": str(o.side.value).lower() if hasattr(o.side, "value") else str(o.side).lower(),
-                    "quantity": float(o.qty or 0),
-                    "qty": float(o.qty or 0),
-                    "filled_qty": float(o.filled_qty or 0),
-                    "price": float(o.limit_price or o.stop_price or 0),
-                    "status": str(o.status.value).lower() if hasattr(o.status, "value") else str(o.status).lower(),
-                    "filled_avg_price": float(o.filled_avg_price) if o.filled_avg_price else None,
-                })
-            orders_df = pd.DataFrame(rows)
-            self._last_orders_df = orders_df
-            return self._build_round_trips(orders_df, session_start=session_start)
-        except Exception as e:
-            logger.error("Failed to fetch order history from Alpaca: %s", e)
-            return pd.DataFrame()
+        from analytics.reporting import run_report
+        from scripts.reconcile_paper_account import PaperReader
+        report, _ = run_report(reader=PaperReader(self.api_key, self.secret_key),
+                               since=session_start.isoformat() if session_start else None,
+                               publish=False)
+        if report["summary"]["issues"]:
+            raise ValueError("Account measurement requires review: " + "; ".join(report["summary"]["issues"]))
+        episodes = [e for e in report["episodes"] if e["ticker"] == self.ticker]
+        result = pd.DataFrame(episodes)
+        for name in ("pnl", "qty", "entry_price", "exit_price", "pnl_pct"):
+            if name in result:
+                result[name] = pd.to_numeric(result[name])
+        result.attrs["measurement_basis"] = "fill_activity_position_episodes"
+        result.attrs["unfinished_episodes"] = [e for e in report["unfinished"] if e["ticker"] == self.ticker]
+        # Order-level latency/slippage are deliberately not inferred from episodes.
+        self._last_orders_df = pd.DataFrame()
+        return result
 
     def get_raw_orders(self) -> pd.DataFrame:
         """Return the raw orders DataFrame fetched during the last get_trade_history call."""

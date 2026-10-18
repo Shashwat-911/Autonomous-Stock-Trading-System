@@ -29,13 +29,13 @@ class NoRedirect(HTTPRedirectHandler):
 class PaperReader:
     """Fixed paper origin and allowlisted GETs only; never imports trading code."""
     PATHS = {"/v2/account", "/v2/positions", "/v2/orders",
-             "/v2/account/activities", "/v2/account/portfolio/history"}
+             "/v2/account/activities", "/v2/account/portfolio/history", "/v2/calendar"}
 
-    def __init__(self):
+    def __init__(self, api_key=None, secret_key=None):
         from dotenv import load_dotenv
         load_dotenv(ROOT / ".env")
-        key = os.getenv("ALPACA_API_KEY") or os.getenv("APCA_API_KEY_ID")
-        secret = os.getenv("ALPACA_SECRET_KEY") or os.getenv("APCA_API_SECRET_KEY")
+        key = api_key or os.getenv("ALPACA_API_KEY") or os.getenv("APCA_API_KEY_ID")
+        secret = secret_key or os.getenv("ALPACA_SECRET_KEY") or os.getenv("APCA_API_SECRET_KEY")
         if not key or not secret:
             raise ValueError("Paper credentials missing from environment/.env")
         self.headers = {"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret}
@@ -116,12 +116,14 @@ def collect(reader, start, end):
         "start": (start - timedelta(days=7)).isoformat(),
         "end": (end + timedelta(days=1)).isoformat(), "timeframe": "1D"})
     return {"schema_version": 1, "fetched_at": now.isoformat(),
+            "account_observed_at": now.isoformat(),
             "requested_start": str(start), "requested_end": str(end),
             "account_created_at": account["created_at"],
             "account_snapshot": {k: account.get(k) for k in
                                  ("equity", "cash", "long_market_value", "short_market_value")},
             "positions_now": reader.get("/v2/positions"),
-            "activities": activities, "orders": list(by_id.values()), "portfolio_history": history}
+            "activities": activities, "orders": list(by_id.values()), "portfolio_history": history,
+            "calendar": reader.get("/v2/calendar", {"start": str(start), "end": str(end)})}
 
 
 def analyze(snapshot, start, end, output, ledger_path, log_dir):
