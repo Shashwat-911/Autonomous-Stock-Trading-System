@@ -1095,11 +1095,13 @@ class AlpacaPaperBroker:
         they cannot represent individual partial-fill execution times reliably.
         All history must be supplied before selecting episodes by exit timestamp.
         """
-        from analytics.measurement import position_episodes
+        from analytics.measurement import position_episodes, CASH_TYPES
         from scripts.reconciliation import timestamp
         if not orders_df.empty and "activity_type" not in orders_df.columns:
             raise ValueError("Authoritative round trips require FILL activities, not cumulative orders")
         activities = orders_df.to_dict("records")
+        if any(a.get("activity_type") not in CASH_TYPES | {"FILL"} for a in activities):
+            raise ValueError("Unsupported inventory activity; cost basis requires review")
         episodes, unfinished = position_episodes(activities)
         if session_start is not None:
             boundary = timestamp(session_start)

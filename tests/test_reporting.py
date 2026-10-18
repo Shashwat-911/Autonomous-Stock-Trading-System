@@ -75,6 +75,8 @@ class ReportingTests(unittest.TestCase):
         self.assertTrue(build(None,cross).empty)
         with self.assertRaises(ValueError):
             build(None,pd.DataFrame([{"symbol":"AAPL","filled_qty":1,"filled_avg_price":100}]))
+        with self.assertRaises(ValueError):
+            build(None,pd.DataFrame([{"activity_type":"SPLIT","id":"split"}]))
         trades = build(None,pd.DataFrame([fill(1,"A","buy",2,10),fill(2,"A","sell",1,20),fill(3,"A","sell",1,30)]))
         self.assertEqual(len(trades),1)
         self.assertEqual(trades.iloc[0]["pnl"],30)
