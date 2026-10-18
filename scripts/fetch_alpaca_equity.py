@@ -1,154 +1,39 @@
+"""Fetch timestamped broker history without changing the legacy equity ledger.
+
+--today remains accepted by existing launchers; a full retained-history refresh
+is intentional because broker fees and historical observations can be revised.
 """
-fetch_alpaca_equity.py
-======================
-Fetches the full portfolio equity history from Alpaca's Portfolio History API
-and writes / updates outputs/alpaca_equity_history.csv.
-
-Usage:
-  python scripts/fetch_alpaca_equity.py            # fetch full history
-  python scripts/fetch_alpaca_equity.py --today    # fetch today's snapshot only (post-session use)
-
-Design:
-  - Dates are fully dynamic — no hardcoded start/end.
-  - PROJECT_START_DATE is the only constant to set (first day of paper trading).
-  - Safe to run multiple times: deduplicates rows by date before writing.
-"""
-
+import argparse
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import config
-import pandas as pd
-from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import GetPortfolioHistoryRequest
-from datetime import datetime, timezone, timedelta
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from analytics.measurement import equity_observations, day_of
+from scripts.reconcile_paper_account import PaperReader, ROOT, write_csv, write_json
 
-# ── Constants ──────────────────────────────────────────────────────────────────
-PROJECT_START_DATE = "2026-08-09"   # First day of paper trading — update if you ever reset
-OUTPUT_PATH        = "outputs/alpaca_equity_history.csv"
 
-# ── Parse args ─────────────────────────────────────────────────────────────────
-today_only = "--today" in sys.argv
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--today", action="store_true")
+    parser.parse_args()
+    reader = PaperReader()
+    account = reader.get("/v2/account")
+    start = day_of(account["created_at"])
+    now = datetime.now(timezone.utc)
+    end = day_of(now.isoformat())
+    history = reader.get("/v2/account/portfolio/history", {
+        "start": start, "end": str(date.fromisoformat(end)+timedelta(days=1)), "timeframe":"1D"})
+    calendar = reader.get("/v2/calendar", {"start":start,"end":end})
+    snapshot = {"portfolio_history":history,"calendar":calendar,
+                "fetched_at":datetime.now(timezone.utc).isoformat()}
+    folder = ROOT / "outputs/reporting_private" / ("equity-"+now.strftime("%Y%m%dT%H%M%S%fZ"))
+    folder.mkdir(parents=True)
+    write_json(folder/"broker_history.json",snapshot)
+    write_csv(folder/"broker_equity_history.csv",equity_observations(snapshot))
+    print(f"Timestamped broker history saved privately: {folder}")
+    print("The session reporter independently publishes a coherent v2 generation; legacy ledger preserved.")
 
-import zoneinfo
 
-tz_et = zoneinfo.ZoneInfo("America/New_York")
-now_et = datetime.now(tz_et)
-today_str = now_et.strftime("%Y-%m-%d")
-
-# When --today: fetch just the last 3 days (catches today even if market closed late)
-start_str = (now_et - timedelta(days=3)).strftime("%Y-%m-%d") if today_only else PROJECT_START_DATE
-end_str   = today_str
-
-print(f"Fetching Alpaca equity history: {start_str} -> {end_str}")
-
-# -- Alpaca client --------------------------------------------------------------
-client = TradingClient(
-    config.ALPACA["api_key"],
-    config.ALPACA["secret_key"],
-    paper=True
-)
-
-history = client.get_portfolio_history(
-    GetPortfolioHistoryRequest(
-        timeframe="1D",
-        start=start_str,
-        end=end_str,
-        extended_hours=False
-    )
-)
-
-# ── Parse API response ─────────────────────────────────────────────────────────
-new_rows = []
-for ts, eq, pl, plp in zip(
-    history.timestamp, history.equity,
-    history.profit_loss, history.profit_loss_pct
-):
-    if eq is None or eq == 0:
-        continue
-    # Convert to America/New_York so Friday bars at 20:00 EDT stay on Friday (weekday == 4)
-    dt = datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(tz_et)
-    if dt.weekday() >= 5:          # skip weekends
-        continue
-    new_rows.append({
-        "timestamp":    dt.strftime("%Y-%m-%d"),
-        "equity":       round(float(eq), 2),
-        "daily_pnl":    round(float(pl), 2),
-        "daily_pnl_pct": round(float(plp) * 100, 4),
-    })
-
-new_df = pd.DataFrame(new_rows)
-
-# ── Fallback check: live account equity ───────────────────────────────────────
-# On market holidays or intraday sessions where get_portfolio_history() does not
-# include today's completed bar, record the latest live account equity.
-try:
-    account = client.get_account()
-    clock = client.get_clock()
-    is_open = clock.is_open if clock else False
-    live_equity = round(float(account.equity), 2)
-    session_date = now_et.strftime("%Y-%m-%d")
-    if now_et.weekday() < 5:  # Weekday session
-        if new_df.empty or session_date not in new_df["timestamp"].values:
-            fallback_row = pd.DataFrame([{
-                "timestamp": session_date,
-                "equity": live_equity,
-                "daily_pnl": 0.0,
-                "daily_pnl_pct": 0.0,
-            }])
-            new_df = pd.concat([new_df, fallback_row], ignore_index=True)
-            print(f"Fallback: added live account equity for {session_date}: ${live_equity:,.2f}")
-        else:
-            # If today's bar already exists from portfolio_history, ensure equity reflects live account balance
-            new_df.loc[new_df["timestamp"] == session_date, "equity"] = live_equity
-            print(f"Live sync: updated today's equity for {session_date} to live account equity: ${live_equity:,.2f}")
-except Exception as e:
-    print(f"Warning: could not fetch live account equity fallback: {e}")
-
-# ── Merge with existing CSV (deduplicate by date) ─────────────────────────────
-os.makedirs("outputs", exist_ok=True)
-
-if os.path.exists(OUTPUT_PATH) and not new_df.empty:
-    existing_df = pd.read_csv(OUTPUT_PATH)
-    if today_only:
-        # Preserve historical validated session rows, only merge unrecorded date(s) or update today
-        new_dates = new_df[~new_df["timestamp"].isin(existing_df["timestamp"])]
-        merged = pd.concat([existing_df, new_dates], ignore_index=True)
-        if today_str in new_df["timestamp"].values:
-            today_eq = new_df.loc[new_df["timestamp"] == today_str, "equity"].iloc[-1]
-            merged.loc[merged["timestamp"] == today_str, "equity"] = today_eq
-    else:
-        # Full historical fetch: combine and keep latest values for duplicate dates
-        merged = pd.concat([existing_df, new_df], ignore_index=True)
-        merged = merged.drop_duplicates(subset=["timestamp"], keep="last")
-    merged = merged.sort_values("timestamp").reset_index(drop=True)
-    df = merged
-else:
-    new_df = new_df.sort_values("timestamp").reset_index(drop=True) if not new_df.empty else new_df
-    df = new_df
-
-if not df.empty:
-    # Recalculate daily_pnl directly from consecutive equity deltas to prevent weekend-comparison bugs
-    starting = 100000.0
-    pnl = []
-    pnl_pct = []
-    for i, eq in enumerate(df["equity"]):
-        prev = starting if i == 0 else df["equity"].iloc[i-1]
-        diff = round(float(eq) - float(prev), 2)
-        pct = round((diff / float(prev)) * 100, 4) if float(prev) != 0 else 0.0
-        pnl.append(diff)
-        pnl_pct.append(pct)
-    df["daily_pnl"] = pnl
-    df["daily_pnl_pct"] = pnl_pct
-    df.to_csv(OUTPUT_PATH, index=False)
-
-# ── Summary ───────────────────────────────────────────────────────────────────
-print("\nEquity history saved to:", OUTPUT_PATH)
-print(df.to_string(index=False))
-print(f"\nTotal P&L:  ${df['daily_pnl'].sum():.2f}")
-print(f"Win days:   {(df['daily_pnl'] > 0).sum()}")
-print(f"Loss days:  {(df['daily_pnl'] < 0).sum()}")
-print(f"Flat days:  {(df['daily_pnl'] == 0).sum()}")
-print(f"Sessions:   {len(df)}")
-print(f"Current equity: ${df['equity'].iloc[-1]:,.2f}")
+if __name__ == "__main__":
+    main()

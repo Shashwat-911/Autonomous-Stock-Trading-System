@@ -126,21 +126,18 @@ jobs:
         git config user.email "shashwatyadav975@gmail.com"
         git config user.name "SHASHWAT YADAV"
 
-        DATE=$(python -c "import pandas as pd, os; print(pd.read_csv('outputs/alpaca_equity_history.csv').iloc[-1]['timestamp']) if os.path.exists('outputs/alpaca_equity_history.csv') else print('$(date +%Y-%m-%d)')")
+        DATE=$(python scripts/report_metadata.py --date || date +%Y-%m-%d)
 
         # Stage all updated files
         git add outputs/logs/ || true
-        git add outputs/alpaca_equity_history.csv || true
-        git add outputs/performance_summary.json || true
-        git add outputs/trade_history.csv || true
-        git add outputs/daily_pnl_chart.png || true
+        git add outputs/measurement_v2/ || true
         git add README.md || true
         git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl || true
 
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          SUMMARY=$(python -c "import json, os; d=json.load(open('outputs/performance_summary.json')) if os.path.exists('outputs/performance_summary.json') else {}; print(f'equity=\${d.get(\"ending_equity\", 0):,.0f} | return={d.get(\"total_return_pct\", 0):+.3f}%') if d else print('session complete')")
+          SUMMARY=$(python scripts/report_metadata.py || echo "measurement unavailable")
           git commit -m "auto(session): ${DATE} | ${SUMMARY}"
           git pull --rebase origin main || true
           git push origin main

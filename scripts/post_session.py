@@ -4,9 +4,9 @@ post_session.py
 Automated post-session pipeline — runs automatically after every trading session.
 
 Pipeline (in order):
-  1. Fetch today's equity snapshot from Alpaca API → update alpaca_equity_history.csv
-  2. Regenerate daily_pnl_chart.png from updated CSV
-  3. Git add: session log + equity CSV + chart PNG
+  1. Fetch timestamped broker history privately (preserve legacy ledger)
+  2. Generate validated measurement_v2 reports and chart
+  3. Git add: session logs + validated measurement aggregates + README
   4. Git commit: dated message with equity summary
   5. Git push to GitHub via HTTPS token (GIT_TOKEN env var)
 
@@ -35,6 +35,7 @@ except ImportError:
 # ── Working directory: always project root ─────────────────────────────────────
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')
+sys.path.insert(0, os.getcwd())
 
 DRY_RUN = "--dry-run" in sys.argv
 
@@ -99,27 +100,17 @@ def git_configure_remote():
 
 def read_equity_summary() -> str:
     """
-    Read the last row of the equity CSV and return a compact summary string
+    Read the latest validated v2 report and return a compact summary string
     for use in the git commit message.
     """
-    csv_path = "outputs/alpaca_equity_history.csv"
     try:
-        import pandas as pd
-        df = pd.read_csv(csv_path)
-        if df.empty:
-            return "equity data unavailable"
-        row = df.iloc[-1]
-        equity  = row.get("equity", 0)
-        pnl     = row.get("daily_pnl", 0)
-        cum_pnl = df["daily_pnl"].sum()
-        sign    = "+" if pnl >= 0 else ""
-        return (
-            f"equity=${equity:,.2f} | "
-            f"daily={sign}${pnl:.2f} | "
-            f"cumulative=${cum_pnl:+,.2f}"
-        )
-    except Exception as e:
-        return f"summary unavailable ({e})"
+        import json
+        from analytics.reporting import latest_report
+        folder = latest_report()
+        report = json.loads((folder / "performance_summary.json").read_text(encoding="utf-8"))
+        return f"measurement_v2 | equity=${float(report['current_account_equity']):,.2f} | completed_episodes={report['total_trades']}"
+    except Exception:
+        return "measurement unavailable; inspect report status"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -142,7 +133,7 @@ def run_post_session_pipeline():
     banner("Step 1/5 — Fetching equity snapshot from Alpaca API")
     fetch_ok = run_python("scripts/fetch_alpaca_equity.py", "--today")
     if not fetch_ok:
-        print("[WARN] Equity fetch failed — CSV may be stale. Continuing pipeline.", flush=True)
+        print("[WARN] Private equity fetch failed; shared report will independently collect history.", flush=True)
 
     # ── Step 2: Generate session performance report ───────────────────────────
     banner("Step 2/5 — Generating session performance report")
@@ -166,11 +157,7 @@ def run_post_session_pipeline():
     banner("Step 5/5 — Staging files, committing and pushing to GitHub")
 
     files_to_stage = [
-        "outputs/alpaca_equity_history.csv",
-        "outputs/daily_pnl_chart.png",
-        "outputs/performance_summary.json",
-        "outputs/trade_history.csv",
-        "outputs/session_all_orders.csv",
+        "outputs/measurement_v2/",
         "README.md",
     ]
 
