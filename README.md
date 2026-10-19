@@ -6,11 +6,11 @@
 Mixed-version account history; **not a validated baseline for the current strategy**.
 Legacy charts, session tables and metrics below this block are retained as unverified historical evidence.
 
-Period: 2026-08-09 through 2026-10-18 (New York dates).
-Source retrieved: 2026-10-18T07:05:13.551120+00:00. Report generated: 2026-10-18T07:05:36.180889+00:00.
+Period: 2026-08-09 through 2026-10-19 (New York dates).
+Source retrieved: 2026-10-19T20:11:18.839921+00:00. Report generated: 2026-10-19T20:11:46.340051+00:00.
 
-Completed flat-to-flat episodes: **335**; gross win rate: **40.90%**.
-Gross expectancy: **$-1.10**. Fees are unallocated account-level costs, excluded from trade metrics.
+Completed flat-to-flat episodes: **343**; gross win rate: **41.11%**.
+Gross expectancy: **$-0.90**. Fees are unallocated account-level costs, excluded from trade metrics.
 
 | Date | Broker equity | Gross realized P&L | Equity change since prior observation |
 |---|---:|---:|---:|
@@ -63,10 +63,11 @@ Gross expectancy: **$-1.10**. Fees are unallocated account-level costs, excluded
 | 2026-10-14 | $99,939.87 | $-319.54 | $-223.34 |
 | 2026-10-15 | $99,865.37 | $-74.20 | $-74.50 |
 | 2026-10-16 | $99,612.27 | $-252.44 | $-253.10 |
+| 2026-10-19 | Unavailable | $59.21 | Unavailable |
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
-![Corrected account measurement](outputs/measurement_v2/generations/20261018T070513457563Z/account_measurement_chart.png)
+![Corrected account measurement](outputs/measurement_v2/generations/20261019T201118598935Z/account_measurement_chart.png)
 
 [Measurement definitions and limitations](docs/MEASUREMENT_V2.md)
 <!-- MEASUREMENT_V2_END -->
