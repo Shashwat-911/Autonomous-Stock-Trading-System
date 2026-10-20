@@ -6,6 +6,10 @@ on:
     - cron: '0 2 * * 0'      # Run every Sunday at 2 AM UTC (7:30 AM IST) - weekly ML retrain
   workflow_dispatch:           # manual trigger for testing
 
+defaults:
+  run:
+    shell: bash  # Explicit bash enables pipefail, including the trader | tee pipeline.
+
 permissions:
   contents: write
 
@@ -139,7 +143,7 @@ jobs:
         else
           SUMMARY=$(python scripts/report_metadata.py || echo "measurement unavailable")
           git commit -m "auto(session): ${DATE} | ${SUMMARY}"
-          git pull --rebase origin main || true
+          git pull --rebase origin main
           git push origin main
           echo "Session artifacts pushed to GitHub"
         fi
