@@ -4,7 +4,7 @@
 ## Corrected account measurement
 
 Mixed-version account history; **not a validated baseline for the current strategy**.
-Legacy charts, session tables and metrics below this block are retained as unverified historical evidence.
+Legacy session tables and metrics below this block are retained as unverified historical evidence.
 
 Period: 2026-08-09 through 2026-10-19 (New York dates).
 Source retrieved: 2026-10-20T05:03:40.827252+00:00. Report generated: 2026-10-20T05:04:33.091299+00:00.
@@ -71,7 +71,6 @@ Unavailable means the captured broker history has no eligible daily observation 
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
-![Corrected account measurement](outputs/measurement_v2/generations/20261020T050338593849Z/account_measurement_chart.png)
 
 [Measurement definitions and limitations](docs/MEASUREMENT_V2.md)
 <!-- MEASUREMENT_V2_END -->
@@ -131,7 +130,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 > **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
 
-![Daily P&L Chart](outputs/daily_pnl_chart.png?v=20261016)
+![Daily P&L Chart](outputs/measurement_v2/generations/20261020T050338593849Z/daily_pnl_chart.png)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
