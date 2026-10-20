@@ -1,6 +1,7 @@
 """Update a separate corrected-measurement block; preserve legacy history."""
 import csv
 import json
+import re
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -19,7 +20,7 @@ def render_block(folder):
     rate = summary["win_rate"]
     lines = [START, "## Corrected account measurement", "",
         "Mixed-version account history; **not a validated baseline for the current strategy**.",
-        "Legacy charts, session tables and metrics below this block are retained as unverified historical evidence.", "",
+        "Legacy session tables and metrics below this block are retained as unverified historical evidence.", "",
         f"Period: {summary['period_start']} through {summary['period_end']} (New York dates).",
         f"Source retrieved: {summary['source_retrieved_at']}. Report generated: {summary['generated_at']}.", "",
         f"Completed flat-to-flat episodes: **{summary['total_trades']}**; gross win rate: **{rate:.2%}**." if rate is not None else "No completed episodes in this period.",
@@ -31,9 +32,6 @@ def render_block(folder):
     for row in daily:
         lines.append(f"| {row['date']} | {money(row['equity'])} | {money(row['gross_realized_pnl'])} | {money(row['equity_change_since_prior_observation'])} |")
     lines += ["", "Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.", ""]
-    chart = folder/"account_measurement_chart.png"
-    if chart.exists():
-        lines.append(f"![Corrected account measurement]({chart.relative_to(ROOT).as_posix()})")
     lines += ["", "[Measurement definitions and limitations](docs/MEASUREMENT_V2.md)", END]
     return "\n".join(lines)
 
@@ -50,6 +48,10 @@ def update_readme():
     else:
         title, rest = text.split("\n",1)
         text = title+"\n\n"+block+"\n"+rest
+    chart = folder/"daily_pnl_chart.png"
+    if chart.exists():
+        reference = f"![Daily P&L Chart]({chart.relative_to(ROOT).as_posix()})"
+        text = re.sub(r"!\[Daily P&L Chart\]\([^\n]+\)", lambda _: reference, text)
     path.write_text(text,encoding="utf-8")
     print("Updated corrected-measurement block; legacy content preserved.")
 
