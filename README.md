@@ -7,10 +7,14 @@ Mixed-version account history; **not a validated baseline for the current strate
 Legacy charts, session tables and metrics below this block are retained as unverified historical evidence.
 
 Period: 2026-08-09 through 2026-10-19 (New York dates).
-Source retrieved: 2026-10-19T20:11:18.839921+00:00. Report generated: 2026-10-19T20:11:46.340051+00:00.
+Source retrieved: 2026-10-20T05:03:40.827252+00:00. Report generated: 2026-10-20T05:04:33.091299+00:00.
 
 Completed flat-to-flat episodes: **343**; gross win rate: **41.11%**.
 Gross expectancy: **$-0.90**. Fees are unallocated account-level costs, excluded from trade metrics.
+
+Latest account snapshot: **$99,671.48** at 2026-10-20T05:03:40.827252+00:00 (separate from daily history).
+
+Unavailable means the captured broker history has no eligible daily observation for that date. A later report refresh can fill it when the broker supplies it; the account snapshot is never substituted.
 
 | Date | Broker equity | Gross realized P&L | Equity change since prior observation |
 |---|---:|---:|---:|
@@ -67,7 +71,7 @@ Gross expectancy: **$-0.90**. Fees are unallocated account-level costs, excluded
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
-![Corrected account measurement](outputs/measurement_v2/generations/20261019T201118598935Z/account_measurement_chart.png)
+![Corrected account measurement](outputs/measurement_v2/generations/20261020T050338593849Z/account_measurement_chart.png)
 
 [Measurement definitions and limitations](docs/MEASUREMENT_V2.md)
 <!-- MEASUREMENT_V2_END -->
