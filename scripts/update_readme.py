@@ -24,6 +24,8 @@ def render_block(folder):
         f"Source retrieved: {summary['source_retrieved_at']}. Report generated: {summary['generated_at']}.", "",
         f"Completed flat-to-flat episodes: **{summary['total_trades']}**; gross win rate: **{rate:.2%}**." if rate is not None else "No completed episodes in this period.",
         f"Gross expectancy: **{money(summary['expectancy'])}**. Fees are unallocated account-level costs, excluded from trade metrics.", "",
+        f"Latest account snapshot: **{money(summary['current_account_equity'])}** at {summary['current_account_observation']} (separate from daily history).", "",
+        "Unavailable means the captured broker history has no eligible daily observation for that date. A later report refresh can fill it when the broker supplies it; the account snapshot is never substituted.", "",
         "| Date | Broker equity | Gross realized P&L | Equity change since prior observation |",
         "|---|---:|---:|---:|"]
     for row in daily:
