@@ -5,7 +5,7 @@ import logging
 import math
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict
+from typing import Dict, Optional, get_type_hints
 import unittest
 from unittest.mock import Mock
 import pandas as pd
@@ -22,7 +22,12 @@ def broker_class():
     cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in names]
     ns = dict(globals(), logger=logging.getLogger("safety-test"))
     exec(compile(ast.Module(body=[cls], type_ignores=[]), "actual-broker-methods", "exec"), ns)
-    return ns[cls.name]
+    broker = ns[cls.name]
+    # Python 3.14 defers annotations; resolve explicitly so missing names also
+    # fail locally instead of surfacing only on the Python 3.11 CI runner.
+    for name in names:
+        get_type_hints(getattr(broker, name), globalns=ns)
+    return broker
 
 
 class BrokerSafetyTests(unittest.TestCase):
