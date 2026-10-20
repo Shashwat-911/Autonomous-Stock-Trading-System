@@ -61,3 +61,31 @@ class BrokerSafetyTests(unittest.TestCase):
             self.assertEqual(result["action"], "SKIP")
         self.b.submit_buy.assert_not_called()
         self.b.submit_bracket_buy.assert_not_called()
+
+    def test_only_acknowledged_buys_update_pending_exposure(self):
+        b = self.b
+        b.min_confidence = .5
+        b.is_market_open = Mock(return_value=True)
+        b.get_account_info = Mock(return_value={"portfolio_value": 100000})
+        b.get_current_position = Mock(return_value=None)
+        b.get_all_positions = Mock(return_value={})
+        b._update_trailing_stop = Mock()
+        b._has_pending_buy_order = Mock(return_value=False)
+        b.risk_manager = Mock()
+        b.risk_manager.can_trade.return_value = (True, "OK")
+        b.risk_manager.check_portfolio_heat.return_value = (True, "OK")
+        b.risk_manager.get_position_size_atr.return_value = 2
+        b.signal_generator = Mock()
+        b.signal_generator.generate_signal.return_value = {"signal":"BUY", "confidence":.8, "reasons":["test"]}
+        b._last_buy_time = {}
+        b.submit_bracket_buy = Mock(return_value={})
+        data = pd.DataFrame({"Close":[100], "ATR_14":[2]})
+        failed = b.run_tick(data)
+        self.assertEqual(failed["action"], "SKIP")
+        self.assertEqual(failed["order_value"], 0)
+        self.assertEqual(b._last_buy_time, {})
+        b.submit_bracket_buy.return_value = {"order_id":"accepted"}
+        accepted = b.run_tick(data)
+        self.assertEqual(accepted["action"], "BUY")
+        self.assertEqual(accepted["order_value"], 200)
+        self.assertIn("AAPL", b._last_buy_time)

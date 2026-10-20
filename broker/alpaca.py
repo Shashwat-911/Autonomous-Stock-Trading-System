@@ -841,7 +841,7 @@ class AlpacaPaperBroker:
                     tp_mult = bracket_cfg.get("take_profit_atr_mult", 3.0)
 
                     if atr_value > 0:
-                        self.submit_bracket_buy(
+                        submitted_order = self.submit_bracket_buy(
                             qty=qty,
                             reason="; ".join(signal_dict["reasons"]),
                             current_price=current_price,
@@ -850,11 +850,15 @@ class AlpacaPaperBroker:
                             take_profit_mult=tp_mult,
                         )
                     else:
-                        self.submit_buy(
+                        submitted_order = self.submit_buy(
                             qty=qty,
                             reason="; ".join(signal_dict["reasons"]),
                             current_price=current_price,
                         )
+                    if not submitted_order or not submitted_order.get("order_id"):
+                        return {"action": "SKIP", "signal": signal, "confidence": confidence,
+                                "ticker": self.ticker, "reason": "BUY submission failed",
+                                "order_value": 0.0}
                     self._last_buy_time[self.ticker] = datetime.now()
                     submitted_buy = True
                     order_val = qty * current_price
