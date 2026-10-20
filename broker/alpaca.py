@@ -1,4 +1,5 @@
 import logging
+import math
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir in sys.path:
     sys.path.remove(current_dir)
 
+from alpaca.common.exceptions import APIError
 from alpaca.trading.client import TradingClient
 from alpaca.trading.enums import OrderSide, TimeInForce, QueryOrderStatus, OrderClass
 from alpaca.trading.requests import (
@@ -170,8 +172,10 @@ class AlpacaPaperBroker:
                 "unrealized_pnl": float(position.unrealized_pl),
                 "unrealized_pnl_pct": float(position.unrealized_plpc) * 100.0,
             }
-        except Exception:
-            return None
+        except APIError as exc:
+            if exc.status_code == 404:
+                return None
+            raise
 
     def get_all_positions(self) -> Dict[str, dict]:
         """
@@ -195,7 +199,8 @@ class AlpacaPaperBroker:
                 }
             return pos_dict
         except Exception:
-            return {}
+            logger.error("Position inventory unavailable; refusing to assume zero exposure")
+            raise
 
     def _make_client_order_id(self, reason: str, ticker: Optional[str] = None) -> str:
         """Generate a clean client_order_id embedding the signal reason."""
@@ -531,7 +536,7 @@ class AlpacaPaperBroker:
             return False
         except Exception as e:
             logger.warning(f"Dedup check failed for {self.ticker}: {e}")
-            return False  # Fail open: if we can't check, allow the order
+            raise RuntimeError("Pending-order state unavailable; new entry blocked") from e
 
     def eod_liquidate_all(self, reason: str = "EOD force-close") -> dict:
         """
@@ -702,7 +707,7 @@ class AlpacaPaperBroker:
             }
 
         raw_price = df["Close"].iloc[-1]
-        if pd.isna(raw_price) or raw_price <= 0:
+        if not math.isfinite(float(raw_price)) or raw_price <= 0:
             logger.warning(
                 f"Invalid price for {self.ticker}: {raw_price} — skipping tick"
             )
@@ -724,8 +729,12 @@ class AlpacaPaperBroker:
         try:
             account = self.get_account_info()
             portfolio_value = account["portfolio_value"]
+            if not math.isfinite(portfolio_value) or portfolio_value <= 0:
+                raise ValueError("Invalid broker portfolio value")
         except Exception:
-            portfolio_value = 100000.0
+            logger.error("Account valuation unavailable; skipping tick without submitting orders")
+            return {"action": "SKIP", "signal": "HOLD", "confidence": 0.0,
+                    "ticker": self.ticker, "reason": "Account valuation unavailable"}
 
         can_trade, block_reason = self.risk_manager.can_trade(portfolio_value)
         position = self.get_current_position()
