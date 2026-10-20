@@ -76,26 +76,18 @@ def run_python(script: str, *args: str) -> bool:
     return True
 
 
-def git_configure_remote():
-    """
-    Configure git remote to use HTTPS token auth.
-    Required on Railway (no SSH keys available).
-    GIT_TOKEN must be set as a Railway environment variable.
-    """
-    token = os.environ.get("GIT_TOKEN", "")
-    if not token:
-        print("[WARN] GIT_TOKEN not set — git push will use existing credentials.", flush=True)
-        return
-
-    # Rewrite remote URL to embed token (never logged — token stays in memory only)
-    remote_url = (
-        f"https://{token}@github.com/Shashwat-911/Autonomous-Stock-Trading-System.git"
-    )
-    subprocess.run(
-        ["git", "remote", "set-url", "origin", remote_url],
-        check=False, capture_output=True   # suppress URL from logs (contains token)
-    )
-    print("[INFO] Git remote configured with HTTPS token.", flush=True)
+def git_environment():
+    """Pass HTTPS credentials to child Git processes only, never .git/config."""
+    import base64
+    env = os.environ.copy()
+    token = env.get("GIT_TOKEN", "")
+    if token:
+        count = int(env.get("GIT_CONFIG_COUNT", "0"))
+        env[f"GIT_CONFIG_KEY_{count}"] = "http.https://github.com/.extraheader"
+        encoded = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+        env[f"GIT_CONFIG_VALUE_{count}"] = "AUTHORIZATION: basic " + encoded
+        env["GIT_CONFIG_COUNT"] = str(count + 1)
+    return env
 
 
 def read_equity_summary() -> str:
@@ -139,19 +131,22 @@ def run_post_session_pipeline():
     banner("Step 2/5 — Generating session performance report")
     report_ok = run_python("scripts/generate_session_report.py")
     if not report_ok:
-        print("[WARN] Session report generation failed. Continuing.", flush=True)
+        print("[ERROR] Report failed; refusing to publish stale artifacts.", flush=True)
+        return False
 
     # ── Step 3: Regenerate P&L chart ──────────────────────────────────────────
     banner("Step 3/5 — Regenerating daily P&L chart")
     chart_ok = run_python("scripts/generate_pnl_chart.py")
     if not chart_ok:
-        print("[WARN] Chart generation failed — PNG may be stale. Continuing.", flush=True)
+        print("[ERROR] Chart failed; refusing incomplete publication.", flush=True)
+        return False
 
     # ── Step 4: Update README session breakdown ────────────────────────────────
     banner("Step 4/5 — Updating README.md session breakdown table")
     readme_ok = run_python("scripts/update_readme.py")
     if not readme_ok:
-        print("[WARN] README update failed. Continuing.", flush=True)
+        print("[ERROR] README update failed; refusing incomplete publication.", flush=True)
+        return False
 
     # ── Step 5: Git stage, commit + push ──────────────────────────────────────
     banner("Step 5/5 — Staging files, committing and pushing to GitHub")
@@ -174,7 +169,7 @@ def run_post_session_pipeline():
 
     # ── Check if there's anything to commit ────────────────────────────────────
     status = subprocess.run(
-        ["git", "status", "--porcelain"],
+        ["git", "diff", "--cached", "--name-only"],
         capture_output=True, text=True
     )
     staged_changes = status.stdout.strip()
@@ -204,17 +199,22 @@ def run_post_session_pipeline():
         check=False, capture_output=True
     )
 
-    run(["git", "commit", "-m", commit_msg], check=False)
+    if run(["git", "commit", "-m", commit_msg], check=False).returncode != 0:
+        return False
 
     if DRY_RUN:
         print("\n  [DRY RUN] Skipping git push. Commit made locally only.", flush=True)
     else:
-        git_configure_remote()
-        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False)
+        env = git_environment()
+        remote = "https://github.com/Shashwat-911/Autonomous-Stock-Trading-System.git"
+        pull = subprocess.run(["git", "pull", "--rebase", remote, "main"], check=False, env=env)
+        if pull.returncode != 0:
+            print("[ERROR] Git synchronization failed; refusing push.", flush=True)
+            return False
 
         push_result = subprocess.run(
-            ["git", "push", "origin", "main"],
-            capture_output=True, text=True, check=False
+            ["git", "push", remote, "HEAD:main"],
+            capture_output=True, text=True, check=False, env=env
         )
         if push_result.returncode == 0:
             print("\n  ✅ Pushed to GitHub successfully.", flush=True)
