@@ -208,7 +208,10 @@ class AlpacaPaperBroker:
         sym = ticker or self.ticker
         timestamp = datetime.now().strftime("%m%d%H%M")
         clean_reason = re.sub(r'[^a-zA-Z0-9]', '-', reason)[:20]
-        client_id = f"{sym}-{clean_reason}-{timestamp}"
+        import uuid
+        source = {"github-actions": "gh", "render-cloud": "rc"}.get(
+            os.getenv("TRADING_EXECUTION_SOURCE", ""), "local")
+        client_id = f"{source}-{sym}-{clean_reason[:14]}-{timestamp}-{uuid.uuid4().hex[:8]}"
         return client_id[:48]
 
     def submit_buy(
@@ -793,12 +796,15 @@ class AlpacaPaperBroker:
             if not allow_new_entries:
                 logger.info(
                     f"New entry blocked for {self.ticker} — "
-                    f"<90 min to market close."
+                    f"entry window closed by session cutoff."
                 )
                 return {
                     "action": "SKIP",
                     "reason": "Late session entry blocked",
                     "ticker": self.ticker,
+                    "signal": signal, "confidence": confidence,
+                    "price": current_price, "position": position,
+                    "can_trade": False, "market_open": market_open,
                 }
 
         if signal == "BUY" and confidence >= self.min_confidence and can_trade:

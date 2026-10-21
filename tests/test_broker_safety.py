@@ -3,11 +3,12 @@ import ast
 from datetime import datetime
 import logging
 import math
+import os
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Dict, Optional, get_type_hints
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import pandas as pd
 from alpaca.common.exceptions import APIError
 from alpaca.trading.enums import QueryOrderStatus
@@ -18,7 +19,7 @@ from requests import Response, HTTPError
 def broker_class():
     tree = ast.parse((Path(__file__).resolve().parents[1]/"broker/alpaca.py").read_text(encoding="utf-8"))
     cls = next(n for n in tree.body if isinstance(n, ast.ClassDef))
-    names = {"run_tick", "get_current_position", "get_all_positions", "_has_pending_buy_order"}
+    names = {"run_tick", "get_current_position", "get_all_positions", "_has_pending_buy_order", "_make_client_order_id"}
     cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in names]
     ns = dict(globals(), logger=logging.getLogger("safety-test"))
     exec(compile(ast.Module(body=[cls], type_ignores=[]), "actual-broker-methods", "exec"), ns)
@@ -89,8 +90,20 @@ class BrokerSafetyTests(unittest.TestCase):
         self.assertEqual(failed["action"], "SKIP")
         self.assertEqual(failed["order_value"], 0)
         self.assertEqual(b._last_buy_time, {})
+        blocked = b.run_tick(data, allow_new_entries=False)
+        self.assertEqual(blocked["price"], 100)
+        self.assertEqual(blocked["signal"], "BUY")
+        self.assertFalse(blocked["can_trade"])
         b.submit_bracket_buy.return_value = {"order_id":"accepted"}
         accepted = b.run_tick(data)
         self.assertEqual(accepted["action"], "BUY")
         self.assertEqual(accepted["order_value"], 200)
         self.assertIn("AAPL", b._last_buy_time)
+
+    def test_order_ids_identify_runner_and_remain_unique(self):
+        with patch.dict(os.environ, {"TRADING_EXECUTION_SOURCE":"github-actions"}):
+            a = self.b._make_client_order_id("same signal")
+            b = self.b._make_client_order_id("same signal")
+        self.assertTrue(a.startswith("gh-AAPL-"))
+        self.assertNotEqual(a,b)
+        self.assertLessEqual(len(a),48)

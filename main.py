@@ -561,6 +561,10 @@ def run_live():
     rm.sync_day_start_balance(actual_equity)
     rm.reset_daily_state()
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
+    logger.info("Execution source=%s | revision=%s | run=%s | PID=%s",
+                os.getenv("TRADING_EXECUTION_SOURCE", "local-unidentified"),
+                os.getenv("GITHUB_SHA") or os.getenv("RENDER_GIT_COMMIT", "unknown"),
+                os.getenv("GITHUB_RUN_ID", "not-github"), os.getpid())
 
     # Track session start timestamp for filtering trade history to this session
     from datetime import timezone
