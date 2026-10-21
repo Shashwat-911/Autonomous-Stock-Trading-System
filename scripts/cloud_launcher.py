@@ -5,12 +5,12 @@ Render cloud deployment wrapper for the Autonomous Stock Trading System.
 
 Purpose:
   - Runs continuously as a Render 'worker' service.
-  - Only launches the trading bot during US market hours (Mon-Fri 13:30-20:00 UTC).
-  - Auto-restarts the bot if it crashes mid-session.
+  - Launches against the broker exchange calendar (DST, holidays and early closes).
+  - Launches only within the configured opening tolerance; late starts require review.
   - Streams all bot output to both Render logs (stdout) and a date-stamped local log file.
   - After each session ends (market closes), runs the post-session pipeline:
       fetch equity → regenerate chart → git commit → git push to GitHub.
-  - Sleeps when market is closed so Render is not billed for idle compute.
+  - Polls the calendar while closed; sleeping does not eliminate hosting charges.
 
 Market Hours Reference:
   US Market:  Mon-Fri  09:30 - 16:00 ET
@@ -43,6 +43,7 @@ except ImportError:
 # ── Working directory: always project root, regardless of where this script is called from ──
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')  # go to project root
+sys.path.insert(0, os.getcwd())
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -422,63 +423,33 @@ def start_health_server():
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
-def is_market_hours() -> bool:
-    """
-    Returns True if the current UTC time falls within US equity market hours.
+_calendar_day = None
+_calendar_rows = None
 
-    US market:  Monday – Friday, 09:30 – 16:00 Eastern Time
-    UTC equiv:  Monday – Friday, 13:30 – 20:00 UTC  (standard / no DST adjustment)
 
-    Note: This is a conservative approximation. The Alpaca broker layer inside
-    main.py also checks the live market clock before submitting any orders,
-    so this function only determines whether to *launch* the bot process at all.
-    """
-    now_utc = datetime.now(timezone.utc)
-    weekday = now_utc.weekday()   # 0 = Monday … 4 = Friday, 5 = Saturday, 6 = Sunday
-
-    # ── Weekend guard ──
-    if weekday >= 5:
-        return False
-
-    # ── Build today's open / close timestamps in UTC ──
-    market_open  = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-    market_close = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
-
-    if not (market_open <= now_utc <= market_close):
-        return False
-
-    # Check Alpaca market clock for exchange holidays (e.g. Labor Day, Thanksgiving, etc.)
+def exchange_phase():
+    """Use the broker exchange calendar for DST, holidays and early closes."""
+    global _calendar_day, _calendar_rows
+    from scripts.session_timing import assess_session, ET
+    from scripts.reconcile_paper_account import PaperReader
+    now = datetime.now(timezone.utc)
+    day = now.astimezone(ET).date().isoformat()
     try:
-        import config
-        from broker.alpaca import AlpacaPaperBroker
-        b = AlpacaPaperBroker(config.ALPACA["api_key"], config.ALPACA["secret_key"], config.ALPACA["base_url"])
-        clock = b.get_clock()
-        if clock is not None:
-            if not clock.is_open:
-                print(f"  [Alpaca Clock] Market is CLOSED for holiday/observance. Next open: {clock.next_open}", flush=True)
-                return False
-    except Exception as e:
-        print(f"  [Alpaca Clock] Warning: clock check failed: {e}. Falling back to time window.", flush=True)
+        if _calendar_day != day:
+            rows = PaperReader().get("/v2/calendar", {"start": day, "end": day})
+            _calendar_rows, _calendar_day = rows, day
+        return assess_session(now, _calendar_rows)
+    except Exception as exc:
+        print(f"[ERROR] Exchange calendar unavailable ({type(exc).__name__}); no launch.", flush=True)
+        return {"status": "UNKNOWN"}
 
-    return True
+
+def is_market_hours() -> bool:
+    return exchange_phase()["status"] == "READY"
 
 
 def is_post_session_window() -> bool:
-    """
-    Returns True after market close (20:00–23:59 UTC) on weekdays.
-    This ensures the post-session pipeline reliably triggers once market has
-    definitively closed and all Alpaca order fills have settled.
-    """
-    now_utc = datetime.now(timezone.utc)
-    weekday = now_utc.weekday()
-
-    if weekday >= 5:
-        return False
-
-    post_open  = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
-    post_close = now_utc.replace(hour=23, minute=59, second=0, microsecond=0)
-
-    return post_open <= now_utc <= post_close
+    return exchange_phase()["status"] == "CLOSED"
 
 
 def run_post_session(date_str: str):
@@ -541,6 +512,7 @@ while True:
             debug_path = f"outputs/logs/debug_{date_tag}.log"
 
             env = os.environ.copy()
+            env["TRADING_EXECUTION_SOURCE"] = "render-cloud"
             env["PYTHONUNBUFFERED"] = "1"
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
@@ -619,8 +591,8 @@ while True:
         print("  Waiting 2 min for order fills to settle...", flush=True)
         time.sleep(120)
 
-        run_post_session(today)
-        last_post_session_date = today   # mark as done for today
+        if run_post_session(today):
+            last_post_session_date = today   # Retry failed publication on the next pass
 
         print("  Sleeping 15 minutes before next check...", flush=True)
         time.sleep(900)
@@ -629,7 +601,10 @@ while True:
     # Branch C: Market is CLOSED (and not post-session window) — sleep
     # ──────────────────────────────────────────────────────────────────────────
     else:
+        phase = exchange_phase()
+        if phase["status"] == "LATE_START":
+            print("[ERROR] MISSED_SESSION: opening tolerance exceeded; not a successful trading session.", flush=True)
         day_name = now_utc.strftime("%A")
         time_str = now_utc.strftime("%H:%M UTC")
-        print(f"  Market CLOSED — {day_name} {time_str} — sleeping 10 minutes", flush=True)
-        time.sleep(600)   # 10 minutes
+        print(f"  Market CLOSED — {day_name} {time_str} — checking again in 30 seconds", flush=True)
+        time.sleep(30)   # Check opening promptly; no ten-minute launch lag
