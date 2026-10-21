@@ -10,38 +10,41 @@ GitHub API metadata confirms delays before job creation:
 Setup took seconds. The internal platform cause is unknown. The existing
 150-minute entry cutoff correctly blocked late buys; removing it is not a fix.
 
-Implemented changes:
-- Read-only exchange-calendar preflight before GitHub cleanup. Only an open
-  session within 15 minutes of opening passes. Missed starts fail visibly.
-- Workflow concurrency prevents overlapping runs within GitHub, not across hosts.
-- Cloud launcher uses exchange-calendar DST, holiday and early-close times,
-  polls every 30 seconds, and retries failed report publication.
-- Cloud launches beyond the opening tolerance are refused and marked missed.
-  This also means late crash/redeploy recovery requires review; no automatic
-  restart beyond that tolerance is promised. Existing brackets remain at broker.
-- Logs identify execution source and revision. New order IDs identify gh/rc/local
-  origin and include random suffixes. Earlier executions remain unattributed.
-- Blocked entry display retains actual price, signal and confidence.
+Implemented and selected architecture (user selected free cloud only):
+- Render Free is the sole scheduled trading runner. GitHub no longer runs
+  main.py live or force_close_all; it publishes read-only reports after close.
+- Calendar-based startup handles DST, holidays and early closes, checking every
+  30 seconds. Entry thresholds are unchanged; the live gate uses broker time.
+- The scan sleep wakes within the existing ten-minute liquidation window.
+- /status exposes deployed revision, worker PID/running state, exit code,
+  recent output, calendar phase and keepalive results. /health is liveness only.
+- Self-ping runs every five minutes. A separate free GitHub watchdog wakes
+  Render and checks actual worker status every five minutes (best effort).
+  GitHub scheduling delays remain possible; this is not an uptime guarantee.
+- Blueprint build filters exclude report/docs/test/workflow-only changes so daily
+  artifact commits do not redeploy the trader. Code changes still redeploy.
+- Source/revision logs and rc/gh/local client-order IDs identify future execution.
+- Failed report publication retries; no incomplete artifacts are published.
 
-Validation: 38 offline tests passed; Python syntax and workflow ordering passed.
-No trading or cleanup process was run. No hosting plan was purchased.
+Recovery limitations: the runner deliberately refuses launches later than 15
+minutes after opening and attempts at most one trading process per process/day.
+Automatic same-day crash restart is withheld because main currently resets daily
+risk state at startup, and Render Free loses local state on restart. Broker
+brackets remain at Alpaca, but continued position management is not guaranteed
+when the process is absent. A watchdog failure is an incident requiring review,
+not a successful trading session. Do not deploy code during market hours.
 
-Deployment remains unresolved until one execution host is selected. The repo has
-both GitHub and Render launchers. Render health responded, but its debug endpoint
-had no debug log; health is not proof of timely trading or historical ownership.
-Do not enable another runner before confirming the existing one is stopped.
+Render Free has a 750-hour monthly workspace allowance, may sleep after 15
+minutes without inbound requests, and may restart at any time. Keepalive cannot
+recover platform suspension or guarantee an uninterrupted session. No paid plan
+was selected. Any existing independent uptime monitor can continue pinging
+/health; /status plus the watchdog distinguishes service uptime from trading.
+https://render.com/docs/free
 
-GitHub scheduled events can be delayed, and hosted jobs are limited to six hours.
-A normal exchange session lasts 6.5 hours, excluding setup and reporting. Raising
-the configured timeout does not override that limit:
+GitHub delays on Oct19/20 were before job creation, not installation. Hosted
+jobs have a six-hour limit, below the normal 6.5-hour exchange session:
 https://docs.github.com/en/actions/how-tos/troubleshoot-workflows
 https://docs.github.com/en/actions/reference/limits
 
-Render Free can sleep after 15 minutes without inbound traffic:
-https://render.com/docs/free
-
-The required next choice is an always-on cloud host, an awake online PC, or
-accepting GitHub timing limitations. A single always-on host can use the calendar
-launcher; competing trading/cleanup paths and mid-session redeploys must be
-disabled as part of that deployment. These safeguards detect missed sessions;
-they do not guarantee timely infrastructure. User hosting choice is pending.
+Historical earlier fills remain unattributed. These operational fixes do not
+establish strategy profitability or change the trading signal parameters.

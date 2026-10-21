@@ -52,3 +52,15 @@ class TimingTests(unittest.TestCase):
         self.assertTrue(ns[fn.name]()["worker_running"])
         ns["WORKER"].poll.return_value = 1
         self.assertFalse(ns[fn.name]()["worker_running"])
+
+    def test_external_probe_rejects_generic_health_and_missing_worker(self):
+        from scripts.check_cloud_status import validate_status
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
+        for state in ({"status":"healthy"}, {"revision":"abc", "phase":"UNKNOWN"},
+                      {"revision":"abc", "phase":"LATE_START", "worker_running":False}):
+            with self.assertRaises(ValueError):
+                validate_status(state, now)
+        validate_status({"revision":"abc", "phase":"PREOPEN"}, now)
+        validate_status({"revision":"abc", "phase":"TRADING", "worker_running":True,
+                         "last_worker_output":now.isoformat()}, now)
