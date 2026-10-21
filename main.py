@@ -72,78 +72,26 @@ def _validate_credentials():
 
 
 def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
-    """
-    Return True if there are at least min_hours of trading time remaining today.
-    Prevents the bot from starting a session when GitHub Actions queue delay
-    has pushed startup past the point where meaningful trading can occur.
-
-    Note: this is a session-start gate (run or skip entirely).
-    For mid-session entry blocking see _should_allow_new_entries(), which uses
-    config.TRADING["late_entry_cutoff_hours"] (default 2.5h).
-    """
+    """Fail closed against the actual exchange calendar, including early closes."""
+    from scripts.session_timing import assess_session, ET
+    from scripts.reconcile_paper_account import PaperReader
+    from datetime import timezone
     try:
-        import pytz
-        et = pytz.timezone("America/New_York")
-        now_et = datetime.now(et)
-    except Exception:
-        from datetime import timezone
-        now_utc = datetime.now(timezone.utc)
-        today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
-        today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-        if now_utc >= today_close_utc:
-            return False
-        if now_utc < today_open_utc:
-            return True
-        remaining = (today_close_utc - now_utc).total_seconds() / 3600
-        return remaining >= min_hours
-
-    # Market closes at 4:00 PM ET
-    market_close = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
-
-    # If market already closed, no trading time
-    if now_et >= market_close:
+        now = datetime.now(timezone.utc)
+        day = now.astimezone(ET).date().isoformat()
+        phase = assess_session(now, PaperReader().get("/v2/calendar", {"start": day, "end": day}))
+        return (phase["status"] in ("READY", "LATE_START") and
+                (datetime.fromisoformat(phase["market_close"]) - now).total_seconds() >= min_hours * 3600)
+    except Exception as exc:
+        logger.error("Startup calendar unavailable: %s", type(exc).__name__)
         return False
 
-    # If market not yet open (before 9:30 AM ET), plenty of time
-    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
-    if now_et < market_open:
-        return True
 
-    # Check remaining hours
-    remaining = (market_close - now_et).total_seconds() / 3600
-    return remaining >= min_hours
-
-
-def _should_allow_new_entries(min_hours_for_entries: float = 2.5) -> bool:
-    """
-    Return True if there is enough trading time remaining to justify
-    opening NEW positions. Existing positions are always managed regardless.
-
-    Bracket orders (SL=2×ATR, TP=2.5×ATR) on 1-hour bars need ~2.5–3 hours
-    to resolve naturally. Live session data (Oct 14–16) confirmed that entries
-    made with only 128–143 minutes to close consistently drifted into EOD
-    force-closes at a loss — neither the stop-loss nor take-profit was reached.
-
-    Threshold raised from 1.5h (90 min) to 2.5h (150 min) on 2026-10-17.
-    This blocks new entries after ~12:30 PM EDT / 17:30 UTC, giving the full
-    afternoon for bracket legs to fill before the 4:00 PM ET close.
-
-    Default: blocks new entries if less than 2.5 hours remain.
-    """
-    from datetime import datetime, timezone
-    now_utc = datetime.now(timezone.utc)
-    today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
-    today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-
-    # Before market open — entries will be fine
-    if now_utc < today_open_utc:
-        return True
-    # After close — irrelevant
-    if now_utc >= today_close_utc:
+def _should_allow_new_entries(min_hours_for_entries: float = 2.5, clock=None) -> bool:
+    """Keep the configured cutoff, using broker time instead of fixed UTC hours."""
+    if clock is None or not clock.is_open:
         return False
-
-    remaining = (today_close_utc - now_utc).total_seconds() / 3600
-    return remaining >= min_hours_for_entries
+    return (clock.next_close - clock.timestamp).total_seconds() >= min_hours_for_entries * 3600
 
 
 def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
@@ -602,7 +550,12 @@ def run_live():
             # Threshold is read from config.TRADING["late_entry_cutoff_hours"] so it can
             # be tuned without touching this file.
             _cutoff_hours = config.TRADING.get("late_entry_cutoff_hours", 2.5)
-            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=_cutoff_hours)
+            try:
+                entry_clock = first_broker.get_clock()
+            except Exception:
+                entry_clock = None
+            allow_new_entries = _should_allow_new_entries(
+                min_hours_for_entries=_cutoff_hours, clock=entry_clock)
             if not allow_new_entries:
                 logger.info(
                     f"Late session (<{int(_cutoff_hours * 60)} min to close): blocking new BUY entries. "
@@ -742,7 +695,8 @@ def run_live():
                         subprocess.Popen(['powershell', '-command', cmd_str])
                     except Exception:
                         pass
-                time.sleep(scan_interval_secs)
+                # Wake inside the existing ten-minute liquidation window.
+                time.sleep(min(scan_interval_secs, 60 if mins_left <= 10 else (mins_left - 9) * 60))
             else:
                 next_open_str = ""
                 try:

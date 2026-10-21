@@ -31,6 +31,7 @@ import sys
 import os
 import time
 import threading
+import json
 from datetime import datetime, timedelta, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -49,6 +50,22 @@ sys.path.insert(0, os.getcwd())
 # ──────────────────────────────────────────────────────────────────────────────
 # Health Server (Required for Render Free Web Service)
 # ──────────────────────────────────────────────────────────────────────────────
+
+RUNNER = {"started_at": datetime.now(timezone.utc).isoformat(),
+          "revision": os.getenv("RENDER_GIT_COMMIT", "unknown"),
+          "source": "render-cloud", "phase": "STARTING", "worker_pid": None,
+          "worker_started_at": None, "worker_exit_code": None,
+          "last_calendar_check": None, "last_keepalive_ok": None,
+          "keepalive_error": None}
+WORKER = None
+
+
+def runner_status():
+    result = dict(RUNNER)
+    result["worker_running"] = WORKER is not None and WORKER.poll() is None
+    result["observed_at"] = datetime.now(timezone.utc).isoformat()
+    return result
+
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
 
@@ -302,6 +319,13 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            if self.path.rstrip("/") == "/status":
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(json.dumps(runner_status()).encode())
+                return
             # --- /logs or /log: Show session logs ---
             if self.path.rstrip("/") in ("/logs", "/log"):
                 log_content, log_label = self._find_best_log()
@@ -400,10 +424,12 @@ def keep_alive():
             import urllib.request
             req = urllib.request.Request(url, headers={"User-Agent": "RenderKeepAlive/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
-                pass
-        except Exception:
-            pass
-        time.sleep(600)  # Ping every 10 minutes (Render timeout is 15 minutes)
+                RUNNER["last_keepalive_ok"] = datetime.now(timezone.utc).isoformat()
+                RUNNER["keepalive_error"] = None
+        except Exception as exc:
+            RUNNER["keepalive_error"] = type(exc).__name__
+            print(f"[WARN] Keepalive failed: {type(exc).__name__}", flush=True)
+        time.sleep(300)  # Ping every 10 minutes (Render timeout is 15 minutes)
 
 
 def start_health_server():
@@ -438,9 +464,13 @@ def exchange_phase():
         if _calendar_day != day:
             rows = PaperReader().get("/v2/calendar", {"start": day, "end": day})
             _calendar_rows, _calendar_day = rows, day
-        return assess_session(now, _calendar_rows)
+        result = assess_session(now, _calendar_rows)
+        RUNNER["phase"] = result["status"]
+        RUNNER["last_calendar_check"] = now.isoformat()
+        return result
     except Exception as exc:
         print(f"[ERROR] Exchange calendar unavailable ({type(exc).__name__}); no launch.", flush=True)
+        RUNNER["phase"] = "UNKNOWN"
         return {"status": "UNKNOWN"}
 
 
@@ -492,6 +522,7 @@ threading.Thread(target=start_health_server, daemon=True).start()
 
 # Track which date we last ran the post-session pipeline (prevent duplicate runs)
 last_post_session_date: str = ""
+attempted_session_date: str = ""
 
 while True:
     now_utc  = datetime.now(timezone.utc)
@@ -501,7 +532,8 @@ while True:
     # ──────────────────────────────────────────────────────────────────────────
     # Branch A: Market is OPEN — run the trading bot
     # ──────────────────────────────────────────────────────────────────────────
-    if is_market_hours():
+    if is_market_hours() and attempted_session_date != today:
+        attempted_session_date = today
         log_path = f"outputs/logs/session_{date_tag}.txt"
         os.makedirs("outputs/logs", exist_ok=True)
 
@@ -529,6 +561,10 @@ while True:
                 env=env,
             )
 
+            WORKER = process
+            RUNNER.update(worker_pid=process.pid,
+                          worker_started_at=datetime.now(timezone.utc).isoformat(),
+                          worker_exit_code=None)
             # ── Thread: drain stdout → session log (clean tabular output only) ──
             def stream_stdout():
                 with open(log_path, "a", encoding="utf-8") as lf:
@@ -562,6 +598,7 @@ while True:
 
             process.wait()
             exit_code = process.returncode
+            RUNNER["worker_exit_code"] = exit_code
             print(
                 f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}] "
                 f"Bot exited with code: {exit_code}",
@@ -569,7 +606,7 @@ while True:
             )
 
             if exit_code != 0:
-                print("  Non-zero exit — bot may have crashed. Will retry after cooldown.", flush=True)
+                print("  Non-zero exit — bot may have crashed. Restart withheld to avoid resetting daily risk state; inspect /status and /debug.", flush=True)
 
         except Exception as e:
             print(f"[ERROR] Bot crashed with exception: {e}", flush=True)

@@ -19,3 +19,36 @@ class TimingTests(unittest.TestCase):
         self.assertEqual(assess_session(datetime.fromisoformat("2026-12-25T15:00:00+00:00"),[])["status"],"NON_TRADING_DAY")
         with self.assertRaises(ValueError):
             assess_session(datetime(2026,10,21),[])
+
+    def test_entry_gate_uses_actual_broker_close(self):
+        import ast
+        from pathlib import Path
+        from types import SimpleNamespace
+        tree = ast.parse((Path(__file__).resolve().parents[1]/"main.py").read_text(encoding="utf-8"))
+        fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_should_allow_new_entries")
+        ns = {}
+        exec(compile(ast.Module(body=[fn], type_ignores=[]), "entry-gate", "exec"), ns)
+        gate = ns[fn.name]
+        self.assertFalse(gate())
+        for now, close, expected in [("2026-11-02T18:00:00+00:00", "2026-11-02T21:00:00+00:00", True),
+                                     ("2026-11-27T16:00:00+00:00", "2026-11-27T18:00:00+00:00", False)]:
+            clock = SimpleNamespace(is_open=True, timestamp=datetime.fromisoformat(now), next_close=datetime.fromisoformat(close))
+            self.assertEqual(gate(clock=clock), expected)
+            clock.is_open = False
+            self.assertFalse(gate(clock=clock))
+
+    def test_runner_status_checks_process_not_log_presence(self):
+        import ast
+        from pathlib import Path
+        from datetime import timezone
+        from unittest.mock import Mock
+        tree = ast.parse((Path(__file__).resolve().parents[1]/"scripts/cloud_launcher.py").read_text(encoding="utf-8"))
+        fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "runner_status")
+        ns = dict(RUNNER={"revision":"test"}, WORKER=None, datetime=datetime, timezone=timezone)
+        exec(compile(ast.Module(body=[fn], type_ignores=[]), "runner-status", "exec"), ns)
+        self.assertFalse(ns[fn.name]()["worker_running"])
+        ns["WORKER"] = Mock()
+        ns["WORKER"].poll.return_value = None
+        self.assertTrue(ns[fn.name]()["worker_running"])
+        ns["WORKER"].poll.return_value = 1
+        self.assertFalse(ns[fn.name]()["worker_running"])
