@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
-      - name: Wake Render (best effort; GitHub schedules can delay)
-        run: |
-          curl --fail --show-error --silent --retry 2 --retry-delay 10 --max-time 60 https://autonomous-stock-trader.onrender.com/status
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Wake Render and verify actual worker status
+        run: python scripts/check_cloud_status.py

@@ -63,7 +63,12 @@ WORKER = None
 def runner_status():
     result = dict(RUNNER)
     result["worker_running"] = WORKER is not None and WORKER.poll() is None
-    result["observed_at"] = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(timezone.utc)
+    result["observed_at"] = now.isoformat()
+    if result.get("market_close") and now >= datetime.fromisoformat(result["market_close"]):
+        result["phase"] = "CLOSED"
+    elif result["worker_running"]:
+        result["phase"] = "TRADING"
     return result
 
 
@@ -466,6 +471,7 @@ def exchange_phase():
             _calendar_rows, _calendar_day = rows, day
         result = assess_session(now, _calendar_rows)
         RUNNER["phase"] = result["status"]
+        RUNNER["market_close"] = result.get("market_close")
         RUNNER["last_calendar_check"] = now.isoformat()
         return result
     except Exception as exc:
@@ -572,6 +578,7 @@ while True:
                         line = process.stdout.readline()
                         if not line:
                             break
+                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
                         print(line, end="", flush=True)
                         lf.write(line)
                         lf.flush()
@@ -583,6 +590,7 @@ while True:
                         line = process.stderr.readline()
                         if not line:
                             break
+                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
                         df.write(line)
                         df.flush()
                         # Surface critical errors or crashes to Render console
