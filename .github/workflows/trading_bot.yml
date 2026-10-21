@@ -10,6 +10,10 @@ defaults:
   run:
     shell: bash  # Explicit bash enables pipefail, including the trader | tee pipeline.
 
+concurrency:
+  group: paper-account-session
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -18,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 400
     env:
+      TRADING_EXECUTION_SOURCE: github-actions
       ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID || '' }}
       ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY || '' }}
       ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets' }}
@@ -68,6 +73,10 @@ jobs:
     - name: Retrain ML model (weekly)
       if: github.event.schedule == '0 2 * * 0'
       run: python ml/run_pipeline.py
+
+    - name: Validate exchange session start before touching positions
+      if: github.event.schedule != '0 2 * * 0'
+      run: python scripts/session_timing.py
 
     - name: Pre-session position cleanup
       if: github.event.schedule != '0 2 * * 0'
