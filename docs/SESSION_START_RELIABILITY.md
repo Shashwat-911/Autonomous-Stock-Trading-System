@@ -48,3 +48,17 @@ https://docs.github.com/en/actions/reference/limits
 
 Historical earlier fills remain unattributed. These operational fixes do not
 establish strategy profitability or change the trading signal parameters.
+
+## Deployment verification — October 21
+
+Revision 71b941f deployed successfully to the existing Render Free service.
+The dashboard confirms all five ignored build paths and /health were applied.
+41 local tests passed; GitHub Python 3.11 regression run 39574082253 succeeded.
+At 13:36 UTC, /status reported the worker running, launched at 13:30:26 UTC
+(26 seconds after opening), with recent output and successful self-pings.
+The first 20-symbol scan completed. Read-only Alpaca lookups confirmed both
+first-scan Render-tagged paper orders filled (AMZN and AMD).
+This verifies startup and initial execution, not completion of the full day.
+The external watchdog was active but had no scheduled runs at verification;
+its five-minute cron must not be interpreted as guaranteed five-minute coverage.
+A manual read-only watchdog dispatch was accepted for workflow validation.
