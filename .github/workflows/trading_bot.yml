@@ -1,159 +1,44 @@
-name: AutoTrader Daily Session
+name: Account reporting (Render owns trading)
 
 on:
   schedule:
-    - cron: '30 13 * * 1-5'  # 7:00 PM IST = 13:30 UTC Mon-Fri
-    - cron: '0 2 * * 0'      # Run every Sunday at 2 AM UTC (7:30 AM IST) - weekly ML retrain
-  workflow_dispatch:           # manual trigger for testing
-
-defaults:
-  run:
-    shell: bash  # Explicit bash enables pipefail, including the trader | tee pipeline.
-
-concurrency:
-  group: paper-account-session
-  cancel-in-progress: false
+    - cron: '17 22 * * 1-5' # After both summer and winter market close; delay is harmless.
+    - cron: '0 2 * * 0'    # Preserve the existing weekly model refresh.
+  workflow_dispatch:
 
 permissions:
   contents: write
-
+concurrency:
+  group: account-report-publication
+  cancel-in-progress: false
+defaults:
+  run:
+    shell: bash
 jobs:
-  trade:
+  report:
     runs-on: ubuntu-latest
-    timeout-minutes: 400
+    timeout-minutes: 45
     env:
-      TRADING_EXECUTION_SOURCE: github-actions
       ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID || '' }}
       ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY || '' }}
       ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets' }}
       ALPACA_FEED: ${{ secrets.ALPACA_FEED || 'iex' }}
-
+      GIT_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
     steps:
-    # ─────────────────────────────────────────
-    # STAGE 1: Setup
-    # ─────────────────────────────────────────
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
-        fetch-depth: 0  # full history for git operations
-
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
-
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install lightgbm optuna scikit-learn
-        echo "Dependencies installed"
-
-    - name: Train ML meta-labeling model
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        if [ ! -f ml/meta_model.pkl ]; then
-          echo "No model found — training..."
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Weekly model refresh
+        if: github.event.schedule == '0 2 * * 0'
+        run: |
+          pip install optuna
           python ml/run_pipeline.py
-          echo "ML model trained"
-        else
-          echo "Model exists — skipping training (weekly retrain handles updates)"
-        fi
-
-    - name: Create output directories
-      run: |
-        mkdir -p outputs/logs
-        mkdir -p outputs
-        echo "Directories ready"
-
-    # ─────────────────────────────────────────
-    # STAGE 2: Run the trading bot / ML retrain
-    # ─────────────────────────────────────────
-    - name: Retrain ML model (weekly)
-      if: github.event.schedule == '0 2 * * 0'
-      run: python ml/run_pipeline.py
-
-    - name: Validate exchange session start before touching positions
-      if: github.event.schedule != '0 2 * * 0'
-      run: python scripts/session_timing.py
-
-    - name: Pre-session position cleanup
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        echo "Running pre-session cleanup..."
-        python scripts/force_close_all.py || echo "Cleanup completed (non-fatal warnings OK)"
-        sleep 5
-        echo "Cleanup done"
-
-    - name: Run live trading session
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        DATE=$(date +%Y_%m_%d)
-        LOG_FILE="outputs/logs/session_${DATE}.txt"
-        echo "Starting bot session: $DATE"
-        echo "Log file: $LOG_FILE"
-        python main.py live 2>&1 | tee $LOG_FILE
-        echo "Bot session ended"
-      timeout-minutes: 385
-
-    # ─────────────────────────────────────────
-    # STAGE 3: Post-session data pipeline
-    # ─────────────────────────────────────────
-    - name: Fetch Alpaca equity history
-      if: always()
-      run: |
-        python scripts/fetch_alpaca_equity.py --today
-        echo "Equity history updated"
-
-    - name: Generate session performance report
-      if: always()
-      run: |
-        python scripts/generate_session_report.py
-        echo "Performance summary updated"
-
-    # ─────────────────────────────────────────
-    # STAGE 4: Update chart and README
-    # ─────────────────────────────────────────
-    - name: Regenerate daily P&L chart
-      if: always()
-      run: |
-        python scripts/generate_pnl_chart.py
-        echo "Chart regenerated"
-
-    - name: Update README session table
-      if: always()
-      run: |
-        python scripts/update_readme.py
-        echo "README updated"
-
-    # ─────────────────────────────────────────
-    # STAGE 5: Commit and push everything
-    # ─────────────────────────────────────────
-    - name: Commit and push all session artifacts
-      if: always()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
-        TZ: 'Asia/Kolkata'
-      run: |
-        git config user.email "shashwatyadav975@gmail.com"
-        git config user.name "SHASHWAT YADAV"
-
-        DATE=$(python scripts/report_metadata.py --date || date +%Y-%m-%d)
-
-        # Stage all updated files
-        git add outputs/logs/ || true
-        git add outputs/measurement_v2/ || true
-        git add README.md || true
-        git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl || true
-
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          SUMMARY=$(python scripts/report_metadata.py || echo "measurement unavailable")
-          git commit -m "auto(session): ${DATE} | ${SUMMARY}"
-          git pull --rebase origin main
-          git push origin main
-          echo "Session artifacts pushed to GitHub"
-        fi
-
+          git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl
+      - name: Publish validated account measurements (no trading or cleanup)
+        run: python scripts/post_session.py

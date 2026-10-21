@@ -3,7 +3,7 @@ services:
     name: autonomous-stock-trader
     runtime: python
     plan: free
-    region: oregon                    # us-west-2 — lowest latency to Alpaca US servers
+    region: oregon                    # us-west-2 â€” lowest latency to Alpaca US servers
 
     # -- Build ------------------------------------------------------------------
     buildCommand: pip install -r requirements.txt
@@ -13,6 +13,14 @@ services:
 
     # -- Auto-deploy on git push ------------------------------------------------
     autoDeploy: true
+    healthCheckPath: /health
+    buildFilter:
+      ignoredPaths:
+        - outputs/**
+        - docs/**
+        - README.md
+        - tests/**
+        - .github/**
 
     # -- Environment Variables --------------------------------------------------
     envVars:

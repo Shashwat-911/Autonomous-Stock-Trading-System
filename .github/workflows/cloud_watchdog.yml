@@ -1,0 +1,18 @@
+name: Free cloud wake and status check
+on:
+  schedule:
+    - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cloud-watchdog
+  cancel-in-progress: false
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Wake Render (best effort; GitHub schedules can delay)
+        run: |
+          curl --fail --show-error --silent --retry 2 --retry-delay 10 --max-time 60 https://autonomous-stock-trader.onrender.com/status
