@@ -40,5 +40,13 @@ class ConsumerTests(unittest.TestCase):
 
 
 
+class ArchiveTests(unittest.TestCase):
+    def test_html_recovery_keeps_stdout_and_excludes_navigation(self):
+        from scripts.archive_session_log import LogParser
+        parser=LogParser()
+        parser.feed('<h1>Navigation</h1><div class="log-content">LIVE PAPER TRADING &lt;10 min\nDone</div><footer>Footer</footer>')
+        self.assertEqual("".join(parser.parts), "LIVE PAPER TRADING <10 min\nDone")
+
+
 if __name__ == "__main__":
     unittest.main()

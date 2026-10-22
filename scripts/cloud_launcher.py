@@ -498,6 +498,10 @@ def run_post_session(date_str: str):
     print(f"  Time: {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}")
     print(f"{'=' * 60}", flush=True)
 
+    archive = subprocess.run([sys.executable, "scripts/archive_session_log.py",
+                              "--date", date_str, "--publish"], check=False)
+    if archive.returncode:
+        print("[ERROR] Session log archive failed; publication will retry.", flush=True)
     result = subprocess.run(
         [sys.executable, "scripts/post_session.py"],
         text=True,
@@ -509,7 +513,7 @@ def run_post_session(date_str: str):
     else:
         print(f"\n  ❌ Post-session pipeline failed (exit {result.returncode}).", flush=True)
 
-    return result.returncode == 0
+    return result.returncode == 0 and archive.returncode == 0
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -532,8 +536,10 @@ attempted_session_date: str = ""
 
 while True:
     now_utc  = datetime.now(timezone.utc)
-    today    = now_utc.strftime("%Y-%m-%d")
-    date_tag = now_utc.strftime("%Y_%m_%d")
+    from zoneinfo import ZoneInfo
+    now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
+    today = now_et.strftime("%Y-%m-%d")
+    date_tag = now_et.strftime("%Y_%m_%d")
 
     # ──────────────────────────────────────────────────────────────────────────
     # Branch A: Market is OPEN — run the trading bot
