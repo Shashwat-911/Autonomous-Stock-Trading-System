@@ -4,17 +4,17 @@
 ## Corrected account measurement
 
 Mixed-version account history; **not a validated baseline for the current strategy**.
-Legacy session tables and metrics below this block are retained as unverified historical evidence.
+The earlier unverified session table is archived in docs/LEGACY_SESSION_TABLE.md.
 
 Period: 2026-08-09 through 2026-10-21 (New York dates).
-Source retrieved: 2026-10-22T00:42:24.394361+00:00. Report generated: 2026-10-22T00:42:29.758935+00:00.
+Source retrieved: 2026-10-22T05:21:25.027341+00:00. Report generated: 2026-10-22T05:22:01.280766+00:00.
 
 Completed flat-to-flat episodes: **351**; gross win rate: **41.31%**.
 Gross expectancy: **$-0.82**. Fees are unallocated account-level costs, excluded from trade metrics.
 
-Latest account snapshot: **$99,649.77** at 2026-10-22T00:42:24.394361+00:00 (separate from daily history).
+Latest account snapshot: **$99,573.23** at 2026-10-22T05:21:25.027341+00:00 (separate from daily history).
 
-Unavailable means the captured broker history has no eligible daily observation for that date. A later report refresh can fill it when the broker supplies it; the account snapshot is never substituted.
+Equity uses broker daily history, or an exact regular-close intraday observation when daily history is delayed. Sources and timestamps are retained in the report. Unavailable is never replaced with current account equity.
 
 | Date | Broker equity | Gross realized P&L | Equity change since prior observation |
 |---|---:|---:|---:|
@@ -69,7 +69,7 @@ Unavailable means the captured broker history has no eligible daily observation 
 | 2026-10-16 | $99,612.27 | $-252.44 | $-253.10 |
 | 2026-10-19 | $99,671.00 | $59.21 | $58.73 |
 | 2026-10-20 | $99,724.53 | $53.84 | $53.53 |
-| 2026-10-21 | Unavailable | $-31.39 | Unavailable |
+| 2026-10-21 | $99,743.94 | $-31.39 | $19.41 |
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
@@ -77,13 +77,8 @@ Equity changes include unrealized P&L and cash movements. Missing observations a
 [Measurement definitions and limitations](docs/MEASUREMENT_V2.md)
 <!-- MEASUREMENT_V2_END -->
 
-> **Measurement audit (October 2026):** Existing production win-rate and expectancy
-> reports are unverified because the reporting path can match fills across symbols.
-> Use the standalone [read-only reconciliation diagnostic](docs/RECONCILIATION.md)
-> before interpreting strategy performance. This audit does not change trading rules.
-> [Broker-backed audit findings](docs/RECONCILIATION_FINDINGS_2026-10-17.md): retained
-> funding, fills and fees reconcile to $99,612.27 with zero residual; earlier trading
-> outside the saved runs explains much of the October loss-attribution discrepancy.
+> **Measurement audit:** The legacy reporting bug was repaired in measurement v2. Current tables and chart use validated account measurements; archived legacy results are not a current-strategy baseline.
+> [Audit findings](docs/RECONCILIATION_FINDINGS_2026-10-17.md) | [Measurement definitions](docs/MEASUREMENT_V2.md)
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Alpaca API](https://img.shields.io/badge/broker-Alpaca%20Trading%20API-green.svg)](https://alpaca.markets/)
@@ -130,68 +125,73 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 ## Live Paper Trading Performance
 
-> **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
+> **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Current configured universe: 20 stocks; historical universe varied
 
-![Daily P&L Chart](outputs/measurement_v2/generations/20261022T004224077031Z/daily_pnl_chart.png)
+![Daily P&L Chart](outputs/measurement_v2/generations/20261022T052122435502Z/daily_pnl_chart.png)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
 ### Daily Session Breakdown
 
-| Session | Date | Ending Equity | Daily P&L | Cumulative P&L | Return (%) | Status |
-|---|---|---|---|---|---|---|
-| **Day 1** | Aug 11 (Tue) | $99,923.23 | -$76.77 | -$76.77 | -0.077% | First Trade - NVDA Bought |
-| **Day 2** | Aug 12 (Wed) | $99,551.43 | -$371.80 | -$448.57 | -0.449% | 100-Ticker Chaos |
-| **Day 3** | Aug 13 (Thu) | $99,555.06 | +$3.63 | -$444.94 | -0.445% | Rebuilt Clean |
-| **Day 4** | Aug 14 (Fri) | $99,551.03 | -$4.03 | -$448.97 | -0.449% | 5-Ticker Stable |
-| **Day 5** | Aug 17 (Mon) | $99,514.27 | -$36.76 | -$485.73 | -0.486% | Multi-ticker Session |
-| **Day 6** | Aug 18 (Tue) | $99,515.93 | +$1.66 | -$484.07 | -0.484% | Bracket Tuning - Profitable |
-| **Day 7** | Aug 19 (Wed) | $99,513.39 | -$2.54 | -$486.61 | -0.487% | RSI Experiment |
-| **Day 8** | Aug 20 (Thu) | $99,612.24 | **+$98.85** | -$387.76 | -0.388% | Simple Reset - Profitable |
-| **Day 9** | Aug 21 (Fri) | $99,506.06 | -$106.18 | -$493.94 | -0.494% | Disciplined HOLD |
-| **Day 10** | Aug 24 (Mon) | $99,599.12 | **+$93.06** | -$400.88 | -0.401% | Post-cleanup Fresh Start |
-| **Day 11** | Aug 25 (Tue) | $99,598.94 | -$0.18 | -$401.06 | -0.401% | Pre-earnings Watch |
-| **Day 12** | Aug 26 (Wed) | $99,598.94 | $0.00 | -$401.06 | -0.401% | NVDA Earnings - Disciplined HOLD |
-| **Day 13** | Aug 27 (Thu) | $99,598.94 | $0.00 | -$401.06 | -0.401% | Momentum Strategy - First Live Session |
-| **Day 14** | Aug 28 (Fri) | $99,352.40 | -$246.54 | -$647.60 | -0.648% | Momentum Whipsaw - Hard Learning Day |
-| **Day 15** | Aug 31 (Mon) | $99,352.40 | $0.00 | -$647.60 | -0.648% | Sideways Market - Disciplined HOLD |
-| **Day 16** | Sep 01 (Tue) | $99,352.40 | $0.00 | -$647.60 | -0.648% | MACD Bearish - Disciplined HOLD |
-| **Day 17** | Sep 02 (Wed) | $99,329.81 | -$22.59 | -$670.19 | -0.670% | RSI Threshold Adjusted to 45 |
-| **Day 18** | Sep 03 (Thu) | $99,314.21 | -$15.60 | -$685.79 | -0.686% | Active Session |
-| **Day 19** | Sep 04 (Fri) | $99,491.97 | **+$177.76** | -$508.03 | -0.508% | Bullish Rally - Disciplined HOLD / Best Day (+0.18%) |
-| **Day 20** | Sep 07 (Mon) | $99,576.01 | **+$84.04** | -$423.99 | -0.424% | Labor Day Holiday - Disciplined HOLD / Equity $99,576 |
-| **Day 21** | Sep 08 (Tue) | $99,512.99 | -$63.02 | -$487.01 | -0.487% | Active Multi-Ticker Session (-$63.02) |
-| **Day 22** | Sep 09 (Wed) | $99,331.40 | -$181.59 | -$668.60 | -0.669% | Loss Session (-$181.59) |
-| **Day 23** | Sep 10 (Thu) | $99,280.13 | -$51.27 | -$719.87 | -0.720% | Active Session (-$51.27) |
-| **Day 24** | Sep 11 (Fri) | $99,336.16 | **+$56.03** | -$663.84 | -0.664% | Profitable Session (+$56.03) |
-| **Day 25** | Sep 14 (Mon) | $99,407.20 | **+$71.04** | -$592.80 | -0.593% | Profitable Session (+$71.04) |
-| **Day 26** | Sep 15 (Tue) | $99,234.05 | -$173.15 | -$765.95 | -0.766% | Loss Session (-$173.15) |
-| **Day 27** | Sep 16 (Wed) | $99,226.56 | -$7.49 | -$773.44 | -0.773% | Active Session (-$7.49) |
-| **Day 28** | Sep 17 (Thu) | $99,353.94 | **+$127.38** | -$646.06 | -0.646% | Profitable Session (+$127.38) |
-| **Day 29** | Sep 18 (Fri) | $99,364.68 | +$10.74 | -$635.32 | -0.635% | Active Session (+$10.74) |
-| **Day 30** | Sep 21 (Mon) | $99,940.19 | **+$575.51** | -$59.81 | -0.060% | Profitable Session (+$575.51) |
-| **Day 31** | Sep 22 (Tue) | $99,725.00 | -$215.19 | -$275.00 | -0.275% | Loss Session (-$215.19) |
-| **Day 32** | Sep 23 (Wed) | $99,638.98 | -$86.02 | -$361.02 | -0.361% | Active Session (-$86.02) |
-| **Day 33** | Sep 24 (Thu) | $99,750.37 | **+$111.39** | -$249.63 | -0.250% | Profitable Session (+$111.39) |
-| **Day 34** | Sep 25 (Fri) | $99,670.50 | -$79.87 | -$329.50 | -0.330% | Active Session (-$79.87) |
-| **Day 35** | Sep 28 (Mon) | $99,658.62 | -$11.88 | -$341.38 | -0.341% | Active Session (-$11.88) |
-| **Day 36** | Sep 29 (Tue) | $99,631.80 | -$26.82 | -$368.20 | -0.368% | Active Session (-$26.82) |
-| **Day 37** | Sep 30 (Wed) | $99,631.71 | -$0.09 | -$368.29 | -0.368% | Flat Session - Disciplined HOLD |
-| **Day 38** | Oct 01 (Thu) | $99,449.40 | -$182.31 | -$550.60 | -0.551% | Loss Session (-$182.31) |
-| **Day 39** | Oct 02 (Fri) | $99,368.96 | -$80.44 | -$631.04 | -0.631% | Active Session (-$80.44) |
-| **Day 40** | Oct 05 (Mon) | $99,607.32 | **+$238.36** | -$392.68 | -0.393% | Profitable Session (+$238.36) |
-| **Day 41** | Oct 06 (Tue) | $99,813.04 | **+$205.72** | -$186.96 | -0.187% | Profitable Session (+$205.72) |
-| **Day 42** | Oct 07 (Wed) | $99,968.75 | **+$155.71** | -$31.25 | -0.031% | Profitable Session (+$155.71) |
-| **Day 43** | Oct 08 (Thu) | $99,897.03 | -$71.72 | -$102.97 | -0.103% | Active Session (-$71.72) |
-| **Day 44** | Oct 09 (Fri) | $100,006.95 | **+$109.92** | +$6.95 | +0.007% | Profitable Session (+$109.92) |
-| **Day 45** | Oct 12 (Mon) | $100,042.75 | +$35.80 | +$42.75 | +0.043% | Active Session (+$35.80) |
-| **Day 46** | Oct 13 (Tue) | $100,189.49 | **+$146.74** | +$189.49 | +0.189% | Profitable Session (+$146.74) |
-| **Day 47** | Oct 14 (Wed) | $99,940.50 | -$248.99 | -$59.50 | -0.059% | No entries — all tickers below signal threshold; loss is cumulative stale-trade lag |
-| **Day 48** | Oct 15 (Thu) | $99,865.67 | -$74.83 | -$134.33 | -0.134% | JNJ entered 17:51 UTC (128 min to close) — bracket unresolved → EOD force-close at loss |
-| **Day 49** | Oct 16 (Fri) | $99,612.93 | -$252.74 | -$387.07 | -0.387% | JPM/BAC entered 17:35 UTC (143 min to close) — ADX collapsed mid-session → EOD force-close |
+Validated account measurements (mixed strategy versions). Realized P&L excludes fees and open-position P&L.
 
-> **Current Equity**: $99,612.93 | **Total P&L**: $-387.07 | **Best Day**: $+575.51 | **Win Rate**: 36.7% (18W / 27L / 4 Flat) | **Max Drawdown**: -0.773% | **Sessions**: 49
-> **Oct 14–16 root cause**: Late-day entries with insufficient bracket resolution time. Fix deployed 2026-10-17: entry window tightened from 90 min → 150 min cutoff.
+| Day | Date (New York) | Broker equity | Gross realized P&L | Cumulative gross realized | Equity change | Session log |
+|---:|---|---:|---:|---:|---:|---|
+| 1 | 2026-08-10 | $99,923.23 | $-18.12 | $-18.12 | $-76.77 | Not archived |
+| 2 | 2026-08-11 | $99,551.43 | $-332.03 | $-350.15 | $-371.80 | Not archived |
+| 3 | 2026-08-12 | $99,555.06 | $-11.39 | $-361.54 | $3.63 | Not archived |
+| 4 | 2026-08-13 | $99,551.03 | $0.00 | $-361.54 | $-4.03 | Not archived |
+| 5 | 2026-08-14 | $99,543.69 | $-21.02 | $-382.56 | $-7.34 | Not archived |
+| 6 | 2026-08-17 | $99,515.93 | $-88.84 | $-471.40 | $-27.76 | Not archived |
+| 7 | 2026-08-18 | $99,513.39 | $0.97 | $-470.43 | $-2.54 | Not archived |
+| 8 | 2026-08-19 | $99,612.24 | $0.00 | $-470.43 | $98.85 | Not archived |
+| 9 | 2026-08-20 | $99,506.06 | $0.00 | $-470.43 | $-106.18 | [Log](outputs/logs/session_2026_08_20.txt) |
+| 10 | 2026-08-21 | $99,513.11 | $0.00 | $-470.43 | $7.05 | [Log](outputs/logs/session_2026_08_21.txt) |
+| 11 | 2026-08-24 | $99,598.94 | $74.60 | $-395.83 | $85.83 | [Log](outputs/logs/session_2026_08_24.txt) |
+| 12 | 2026-08-25 | $99,598.94 | $0.00 | $-395.83 | $0.00 | [Log](outputs/logs/session_2026_08_25.txt) |
+| 13 | 2026-08-26 | $99,598.94 | $0.00 | $-395.83 | $0.00 | [Log](outputs/logs/session_2026_08_26.txt) |
+| 14 | 2026-08-27 | $99,598.94 | $0.00 | $-395.83 | $0.00 | [Log](outputs/logs/session_2026_08_27.txt) |
+| 15 | 2026-08-28 | $99,352.40 | $-246.11 | $-641.94 | $-246.54 | [Log](outputs/logs/session_2026_08_28.txt) |
+| 16 | 2026-08-31 | $99,352.40 | $0.00 | $-641.94 | $0.00 | [Log](outputs/logs/session_2026_08_31.txt) |
+| 17 | 2026-09-01 | $99,329.81 | $-22.36 | $-664.30 | $-22.59 | [Log](outputs/logs/session_2026_09_01.txt) |
+| 18 | 2026-09-02 | $99,314.21 | $0.00 | $-664.30 | $-15.60 | [Log](outputs/logs/session_2026_09_02.txt) |
+| 19 | 2026-09-03 | $99,491.97 | $0.00 | $-664.30 | $177.76 | [Log](outputs/logs/session_2026_09_03.txt) |
+| 20 | 2026-09-04 | $99,576.01 | $0.00 | $-664.30 | $84.04 | [Log](outputs/logs/session_2026_09_04.txt) |
+| 21 | 2026-09-08 | $99,524.99 | $180.56 | $-483.74 | $-51.02 | [Log](outputs/logs/session_2026_09_08.txt) |
+| 22 | 2026-09-09 | $99,329.57 | $-177.39 | $-661.13 | $-195.42 | [Log](outputs/logs/session_2026_09_09.txt) |
+| 23 | 2026-09-10 | $99,283.72 | $-75.71 | $-736.84 | $-45.85 | [Log](outputs/logs/session_2026_09_10.txt) |
+| 24 | 2026-09-11 | $99,340.55 | $83.83 | $-653.01 | $56.83 | [Log](outputs/logs/session_2026_09_11.txt) |
+| 25 | 2026-09-14 | $99,407.39 | $43.40 | $-609.61 | $66.84 | [Log](outputs/logs/session_2026_09_14.txt) |
+| 26 | 2026-09-15 | $99,232.51 | $-139.76 | $-749.37 | $-174.88 | [Log](outputs/logs/session_2026_09_15.txt) |
+| 27 | 2026-09-16 | $99,227.05 | $35.97 | $-713.40 | $-5.46 | [Log](outputs/logs/session_2026_09_16.txt) |
+| 28 | 2026-09-17 | $99,355.76 | $100.34 | $-613.06 | $128.71 | [Log](outputs/logs/session_2026_09_17.txt) |
+| 29 | 2026-09-18 | $99,368.13 | $-47.60 | $-660.66 | $12.37 | [Log](outputs/logs/session_2026_09_18.txt) |
+| 30 | 2026-09-21 | $99,931.88 | $357.61 | $-303.05 | $563.75 | [Log](outputs/logs/session_2026_09_21.txt) |
+| 31 | 2026-09-22 | $99,730.01 | $5.67 | $-297.38 | $-201.87 | [Log](outputs/logs/session_2026_09_22.txt) |
+| 32 | 2026-09-23 | $99,637.15 | $-62.63 | $-360.01 | $-92.86 | [Log](outputs/logs/session_2026_09_23.txt) |
+| 33 | 2026-09-24 | $99,752.52 | $114.78 | $-245.23 | $115.37 | [Log](outputs/logs/session_2026_09_24.txt) |
+| 34 | 2026-09-25 | $99,671.92 | $-65.87 | $-311.10 | $-80.60 | [Log](outputs/logs/session_2026_09_25.txt) |
+| 35 | 2026-09-28 | $99,659.89 | $0.00 | $-311.10 | $-12.03 | [Log](outputs/logs/session_2026_09_28.txt) |
+| 36 | 2026-09-29 | $99,631.71 | $-46.27 | $-357.37 | $-28.18 | [Log](outputs/logs/session_2026_09_29.txt) |
+| 37 | 2026-09-30 | $99,631.71 | $0.00 | $-357.37 | $0.00 | [Log](outputs/logs/session_2026_09_30.txt) |
+| 38 | 2026-10-01 | $99,448.51 | $-182.31 | $-539.68 | $-183.20 | [Log](outputs/logs/session_2026_10_01.txt) |
+| 39 | 2026-10-02 | $99,368.26 | $-79.55 | $-619.23 | $-80.25 | [Log](outputs/logs/session_2026_10_02.txt) |
+| 40 | 2026-10-05 | $99,570.30 | $166.87 | $-452.36 | $202.04 | [Log](outputs/logs/session_2026_10_05.txt) |
+| 41 | 2026-10-06 | $99,811.65 | $278.29 | $-174.07 | $241.35 | [Log](outputs/logs/session_2026_10_06.txt) |
+| 42 | 2026-10-07 | $99,968.05 | $157.10 | $-16.97 | $156.40 | [Log](outputs/logs/session_2026_10_07.txt) |
+| 43 | 2026-10-08 | $99,896.56 | $-71.02 | $-87.99 | $-71.49 | [Log](outputs/logs/session_2026_10_08.txt) |
+| 44 | 2026-10-09 | $100,006.19 | $110.39 | $22.40 | $109.63 | [Log](outputs/logs/session_2026_10_09.txt) |
+| 45 | 2026-10-12 | $100,015.93 | $0.00 | $22.40 | $9.74 | [Log](outputs/logs/session_2026_10_12.txt) |
+| 46 | 2026-10-13 | $100,163.21 | $254.64 | $277.04 | $147.28 | [Log](outputs/logs/session_2026_10_13.txt) |
+| 47 | 2026-10-14 | $99,939.87 | $-319.54 | $-42.50 | $-223.34 | [Log](outputs/logs/session_2026_10_14.txt) |
+| 48 | 2026-10-15 | $99,865.37 | $-74.20 | $-116.70 | $-74.50 | [Log](outputs/logs/session_2026_10_15.txt) |
+| 49 | 2026-10-16 | $99,612.27 | $-252.44 | $-369.14 | $-253.10 | [Log](outputs/logs/session_2026_10_16.txt) |
+| 50 | 2026-10-19 | $99,671.00 | $59.21 | $-309.93 | $58.73 | [Log](outputs/logs/session_2026_10_19.txt) |
+| 51 | 2026-10-20 | $99,724.53 | $53.84 | $-256.09 | $53.53 | [Log](outputs/logs/session_2026_10_20.txt) |
+| 52 | 2026-10-21 | $99,743.94 | $-31.39 | $-287.48 | $19.41 | [Log](outputs/logs/session_2026_10_21.txt) |
+
+[Archived legacy table — unverified](docs/LEGACY_SESSION_TABLE.md). Missing equity is never estimated from the current account snapshot.
+
 ---
 
 ## System Architecture
