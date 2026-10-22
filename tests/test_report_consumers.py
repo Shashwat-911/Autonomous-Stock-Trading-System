@@ -40,6 +40,23 @@ class ConsumerTests(unittest.TestCase):
 
 
 
+class DailyTableTests(unittest.TestCase):
+    def test_live_table_uses_validated_rows_and_actual_log_links(self):
+        from scripts.update_readme import render_daily_table
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/"outputs/logs").mkdir(parents=True)
+            (root/"outputs/logs/session_2026_10_21.txt").write_text("session")
+            (root/"daily_account_measurement.csv").write_text(
+                "date,equity,gross_realized_pnl,equity_change_since_prior_observation\n"
+                "2026-10-21,99743.94,-31.39,19.41\n")
+            with patch("scripts.update_readme.ROOT", root):
+                table=render_daily_table(root)
+            self.assertIn("$99,743.94", table)
+            self.assertIn("$-31.39", table)
+            self.assertIn("session_2026_10_21.txt", table)
+
+
 class ArchiveTests(unittest.TestCase):
     def test_html_recovery_keeps_stdout_and_excludes_navigation(self):
         from scripts.archive_session_log import LogParser
