@@ -41,7 +41,12 @@ jobs:
           python ml/run_pipeline.py
           git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl
       - name: Archive Render session stdout independently
+        id: archive
+        continue-on-error: true
         if: github.event.schedule != '0 2 * * 0'
         run: python scripts/archive_session_log.py --publish
       - name: Publish validated account measurements (no trading or cleanup)
         run: python scripts/post_session.py
+      - name: Surface archive failure after allowing accounting to run
+        if: always() && steps.archive.outcome == 'failure'
+        run: exit 1
