@@ -115,6 +115,23 @@ def collect(reader, start, end):
     history = reader.get("/v2/account/portfolio/history", {
         "start": (start - timedelta(days=7)).isoformat(),
         "end": (end + timedelta(days=1)).isoformat(), "timeframe": "1D"})
+    calendar = reader.get("/v2/calendar", {"start": str(start), "end": str(end)})
+    closing_observations = []
+    observed_days = {datetime.fromtimestamp(t, ET).date().isoformat() for t in history.get("timestamp", [])}
+    # Daily history can lag. Only recover the exact regular-session close timestamp,
+    # never a current account balance or a nearby/incomplete intraday observation.
+    for session in calendar[-2:]:
+        close = datetime.fromisoformat(session["date"]+"T"+session["close"]).replace(tzinfo=ET)
+        if session["date"] in observed_days or now < close:
+            continue
+        intraday = reader.get("/v2/account/portfolio/history", {
+            "start": (close-timedelta(minutes=5)).isoformat(), "end": close.isoformat(),
+            "timeframe": "1Min", "intraday_reporting": "market_hours"})
+        for ts, value in zip(intraday.get("timestamp", []), intraday.get("equity", [])):
+            if ts == int(close.timestamp()) and value is not None:
+                closing_observations.append({"timestamp": session["date"],
+                    "valuation_timestamp": close.astimezone(UTC).isoformat(), "equity": str(value),
+                    "retrieved_at": datetime.now(UTC).isoformat(), "source": "broker_portfolio_history_1Min_exact_regular_close"})
     return {"schema_version": 1, "fetched_at": now.isoformat(),
             "account_observed_at": now.isoformat(),
             "requested_start": str(start), "requested_end": str(end),
@@ -123,7 +140,7 @@ def collect(reader, start, end):
                                  ("equity", "cash", "long_market_value", "short_market_value")},
             "positions_now": reader.get("/v2/positions"),
             "activities": activities, "orders": list(by_id.values()), "portfolio_history": history,
-            "calendar": reader.get("/v2/calendar", {"start": str(start), "end": str(end)})}
+            "calendar": calendar, "closing_equity_observations": closing_observations}
 
 
 def analyze(snapshot, start, end, output, ledger_path, log_dir):

@@ -112,6 +112,12 @@ def equity_observations(snapshot):
         rows.append({"timestamp": day, "valuation_timestamp": dt.isoformat(),
                      "equity": str(amount(value)), "retrieved_at": snapshot["fetched_at"],
                      "source": "broker_portfolio_history_1D"})
+    for observation in snapshot.get("closing_equity_observations", []):
+        day = observation["timestamp"]
+        close = closes.get(day)
+        if day not in seen and close and timestamp(observation["valuation_timestamp"]) == close and fetched >= close:
+            rows.append(observation)
+            seen.add(day)
     return sorted(rows, key=lambda r: r["timestamp"])
 
 
@@ -161,9 +167,18 @@ def build_report(snapshot, start, end, since=None):
         issues.append("No retained funding evidence; initial cash/basis not established")
     lifetime_realized = sum((amount(f["gross_pnl"]) for f in lifetime_fragments), amount(0))
     lifetime_cash = sum((amount(a.get("net_amount")) for a in nontrade), amount(0))
-    unrealized = sum((amount(p.get("market_value")) for p in snapshot["positions_now"]), amount(0)) - sum(
+    account = snapshot.get("account_snapshot", {})
+    # Account and position endpoints are separate observations. Use market values
+    # from the SAME account response as equity; position prices can move meanwhile.
+    if account.get("long_market_value") is not None and account.get("short_market_value") is not None:
+        market_value = amount(account["long_market_value"]) - abs(amount(account["short_market_value"]))
+        valuation_basis = "account_response_market_values"
+    else:
+        market_value = sum((amount(p.get("market_value")) for p in snapshot["positions_now"]), amount(0))
+        valuation_basis = "legacy_separate_position_observations"
+    unrealized = market_value - sum(
         (amount(l["signed_qty"])*amount(l["entry_price"]) for l in current_lots), amount(0))
-    observed_equity = snapshot.get("account_snapshot", {}).get("equity")
+    observed_equity = account.get("equity")
     residual = amount(observed_equity)-lifetime_realized-lifetime_cash-unrealized if observed_equity is not None else None
     if residual is None or abs(residual) > Decimal("0.01"):
         issues.append("Retained-history/current-equity bridge does not reconcile within one cent")
@@ -181,6 +196,7 @@ def build_report(snapshot, start, end, since=None):
         if start <= day <= end:
             day_episodes = [e for e in completed if day_of(e["exit_time"]) == day]
             daily.append({"date": day, "equity": obs["equity"] if obs else None,
+                          "valuation_source": obs["source"] if obs else None,
                           "valuation_timestamp": obs["valuation_timestamp"] if obs else None,
                           "prior_valuation_timestamp": previous["valuation_timestamp"] if previous else None,
                           "equity_change_since_prior_observation": str(delta) if delta is not None else None,
@@ -203,7 +219,7 @@ def build_report(snapshot, start, end, since=None):
                "fees_in_date_window": str(sum((amount(a.get("net_amount")) for a in chosen_fees), amount(0))),
                "fee_allocation": "unallocated_account_level; trade metrics are gross",
                "net_trade_expectancy": None, "open_position_episodes": len(unfinished),
-               "current_account_equity": observed_equity,
+               "current_account_equity": observed_equity, "valuation_basis": valuation_basis,
                "current_account_observation": snapshot.get("account_observed_at", snapshot["fetched_at"]),
                "latest_broker_valuation": next((r for r in reversed(valuations) if r["timestamp"] <= end), None),
                "lifetime_bridge": {"funding_net": str(sum((amount(a.get("net_amount")) for a in funding), amount(0))),

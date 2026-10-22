@@ -88,6 +88,9 @@ def run_report(**kwargs):
     except Exception:
         if kwargs.get("publish", True):
             # Do not serialize network exception bodies or credential-bearing objects.
+            existing = json.loads(status_file.read_text()) if status_file.exists() else {}
+            if existing.get("status") == "REQUIRES_REVIEW":
+                raise
             atomic_text(status_file, json.dumps({"status": "FAILED",
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "reason": "Collection or validation failed; inspect private evidence and local error."}))

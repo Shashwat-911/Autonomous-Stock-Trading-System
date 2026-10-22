@@ -88,5 +88,26 @@ class MeasurementTests(unittest.TestCase):
         self.assertIsNone(r["daily"][0]["equity_change_since_prior_observation"])
 
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_account_valuation_does_not_mix_later_position_prices(self):
+        acts=[fill(1,"A","buy",2,10),{"id":"cash","activity_type":"JNLC","date":"2026-10-15","net_amount":"1000"}]
+        snap=snapshot(acts,equity="1002",positions=[{"symbol":"A","qty":"2","market_value":"27"}])
+        snap["account_snapshot"].update(cash="980",long_market_value="22",short_market_value="0")
+        report=build_report(snap,"2026-10-14","2026-10-16")
+        self.assertEqual(report["summary"]["issues"],[])
+        self.assertEqual(report["summary"]["lifetime_bridge"]["unrealized"],"2")
+        snap["account_snapshot"]["equity"]="1003"
+        self.assertTrue(build_report(snap,"2026-10-14","2026-10-16")["summary"]["issues"])
+
+    def test_exact_close_fallback_never_uses_nearby_or_future_mark(self):
+        s=snapshot([])
+        s["calendar"]=[{"date":"2026-10-16","close":"16:00"}]
+        s["fetched_at"]="2026-10-16T21:00:00Z"
+        mark={"timestamp":"2026-10-16","valuation_timestamp":"2026-10-16T20:00:00Z",
+              "equity":"1005","source":"broker_portfolio_history_1Min_exact_regular_close"}
+        s["closing_equity_observations"]=[mark]
+        self.assertEqual(equity_observations(s)[-1]["equity"],"1005")
+        mark["valuation_timestamp"]="2026-10-16T19:59:00Z"
+        self.assertEqual(len(equity_observations(s)),2)
+        mark["valuation_timestamp"]="2026-10-16T20:00:00Z"
+        s["fetched_at"]="2026-10-16T19:00:00Z"
+        self.assertEqual(len(equity_observations(s)),2)
