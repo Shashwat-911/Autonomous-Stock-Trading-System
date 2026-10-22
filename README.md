@@ -6,13 +6,13 @@
 Mixed-version account history; **not a validated baseline for the current strategy**.
 Legacy session tables and metrics below this block are retained as unverified historical evidence.
 
-Period: 2026-08-09 through 2026-10-20 (New York dates).
-Source retrieved: 2026-10-20T20:05:44.754660+00:00. Report generated: 2026-10-20T20:05:49.834445+00:00.
+Period: 2026-08-09 through 2026-10-21 (New York dates).
+Source retrieved: 2026-10-22T00:42:24.394361+00:00. Report generated: 2026-10-22T00:42:29.758935+00:00.
 
-Completed flat-to-flat episodes: **348**; gross win rate: **41.09%**.
-Gross expectancy: **$-0.74**. Fees are unallocated account-level costs, excluded from trade metrics.
+Completed flat-to-flat episodes: **351**; gross win rate: **41.31%**.
+Gross expectancy: **$-0.82**. Fees are unallocated account-level costs, excluded from trade metrics.
 
-Latest account snapshot: **$99,724.84** at 2026-10-20T20:05:44.754660+00:00 (separate from daily history).
+Latest account snapshot: **$99,649.77** at 2026-10-22T00:42:24.394361+00:00 (separate from daily history).
 
 Unavailable means the captured broker history has no eligible daily observation for that date. A later report refresh can fill it when the broker supplies it; the account snapshot is never substituted.
 
@@ -68,7 +68,8 @@ Unavailable means the captured broker history has no eligible daily observation 
 | 2026-10-15 | $99,865.37 | $-74.20 | $-74.50 |
 | 2026-10-16 | $99,612.27 | $-252.44 | $-253.10 |
 | 2026-10-19 | $99,671.00 | $59.21 | $58.73 |
-| 2026-10-20 | Unavailable | $53.84 | Unavailable |
+| 2026-10-20 | $99,724.53 | $53.84 | $53.53 |
+| 2026-10-21 | Unavailable | $-31.39 | Unavailable |
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
@@ -131,7 +132,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 > **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
 
-![Daily P&L Chart](outputs/measurement_v2/generations/20261020T200544437538Z/daily_pnl_chart.png)
+![Daily P&L Chart](outputs/measurement_v2/generations/20261022T004224077031Z/daily_pnl_chart.png)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
