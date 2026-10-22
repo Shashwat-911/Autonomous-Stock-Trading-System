@@ -542,77 +542,52 @@ class AlpacaPaperBroker:
             raise RuntimeError("Pending-order state unavailable; new entry blocked") from e
 
     def eod_liquidate_all(self, reason: str = "EOD force-close") -> dict:
-        """
-        Cancel all open bracket legs for this ticker and submit a market SELL
-        for any remaining position. Called ~10 minutes before market close.
-        Safe to call even when no position exists (returns early).
-        
-        Returns: dict with keys: cancelled_orders (int), position_closed (bool), 
-                 qty_closed (int), error (str or None)
+        """Retryable close: confirm cancellation, submit once, verify flat later.
+
+        An accepted cancellation or exit order is not a confirmed closed position.
+        Call again on subsequent EOD scans until position_closed is true.
         """
         result = {"cancelled_orders": 0, "position_closed": False,
-                  "qty_closed": 0, "error": None}
+                  "qty_closed": 0, "error": None, "pending": False}
         try:
-            # Step 1: Cancel all open orders for this ticker
-            try:
-                open_orders = self.client.get_orders(
-                    filter=GetOrdersRequest(
-                        status=QueryOrderStatus.OPEN,
-                        symbols=[self.ticker],
-                        limit=50,
-                    )
-                )
-                for order in open_orders:
-                    try:
-                        self.client.cancel_order_by_id(order.id)
-                        result["cancelled_orders"] += 1
-                        logger.info(f"EOD: Cancelled order {order.id} for {self.ticker}")
-                    except Exception as e:
-                        logger.warning(f"EOD: Failed to cancel order {order.id}: {e}")
-            except Exception as e:
-                logger.warning(f"EOD: Could not fetch open orders for {self.ticker}: {e}")
+            position = self.get_current_position()
+            pending_id = getattr(self, "_eod_close_order_id", None)
+            if pending_id:
+                order = self.client.get_order_by_id(pending_id)
+                status = str(getattr(order.status, "value", order.status)).lower()
+                if status not in {"filled", "canceled", "expired", "rejected"}:
+                    result["pending"] = True
+                    return result
+                self._eod_close_order_id = None
+                position = self.get_current_position()
 
-            # Step 2: Check if position exists
+            request = GetOrdersRequest(status=QueryOrderStatus.OPEN,
+                                       symbols=[self.ticker], limit=500)
+            orders = self.client.get_orders(filter=request)
+            for order in orders:
+                self.client.cancel_order_by_id(order.id)
+                result["cancelled_orders"] += 1
+            # Broker acknowledgements are asynchronous. Never assume shares are free.
+            if self.client.get_orders(filter=request):
+                result["pending"] = True
+                logger.warning("EOD %s: awaiting confirmed order cancellation", self.ticker)
+                return result
             position = self.get_current_position()
             if position is None:
-                logger.info(f"EOD: No open position for {self.ticker} — nothing to close.")
+                result["position_closed"] = True
+                self._entry_price = None
+                self._trailing_stop = None
+                if hasattr(self, "_trailing_state"):
+                    self._trailing_state.pop(self.ticker, None)
                 return result
-
-            qty = int(float(position["shares"] if isinstance(position, dict) else position.qty))
-            if qty <= 0:
-                return result
-
-            # Step 3: Submit market SELL to close position
-            import time
-            time.sleep(0.5)  # Brief pause after cancellations to let Alpaca process
-            
-            from alpaca.trading.requests import MarketOrderRequest
-            from alpaca.trading.enums import OrderSide, TimeInForce
-
-            order_req = MarketOrderRequest(
-                symbol=self.ticker,
-                qty=qty,
-                side=OrderSide.SELL,
-                time_in_force=TimeInForce.DAY,
-            )
-            order = self.client.submit_order(order_req)
-            result["position_closed"] = True
-            result["qty_closed"] = qty
-            logger.info(
-                f"EOD force-close: Submitted SELL {qty}sh {self.ticker} "
-                f"| reason={reason} | order_id={order.id}"
-            )
-            
-            # Reset internal tracking
-            self._entry_price = None
-            self._trailing_stop = None
-            if hasattr(self, "_trailing_state"):
-                self._trailing_state.pop(self.ticker, None)
-
-        except Exception as e:
-            result["error"] = str(e)
-            logger.error(f"EOD liquidation failed for {self.ticker}: {e}")
-
+            order = self.client.close_position(self.ticker)
+            self._eod_close_order_id = str(order.id)
+            result["pending"] = True
+            logger.warning("EOD %s: exit submitted; fill/flat confirmation still pending (%s)",
+                           self.ticker, reason)
+        except Exception as exc:
+            result["error"] = str(exc)
+            logger.error("EOD liquidation incomplete for %s: %s", self.ticker, exc)
         return result
 
 

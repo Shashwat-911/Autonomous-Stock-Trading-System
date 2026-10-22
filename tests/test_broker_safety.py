@@ -19,7 +19,7 @@ from requests import Response, HTTPError
 def broker_class():
     tree = ast.parse((Path(__file__).resolve().parents[1]/"broker/alpaca.py").read_text(encoding="utf-8"))
     cls = next(n for n in tree.body if isinstance(n, ast.ClassDef))
-    names = {"run_tick", "get_current_position", "get_all_positions", "_has_pending_buy_order", "_make_client_order_id"}
+    names = {"run_tick", "get_current_position", "get_all_positions", "_has_pending_buy_order", "_make_client_order_id", "eod_liquidate_all"}
     cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in names]
     ns = dict(globals(), logger=logging.getLogger("safety-test"))
     exec(compile(ast.Module(body=[cls], type_ignores=[]), "actual-broker-methods", "exec"), ns)
@@ -107,3 +107,31 @@ class BrokerSafetyTests(unittest.TestCase):
         self.assertTrue(a.startswith("gh-AAPL-"))
         self.assertNotEqual(a,b)
         self.assertLessEqual(len(a),48)
+
+
+class EodTests(unittest.TestCase):
+    def test_cancel_ack_is_not_flat_and_pending_exit_is_not_duplicated(self):
+        b=broker_class()(); b.ticker="AAPL"; b.client=Mock()
+        b.get_current_position=Mock(return_value={"shares":2})
+        bracket=SimpleNamespace(id="bracket")
+        b.client.get_orders.return_value=[bracket]
+        self.assertTrue(b.eod_liquidate_all()["pending"])
+        b.client.close_position.assert_not_called()
+        b.client.get_orders.return_value=[]
+        b.client.close_position.return_value=SimpleNamespace(id="exit")
+        self.assertFalse(b.eod_liquidate_all()["position_closed"])
+        b.client.get_order_by_id.return_value=SimpleNamespace(status="new")
+        b.eod_liquidate_all()
+        b.client.close_position.assert_called_once()
+        b.client.get_order_by_id.return_value=SimpleNamespace(status="filled")
+        b.get_current_position.return_value=None
+        self.assertTrue(b.eod_liquidate_all()["position_closed"])
+
+    def test_rejected_exit_can_retry_without_claiming_success(self):
+        b=broker_class()(); b.ticker="AAPL"; b.client=Mock()
+        b.get_current_position=Mock(return_value={"shares":2})
+        b.client.get_orders.return_value=[]
+        b.client.close_position.side_effect=[RuntimeError("shares reserved"),SimpleNamespace(id="retry")]
+        self.assertIsNotNone(b.eod_liquidate_all()["error"])
+        self.assertTrue(b.eod_liquidate_all()["pending"])
+        self.assertEqual(b.client.close_position.call_count,2)

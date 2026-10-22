@@ -15,6 +15,7 @@ warnings.filterwarnings("ignore", message="CUDA path could not be detected")
 import logging
 import os
 import sys
+import math
 import time
 from datetime import date, datetime, timedelta
 
@@ -522,6 +523,7 @@ def run_live():
     perf_engine = PerformanceEngine()
 
     _eod_triggered = False
+    session_incomplete = False
     pending_exposure_dollars = 0.0  # Tracks BUY orders submitted this scan iteration
 
     try:
@@ -554,7 +556,7 @@ def run_live():
                 entry_clock = first_broker.get_clock()
             except Exception:
                 entry_clock = None
-            allow_new_entries = _should_allow_new_entries(
+            allow_new_entries = not _eod_triggered and _should_allow_new_entries(
                 min_hours_for_entries=_cutoff_hours, clock=entry_clock)
             if not allow_new_entries:
                 logger.info(
@@ -645,7 +647,7 @@ def run_live():
             # EOD force-close: liquidate all positions 10 minutes before market close
             try:
                 clock = first_broker.get_clock()
-                if _is_near_market_close(clock, minutes_before=10) and not _eod_triggered:
+                if _is_near_market_close(clock, minutes_before=10):
                     _eod_triggered = True
                     logger.warning("EOD LIQUIDATION TRIGGERED — market closes in <10 minutes")
                     for ticker in tickers:
@@ -654,7 +656,7 @@ def run_live():
                         )
                         if eod_result["position_closed"]:
                             logger.warning(
-                                f"EOD closed {eod_result['qty_closed']}sh {ticker}"
+                                f"EOD verified flat with no open orders: {ticker}"
                             )
             except Exception as e:
                 logger.error(f"EOD liquidation check failed: {e}")
@@ -664,29 +666,20 @@ def run_live():
             try:
                 clock = first_broker.get_clock()
                 if clock and clock.is_open:
-                    mins_left = max(0, int((clock.next_close - clock.timestamp).total_seconds() / 60))
+                    mins_left = max(1, math.ceil((clock.next_close - clock.timestamp).total_seconds() / 60))
                 elif clock and not clock.is_open:
                     mins_left = 0
             except Exception:
                 pass
 
             if mins_left is None:
-                try:
-                    import zoneinfo
-                    tz_et = zoneinfo.ZoneInfo("America/New_York")
-                    now_et = datetime.now(tz_et)
-                    close_et = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
-                    open_et = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
-                    if open_et <= now_et <= close_et and now_et.weekday() < 5:
-                        mins_left = max(0, int((close_et - now_et).total_seconds() / 60))
-                    else:
-                        mins_left = 0
-                except Exception:
-                    pass
+                logger.error("Broker clock unavailable; cannot declare session closed. Retrying in 60 seconds.")
+                time.sleep(60)
+                continue
 
             if mins_left is not None and mins_left > 0:
                 print(f"  Market closes in: {mins_left} mins")
-                print(f"  Next scan:        in {scan_interval_mins} minutes")
+                print(f"  Next scan:        in {min(scan_interval_secs, 60 if mins_left <= 10 else (mins_left - 9) * 60)} seconds")
                 # Windows popup for any BUY/SELL (Windows desktop only)
                 if action_alerts and sys.platform.startswith("win"):
                     try:
@@ -704,7 +697,13 @@ def run_live():
                         next_open_str = f" (Next open: {clock.next_open.strftime('%Y-%m-%d %H:%M %Z')})"
                 except Exception:
                     pass
-                print(f"  Market status:    CLOSED{next_open_str} — session completed.")
+                print(f"  Market status:    CLOSED{next_open_str} — scanning ended.")
+                remaining = first_broker.get_all_positions()
+                if remaining:
+                    session_incomplete = True
+                    logger.error("SESSION INCOMPLETE: positions remain after close: %s", ", ".join(remaining))
+                else:
+                    print("  End-of-session inventory verified flat.")
                 break
 
     except KeyboardInterrupt:
@@ -734,6 +733,9 @@ def run_live():
             print(f"  Performance metrics error: {e}")
 
         print("=" * 60)
+
+    if session_incomplete:
+        raise RuntimeError("Session ended with unclosed positions; inspect EOD errors")
 
 
 def view_logs() -> None:
