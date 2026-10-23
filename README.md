@@ -6,13 +6,13 @@
 Mixed-version account history; **not a validated baseline for the current strategy**.
 The earlier unverified session table is archived in docs/LEGACY_SESSION_TABLE.md.
 
-Period: 2026-08-09 through 2026-10-21 (New York dates).
-Source retrieved: 2026-10-22T05:21:25.027341+00:00. Report generated: 2026-10-22T05:22:01.280766+00:00.
+Period: 2026-08-09 through 2026-10-22 (New York dates).
+Source retrieved: 2026-10-23T00:41:27.125518+00:00. Report generated: 2026-10-23T00:41:36.775799+00:00.
 
-Completed flat-to-flat episodes: **351**; gross win rate: **41.31%**.
-Gross expectancy: **$-0.82**. Fees are unallocated account-level costs, excluded from trade metrics.
+Completed flat-to-flat episodes: **359**; gross win rate: **40.95%**.
+Gross expectancy: **$-1.43**. Fees are unallocated account-level costs, excluded from trade metrics.
 
-Latest account snapshot: **$99,573.23** at 2026-10-22T05:21:25.027341+00:00 (separate from daily history).
+Latest account snapshot: **$99,466.84** at 2026-10-23T00:41:27.125518+00:00 (separate from daily history).
 
 Equity uses broker daily history, or an exact regular-close intraday observation when daily history is delayed. Sources and timestamps are retained in the report. Unavailable is never replaced with current account equity.
 
@@ -69,7 +69,8 @@ Equity uses broker daily history, or an exact regular-close intraday observation
 | 2026-10-16 | $99,612.27 | $-252.44 | $-253.10 |
 | 2026-10-19 | $99,671.00 | $59.21 | $58.73 |
 | 2026-10-20 | $99,724.53 | $53.84 | $53.53 |
-| 2026-10-21 | $99,743.94 | $-31.39 | $19.41 |
+| 2026-10-21 | $99,747.20 | $-31.39 | $22.67 |
+| 2026-10-22 | $99,466.84 | $-226.11 | $-280.36 |
 
 Equity changes include unrealized P&L and cash movements. Missing observations are not filled with current equity.
 
@@ -127,7 +128,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 > **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Current configured universe: 20 stocks; historical universe varied
 
-![Daily P&L Chart](outputs/measurement_v2/generations/20261022T052122435502Z/daily_pnl_chart.png)
+![Daily P&L Chart](outputs/measurement_v2/generations/20261023T004126460880Z/daily_pnl_chart.png)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
@@ -188,7 +189,8 @@ Validated account measurements (mixed strategy versions). Realized P&L excludes 
 | 49 | 2026-10-16 | $99,612.27 | $-252.44 | $-369.14 | $-253.10 | [Log](outputs/logs/session_2026_10_16.txt) |
 | 50 | 2026-10-19 | $99,671.00 | $59.21 | $-309.93 | $58.73 | [Log](outputs/logs/session_2026_10_19.txt) |
 | 51 | 2026-10-20 | $99,724.53 | $53.84 | $-256.09 | $53.53 | [Log](outputs/logs/session_2026_10_20.txt) |
-| 52 | 2026-10-21 | $99,743.94 | $-31.39 | $-287.48 | $19.41 | [Log](outputs/logs/session_2026_10_21.txt) |
+| 52 | 2026-10-21 | $99,747.20 | $-31.39 | $-287.48 | $22.67 | [Log](outputs/logs/session_2026_10_21.txt) |
+| 53 | 2026-10-22 | $99,466.84 | $-226.11 | $-513.59 | $-280.36 | [Log](outputs/logs/session_2026_10_22.txt) |
 
 [Archived legacy table — unverified](docs/LEGACY_SESSION_TABLE.md). Missing equity is never estimated from the current account snapshot.
 
