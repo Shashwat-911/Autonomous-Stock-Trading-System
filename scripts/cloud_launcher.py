@@ -520,142 +520,143 @@ def run_post_session(date_str: str):
 # Main loop
 # ──────────────────────────────────────────────────────────────────────────────
 
-print("=" * 60)
-print("  AutoTrader Cloud Runner started")
-print(f"  Launch time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC")
-print(f"  Python:      {sys.version.split()[0]}")
-print(f"  Working dir: {os.getcwd()}")
-print("=" * 60, flush=True)
+if __name__ == "__main__":
+    print("=" * 60)
+    print("  AutoTrader Cloud Runner started")
+    print(f"  Launch time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    print(f"  Python:      {sys.version.split()[0]}")
+    print(f"  Working dir: {os.getcwd()}")
+    print("=" * 60, flush=True)
 
-# ── Start HTTP health server for Render Free Web Service ──
-threading.Thread(target=start_health_server, daemon=True).start()
+    # ── Start HTTP health server for Render Free Web Service ──
+    threading.Thread(target=start_health_server, daemon=True).start()
 
-# Track which date we last ran the post-session pipeline (prevent duplicate runs)
-last_post_session_date: str = ""
-attempted_session_date: str = ""
+    # Track which date we last ran the post-session pipeline (prevent duplicate runs)
+    last_post_session_date: str = ""
+    attempted_session_date: str = ""
 
-while True:
-    now_utc  = datetime.now(timezone.utc)
-    from zoneinfo import ZoneInfo
-    now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
-    today = now_et.strftime("%Y-%m-%d")
-    date_tag = now_et.strftime("%Y_%m_%d")
+    while True:
+        now_utc  = datetime.now(timezone.utc)
+        from zoneinfo import ZoneInfo
+        now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
+        today = now_et.strftime("%Y-%m-%d")
+        date_tag = now_et.strftime("%Y_%m_%d")
 
-    # ──────────────────────────────────────────────────────────────────────────
-    # Branch A: Market is OPEN — run the trading bot
-    # ──────────────────────────────────────────────────────────────────────────
-    if is_market_hours() and attempted_session_date != today:
-        attempted_session_date = today
-        log_path = f"outputs/logs/session_{date_tag}.txt"
-        os.makedirs("outputs/logs", exist_ok=True)
+        # ──────────────────────────────────────────────────────────────────────────
+        # Branch A: Market is OPEN — run the trading bot
+        # ──────────────────────────────────────────────────────────────────────────
+        if is_market_hours() and attempted_session_date != today:
+            attempted_session_date = today
+            log_path = f"outputs/logs/session_{date_tag}.txt"
+            os.makedirs("outputs/logs", exist_ok=True)
 
-        print(f"\n[{now_utc.strftime('%H:%M:%S UTC')}] Market OPEN — launching trading bot...", flush=True)
-        print(f"  Session log: {log_path}", flush=True)
+            print(f"\n[{now_utc.strftime('%H:%M:%S UTC')}] Market OPEN — launching trading bot...", flush=True)
+            print(f"  Session log: {log_path}", flush=True)
 
-        try:
-            debug_path = f"outputs/logs/debug_{date_tag}.log"
+            try:
+                debug_path = f"outputs/logs/debug_{date_tag}.log"
 
-            env = os.environ.copy()
-            env["TRADING_EXECUTION_SOURCE"] = "render-cloud"
-            env["PYTHONUNBUFFERED"] = "1"
-            env["PYTHONIOENCODING"] = "utf-8"
-            env["PYTHONUTF8"] = "1"
+                env = os.environ.copy()
+                env["TRADING_EXECUTION_SOURCE"] = "render-cloud"
+                env["PYTHONUNBUFFERED"] = "1"
+                env["PYTHONIOENCODING"] = "utf-8"
+                env["PYTHONUTF8"] = "1"
 
-            # Launch main.py live — stdout = clean print output, stderr = Python logging
-            process = subprocess.Popen(
-                [sys.executable, "-X", "utf8", "-u", "main.py", "live"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,     # keep stderr separate from clean output
-                text=True,
-                bufsize=1,                  # line-buffered for real-time log streaming
-                encoding="utf-8",
-                errors="replace",
-                env=env,
-            )
+                # Launch main.py live — stdout = clean print output, stderr = Python logging
+                process = subprocess.Popen(
+                    [sys.executable, "-X", "utf8", "-u", "main.py", "live"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,     # keep stderr separate from clean output
+                    text=True,
+                    bufsize=1,                  # line-buffered for real-time log streaming
+                    encoding="utf-8",
+                    errors="replace",
+                    env=env,
+                )
 
-            WORKER = process
-            RUNNER.update(worker_pid=process.pid,
-                          worker_started_at=datetime.now(timezone.utc).isoformat(),
-                          worker_exit_code=None)
-            # ── Thread: drain stdout → session log (clean tabular output only) ──
-            def stream_stdout():
-                with open(log_path, "a", encoding="utf-8") as lf:
-                    while True:
-                        line = process.stdout.readline()
-                        if not line:
-                            break
-                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
-                        print(line, end="", flush=True)
-                        lf.write(line)
-                        lf.flush()
-
-            # ── Thread: drain stderr → debug log (Python logging INFO lines) ──
-            def stream_stderr():
-                with open(debug_path, "a", encoding="utf-8") as df:
-                    while True:
-                        line = process.stderr.readline()
-                        if not line:
-                            break
-                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
-                        df.write(line)
-                        df.flush()
-                        # Surface critical errors or crashes to Render console
-                        if any(k in line for k in ("ERROR", "Traceback", "Exception", "CRITICAL")):
+                WORKER = process
+                RUNNER.update(worker_pid=process.pid,
+                              worker_started_at=datetime.now(timezone.utc).isoformat(),
+                              worker_exit_code=None)
+                # ── Thread: drain stdout → session log (clean tabular output only) ──
+                def stream_stdout():
+                    with open(log_path, "a", encoding="utf-8") as lf:
+                        while True:
+                            line = process.stdout.readline()
+                            if not line:
+                                break
+                            RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
                             print(line, end="", flush=True)
+                            lf.write(line)
+                            lf.flush()
 
-            t_out = threading.Thread(target=stream_stdout, daemon=True)
-            t_err = threading.Thread(target=stream_stderr, daemon=True)
-            t_out.start()
-            t_err.start()
-            t_out.join()
-            t_err.join()
+                # ── Thread: drain stderr → debug log (Python logging INFO lines) ──
+                def stream_stderr():
+                    with open(debug_path, "a", encoding="utf-8") as df:
+                        while True:
+                            line = process.stderr.readline()
+                            if not line:
+                                break
+                            RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
+                            df.write(line)
+                            df.flush()
+                            # Surface critical errors or crashes to Render console
+                            if any(k in line for k in ("ERROR", "Traceback", "Exception", "CRITICAL")):
+                                print(line, end="", flush=True)
 
-            process.wait()
-            exit_code = process.returncode
-            RUNNER["worker_exit_code"] = exit_code
+                t_out = threading.Thread(target=stream_stdout, daemon=True)
+                t_err = threading.Thread(target=stream_stderr, daemon=True)
+                t_out.start()
+                t_err.start()
+                t_out.join()
+                t_err.join()
+
+                process.wait()
+                exit_code = process.returncode
+                RUNNER["worker_exit_code"] = exit_code
+                print(
+                    f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}] "
+                    f"Bot exited with code: {exit_code}",
+                    flush=True
+                )
+
+                if exit_code != 0:
+                    print("  Non-zero exit — bot may have crashed. Restart withheld to avoid resetting daily risk state; inspect /status and /debug.", flush=True)
+
+            except Exception as e:
+                print(f"[ERROR] Bot crashed with exception: {e}", flush=True)
+
+            # ── Brief cooldown before re-checking market hours ──
+            print("  Cooling down 5 minutes before next check...", flush=True)
+            time.sleep(300)   # 5 minutes
+
+        # ──────────────────────────────────────────────────────────────────────────
+        # Branch B: Post-session window (20:00–20:30 UTC) — run pipeline once/day
+        # ──────────────────────────────────────────────────────────────────────────
+        elif is_post_session_window() and last_post_session_date != today:
             print(
-                f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}] "
-                f"Bot exited with code: {exit_code}",
+                f"\n[{now_utc.strftime('%H:%M:%S UTC')}] "
+                f"Post-session window open — starting pipeline...",
                 flush=True
             )
+            # Wait 2 minutes after close for Alpaca fills to settle before fetching
+            print("  Waiting 2 min for order fills to settle...", flush=True)
+            time.sleep(120)
 
-            if exit_code != 0:
-                print("  Non-zero exit — bot may have crashed. Restart withheld to avoid resetting daily risk state; inspect /status and /debug.", flush=True)
+            if run_post_session(today):
+                last_post_session_date = today   # Retry failed publication on the next pass
 
-        except Exception as e:
-            print(f"[ERROR] Bot crashed with exception: {e}", flush=True)
+            print("  Sleeping 15 minutes before next check...", flush=True)
+            time.sleep(900)
 
-        # ── Brief cooldown before re-checking market hours ──
-        print("  Cooling down 5 minutes before next check...", flush=True)
-        time.sleep(300)   # 5 minutes
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Branch B: Post-session window (20:00–20:30 UTC) — run pipeline once/day
-    # ──────────────────────────────────────────────────────────────────────────
-    elif is_post_session_window() and last_post_session_date != today:
-        print(
-            f"\n[{now_utc.strftime('%H:%M:%S UTC')}] "
-            f"Post-session window open — starting pipeline...",
-            flush=True
-        )
-        # Wait 2 minutes after close for Alpaca fills to settle before fetching
-        print("  Waiting 2 min for order fills to settle...", flush=True)
-        time.sleep(120)
-
-        if run_post_session(today):
-            last_post_session_date = today   # Retry failed publication on the next pass
-
-        print("  Sleeping 15 minutes before next check...", flush=True)
-        time.sleep(900)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Branch C: Market is CLOSED (and not post-session window) — sleep
-    # ──────────────────────────────────────────────────────────────────────────
-    else:
-        phase = exchange_phase()
-        if phase["status"] == "LATE_START":
-            print("[ERROR] MISSED_SESSION: opening tolerance exceeded; not a successful trading session.", flush=True)
-        day_name = now_utc.strftime("%A")
-        time_str = now_utc.strftime("%H:%M UTC")
-        print(f"  Market CLOSED — {day_name} {time_str} — checking again in 30 seconds", flush=True)
-        time.sleep(30)   # Check opening promptly; no ten-minute launch lag
+        # ──────────────────────────────────────────────────────────────────────────
+        # Branch C: Market is CLOSED (and not post-session window) — sleep
+        # ──────────────────────────────────────────────────────────────────────────
+        else:
+            phase = exchange_phase()
+            if phase["status"] == "LATE_START":
+                print("[ERROR] MISSED_SESSION: opening tolerance exceeded; not a successful trading session.", flush=True)
+            day_name = now_utc.strftime("%A")
+            time_str = now_utc.strftime("%H:%M UTC")
+            print(f"  Market CLOSED — {day_name} {time_str} — checking again in 30 seconds", flush=True)
+            time.sleep(30)   # Check opening promptly; no ten-minute launch lag

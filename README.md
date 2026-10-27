@@ -1,5 +1,7 @@
 # Autonomous Stock Trading & Quantitative Backtesting System
 
+> **Playwright branch:** Runnable browser tests and workshop instructions are in [docs/PLAYWRIGHT.md](docs/PLAYWRIGHT.md). Start with `npm ci`, `npx playwright install chromium`, then `npm run test:e2e`. For ATF repository import, set the branch/ref to **playwright**.
+
 <!-- MEASUREMENT_V2_START -->
 ## Corrected account measurement
 

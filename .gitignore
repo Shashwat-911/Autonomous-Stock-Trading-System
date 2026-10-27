@@ -79,3 +79,9 @@ scripts/fetch_step_today.py
 outputs/private_reconciliation/
 outputs/reporting_private/
 
+# Playwright dependencies and generated evidence
+node_modules/
+playwright-report/
+test-results/
+.playwright/
+
