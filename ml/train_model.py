@@ -41,13 +41,17 @@ def train_meta_labeling_model(data_path: str = "ml/training_data.csv"):
           f"{y.mean():.1%} positive rate")
     
     # TimeSeriesSplit — no data leakage
-    tscv = TimeSeriesSplit(n_splits=5)
+    dates = pd.to_datetime(df.index, utc=True)
+    unique_dates = dates.unique().sort_values()
+    tscv = TimeSeriesSplit(n_splits=5, gap=12)
     
     fold_aucs = []
     fold_precisions = []
     
     print("\nCross-validation results:")
-    for fold, (train_idx, val_idx) in enumerate(tscv.split(X), 1):
+    for fold, (train_dates, val_dates) in enumerate(tscv.split(unique_dates), 1):
+        train_idx = np.flatnonzero(dates.isin(unique_dates[train_dates]))
+        val_idx = np.flatnonzero(dates.isin(unique_dates[val_dates]))
         X_train, X_val = X[train_idx], X[val_idx]
         y_train, y_val = y[train_idx], y[val_idx]
         
@@ -118,9 +122,11 @@ def train_meta_labeling_model(data_path: str = "ml/training_data.csv"):
     # Save model and feature list
     ml_dir = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(ml_dir, exist_ok=True)
-    model_path = os.path.join(ml_dir, "meta_model.pkl")
+    model_path = os.path.join(ml_dir, "research_meta_model.pkl")
     with open(model_path, "wb") as f:
         pickle.dump({
+            "status": "RESEARCH_ONLY",
+            "bar_interval": "1d",
             "model": final_model,
             "features": available_features,
             "threshold": 0.65,
