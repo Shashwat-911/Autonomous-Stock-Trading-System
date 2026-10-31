@@ -70,3 +70,17 @@ class ComparisonTests(unittest.TestCase):
     def test_holdout_access_refused_before_reading_files(self):
         from research.compare import compare
         with self.assertRaises(ValueError): compare('missing','2026-11-02','2027-04-30')
+
+    def test_comparison_produces_cash_and_finite_costed_results(self):
+        import tempfile
+        from pathlib import Path
+        from research.compare import compare
+        with tempfile.TemporaryDirectory() as folder:
+            data=bars([[100+i,102+i,99+i,101+i,1000] for i in range(40)])
+            for symbol in ['SPY','QQQ','IWM','IEF','GLD']:
+                data.to_csv(Path(folder)/(symbol+'.csv'))
+            result=compare(folder,'2020-01-01','2020-02-09')
+            self.assertEqual(len(result['runs']),15)
+            self.assertFalse(result['promotion']['eligible'])
+            self.assertEqual(result['runs'][0]['net_pnl'],0)
+            self.assertIn('2020',result['runs'][2]['calendar_year_net_pnl'])

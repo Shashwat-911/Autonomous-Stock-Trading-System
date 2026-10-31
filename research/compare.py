@@ -29,7 +29,7 @@ def compare(directory, start, end):
     reference = next(iter(frames.values())).index
     if any(not df.index.equals(reference) for df in frames.values()):
         raise ValueError('Unaligned calendars; resolve missing sessions explicitly')
-    output = {'status':'RESEARCH_ONLY', 'source_sha256':sources, 'period':[start,end],
+    output = {'status':'RESEARCH_ONLY', 'source_sha256':sources, 'protocol_sha256':hashlib.sha256(Path('research/protocol.json').read_bytes()).hexdigest(), 'period':[start,end],
               'hourly_baseline': {'status':'BLOCKED_MISSING_LIVE_PARITY_REPLAY'}, 'runs':[]}
     for multiplier in (1, 2, 4):
         costs = Costs(**{k:v*multiplier for k,v in protocol['costs'].items()})
@@ -45,6 +45,7 @@ def compare(directory, start, end):
                 'max_drawdown_pct':float(100*(equity/equity.cummax()-1).min()),
                 'mean_exposure':sum(r['mean_exposure'] for r in results.values())/len(results),
                 'completed_episodes':sum(len(r['episodes']) for r in results.values()),
+                'calendar_year_net_pnl':{str(year):float(equity.iloc[[i+1 for i,t in enumerate(reference) if t.year==year][-1]]-equity.iloc[[i for i,t in enumerate(reference) if t.year==year][0]]) for year in sorted(set(reference.year))},
                 'open_positions':sum(r['open_qty']>0 for r in results.values()),
                 'symbol_net_pnl':{s:r['final_equity']-20000 for s,r in results.items()}})
     output['promotion']={'eligible':False,'reasons':['Prospective holdout incomplete',

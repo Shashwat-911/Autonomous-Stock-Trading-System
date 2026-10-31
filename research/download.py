@@ -1,7 +1,7 @@
 """Read-only daily research download with broker calendar and source manifest."""
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 import yfinance as yf
 from scripts.reconcile_paper_account import PaperReader
@@ -16,7 +16,7 @@ def download(output, start='2015-01-01', end='2025-12-31'):
     calendar=PaperReader().get('/v2/calendar',{'start':start,'end':end})
     expected=[r['date'] for r in calendar]
     for symbol in protocol['universe']:
-        df=yf.Ticker(symbol).history(start=start,end='2026-01-01',interval='1d',auto_adjust=True)
+        df=yf.Ticker(symbol).history(start=start,end=(date.fromisoformat(end)+timedelta(days=1)).isoformat(),interval='1d',auto_adjust=True)
         dates=[t.date().isoformat() for t in df.index]
         if dates != expected:
             raise ValueError(f'{symbol}: calendar mismatch; refusing incomplete data')
