@@ -24,7 +24,7 @@ def backtest_with_params(params: dict,
         df = df.dropna()
         
         if len(df) < 100:
-            return -999.0
+            raise ValueError("Backtest has insufficient data or undefined return variance")
         
         cash = 100000.0
         shares = 0
@@ -98,14 +98,14 @@ def backtest_with_params(params: dict,
             cash += shares * float(df.iloc[-1]["Close"])
         
         if not returns or np.std(returns) == 0:
-            return -999.0
+            raise ValueError("Backtest has insufficient data or undefined return variance")
         
         # Sharpe ratio (annualized, hourly bars)
         sharpe = (np.mean(returns) / np.std(returns)) * np.sqrt(252 * 6.5)
         return float(sharpe)
         
     except Exception as e:
-        return -999.0
+        raise ValueError(f"Backtest failed: {e}") from e
 
 def objective(trial) -> float:
     params = {
@@ -124,7 +124,11 @@ def run_optimization(n_trials: int = 100) -> dict:
     
     study = optuna.create_study(direction="maximize")
     study.optimize(objective, n_trials=n_trials, 
-                  show_progress_bar=True)
+                  show_progress_bar=True, catch=(ValueError,))
+    valid = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE
+             and t.value is not None and np.isfinite(t.value)]
+    if not valid:
+        raise RuntimeError("No valid optimization trials; refusing to publish parameters")
     
     best = study.best_params
     best_sharpe = study.best_value
@@ -173,6 +177,7 @@ def run_optimization(n_trials: int = 100) -> dict:
     params_path = os.path.join(ml_dir, "optimal_params.json")
     with open(params_path, "w") as f:
         json.dump({
+            "status": "RESEARCH_ONLY_NOT_VALIDATED_FOR_DEPLOYMENT",
             "best_params": best,
             "best_sharpe": best_sharpe,
             "current_sharpe": current_sharpe,

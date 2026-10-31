@@ -1,13 +1,5 @@
 {
-  "best_params": {
-    "rsi_oversold": 39.57586733261428,
-    "rsi_overbought": 73.092205715112,
-    "adx_min": 20.95487870882876,
-    "sl_pct": 0.011357808876579362,
-    "tp_pct": 0.011532922657254006,
-    "macd_confirm": true
-  },
-  "best_sharpe": -999.0,
-  "current_sharpe": -999.0,
-  "improvement_pct": 0.0
+  "status": "INVALID_LEGACY_RESULT",
+  "reason": "All saved scores were -999 sentinels; no deployable parameters",
+  "best_params": null
 }
