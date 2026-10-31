@@ -79,3 +79,6 @@ scripts/fetch_step_today.py
 outputs/private_reconciliation/
 outputs/reporting_private/
 
+
+# Temporary research observation; durable summaries use history/
+outputs/research_cloud/current/
