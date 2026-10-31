@@ -3,7 +3,6 @@ name: Account reporting (Render owns trading)
 on:
   schedule:
     - cron: '17 22 * * 1-5' # After both summer and winter market close; delay is harmless.
-    - cron: '0 2 * * 0'    # Preserve the existing weekly model refresh.
   workflow_dispatch:
 
 permissions:
@@ -34,12 +33,6 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Weekly model refresh
-        if: github.event.schedule == '0 2 * * 0'
-        run: |
-          pip install optuna
-          python ml/run_pipeline.py
-          # Research artifacts must not replace the deployed model.
       - name: Archive Render session stdout independently
         id: archive
         continue-on-error: true

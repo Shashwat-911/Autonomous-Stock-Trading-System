@@ -1,0 +1,38 @@
+name: Weekly isolated ML research
+on:
+  schedule:
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt optuna
+      - name: Record environment
+        run: |
+          mkdir -p outputs/ml_research
+          pip freeze > outputs/ml_research/environment.txt
+          git rev-parse HEAD > outputs/ml_research/revision.txt
+      - name: Train research candidate
+        run: python ml/run_pipeline.py
+      - name: Retain research artifacts even if optimization fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-research-${{ github.run_id }}
+          path: |
+            ml/research_meta_model.pkl
+            ml/training_data.csv
+            ml/feature_importance.csv
+            ml/optimal_params.json
+            ml/optimization_results.csv
+            outputs/ml_research/
+          retention-days: 90

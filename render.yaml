@@ -20,6 +20,7 @@ services:
         - docs/**
         - README.md
         - tests/**
+        - research/**
         - .github/**
 
     # -- Environment Variables --------------------------------------------------
