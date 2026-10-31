@@ -1,0 +1,15 @@
+{
+  "status": "RESEARCH_ONLY_NO_AUTOMATIC_PROMOTION",
+  "registered_at": "2026-10-31",
+  "development": ["2015-01-01", "2022-12-31"],
+  "validation": ["2023-01-01", "2025-12-31"],
+  "observed_diagnostic_period": ["2026-01-01", "2026-10-30"],
+  "prospective_holdout": ["2026-11-02", "2027-04-30"],
+  "holdout_policy": "Do not tune on prospective holdout. Any change creates a new experiment and new future holdout.",
+  "universe": ["SPY", "QQQ", "IWM", "IEF", "GLD"],
+  "costs": {"spread_bps": 2, "slippage_bps": 3, "fee_per_share": 0.005},
+  "candidate": {"entry_days": 20, "exit_days": 10, "stop_atr": 2},
+  "research_limits_not_live_settings": {"max_drawdown_pct": 10, "capital_per_symbol_pct": 20},
+  "promotion_requires": ["live_replay_parity", "positive_net_validation", "positive_net_stressed_costs", "complete_prospective_holdout", "acceptable_drawdown", "independent_review"],
+  "cannot_promote_before": "2027-05-01"
+}
