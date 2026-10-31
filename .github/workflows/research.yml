@@ -1,0 +1,57 @@
+name: Read-only research observations
+on:
+  schedule:
+    - cron: '45 22 * * 1-5'
+    - cron: '30 3 * * 6'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: research-observations
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Offline regression suite
+        run: python -m unittest discover -s tests -v
+      - name: Collect research evidence
+        id: observe
+        shell: bash
+        run: |
+          EXTRA=""
+          if [ "${{ github.event.schedule }}" = "30 3 * * 6" ]; then EXTRA="--weekly"; fi
+          python -m research.cloud --output outputs/research_cloud/current $EXTRA
+      - name: Preserve sanitized results even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-${{ github.run_id }}
+          path: outputs/research_cloud/current/*.json
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Archive successful summaries permanently
+        if: success()
+        shell: bash
+        run: |
+          mkdir -p outputs/research_cloud/history/${{ github.run_id }}
+          cp outputs/research_cloud/current/*.json outputs/research_cloud/history/${{ github.run_id }}/
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -f outputs/research_cloud/history/${{ github.run_id }}/*.json
+          git commit -m "research: archive observation ${{ github.run_id }}"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 3
+          done
+          exit 1
