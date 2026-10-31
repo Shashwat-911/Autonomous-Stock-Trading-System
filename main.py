@@ -586,6 +586,9 @@ def run_live():
                     except Exception:
                         logger.warning("Daily trend unavailable for %s: new entries blocked", ticker)
 
+                    replay_context = {"market_regime_bullish": regime["is_bullish"],
+                                      "daily_trend_bullish": daily_trend_bullish,
+                                      "entry_allowed": allow_new_entries and daily_trend_bullish is not None}
                     tick = brokers[ticker].run_tick(
                         df,
                         market_regime_bullish=regime["is_bullish"],
@@ -595,6 +598,8 @@ def run_live():
                     )
 
                     try:
+                        from analytics.private_evidence import archive
+                        archive(ticker, df, tick, replay_context)
                         from analytics.decision_evidence import decision_event
                         import json
                         print(json.dumps(decision_event(ticker, df, tick,
