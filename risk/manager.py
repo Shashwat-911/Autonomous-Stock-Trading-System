@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import math
+from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -88,6 +90,8 @@ class RiskManager:
         self.risk_pct_per_trade: float = risk_pct_per_trade
 
         # Daily tracking state
+        self._session_date = None
+        self.entries_ready = False
         self._day_start_balance: float = initial_balance
         self._daily_loss_breached: bool = False
 
@@ -134,7 +138,7 @@ class RiskManager:
             The reference timestamp to use when evaluating the cooldown
             period.  Pass the current **bar's timestamp** during backtesting
             so that cooldown logic is based on candle time rather than
-            wall-clock time.  Defaults to ``datetime.now()``.
+            wall-clock time.  Defaults to ``datetime.now(timezone.utc)``.
 
         Returns
         -------
@@ -142,7 +146,9 @@ class RiskManager:
             ``(True, "OK")`` if trading is allowed, otherwise
             ``(False, reason)`` describing which limit was breached.
         """
-        now = as_of if as_of is not None else datetime.now()
+        now = as_of if as_of is not None else datetime.now(timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
 
         # 1. Check daily loss limit
         daily_loss_pct = (
@@ -260,7 +266,7 @@ class RiskManager:
             The reference timestamp used as the cooldown start time.
             Pass the current **bar's timestamp** during backtesting so
             that the cooldown is calculated from candle time, not wall-clock
-            time.  Defaults to ``datetime.now()``.
+            time.  Defaults to ``datetime.now(timezone.utc)``.
 
         Returns
         -------
@@ -276,7 +282,9 @@ class RiskManager:
 
         if loss_pct >= self.max_trade_loss_pct:
             self._stop_loss_count += 1
-            now = as_of if as_of is not None else datetime.now()
+            now = as_of if as_of is not None else datetime.now(timezone.utc)
+            if now.tzinfo is None:
+                now = now.replace(tzinfo=timezone.utc)
             self._cooldown_until = now + timedelta(minutes=self.cooldown_minutes)
             self._save_state()
             reason = (
@@ -435,69 +443,64 @@ class RiskManager:
         os.makedirs("outputs", exist_ok=True)
         return "outputs/risk_state.json"
 
-    def _save_state(self) -> None:
-        """Persist circuit breaker state to disk after every mutation."""
-        state = {
-            "daily_loss_breached": self._daily_loss_breached,
-            "cooldown_until": (
-                self._cooldown_until.isoformat()
-                if self._cooldown_until is not None else None
-            ),
-            "stop_loss_count": self._stop_loss_count,
-            "day_start_balance": self._day_start_balance,
-            "saved_at": datetime.now(timezone.utc).isoformat(),
-        }
-        try:
-            with open(self._state_filepath(), "w") as f:
-                json.dump(state, f, indent=2)
-        except Exception as e:
-            logger.warning(f"Could not save risk state: {e}")
-
-    def _load_state(self) -> None:
-        """Load persisted circuit breaker state at startup. Clears stale cooldowns."""
-        fp = self._state_filepath()
-        if not os.path.exists(fp):
+    def begin_live_session(self, baseline, now):
+        """Preserve same-day state. Missing/corrupt history blocks new entries today."""
+        if now.tzinfo is None or not math.isfinite(baseline) or baseline <= 0:
+            raise ValueError("Invalid session clock or broker baseline")
+        day = now.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+        if self._session_date == day:
             return
+        known_prior = self._session_date is not None and self._session_date < day
+        self._session_date = day
+        self._day_start_balance = baseline
+        self._daily_loss_breached = False
+        self._cooldown_until = None
+        self._stop_loss_count = 0
+        self.entries_ready = known_prior
+        self._save_state()
+        if not self.entries_ready:
+            logger.error("Risk history unavailable: new entries disabled for %s; exits remain active", day)
+
+    def _save_state(self):
+        state = dict(session_date=self._session_date, entries_ready=self.entries_ready,
+                     daily_loss_breached=self._daily_loss_breached,
+                     cooldown_until=self._cooldown_until.isoformat() if self._cooldown_until else None,
+                     stop_loss_count=self._stop_loss_count, day_start_balance=self._day_start_balance)
+        path = self._state_filepath()
         try:
-            with open(fp) as f:
-                state = json.load(f)
+            with open(path + ".tmp", "w") as stream:
+                json.dump(state, stream)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(path + ".tmp", path)
+        except Exception:
+            self.entries_ready = False
+            logger.error("Risk persistence failed: new entries disabled")
 
-            saved_at_str = state.get("saved_at")
-            if saved_at_str:
-                saved_at = datetime.fromisoformat(saved_at_str)
-                if saved_at.tzinfo is None:
-                    saved_at = saved_at.replace(tzinfo=timezone.utc)
-                age_hours = (
-                    datetime.now(timezone.utc) - saved_at
-                ).total_seconds() / 3600
-                # State older than 18 hours is from a previous session — ignore it
-                if age_hours > 18:
-                    logger.info("Risk state file is stale (>18h) — starting fresh.")
-                    return
-
-            self._daily_loss_breached = state.get("daily_loss_breached", False)
-            self._stop_loss_count = state.get("stop_loss_count", 0)
-
-            cooldown_str = state.get("cooldown_until")
-            if cooldown_str:
-                cd = datetime.fromisoformat(cooldown_str)
-                if cd.tzinfo is None:
-                    cd = cd.replace(tzinfo=timezone.utc)
-                # Only restore cooldown if it hasn't expired yet
-                if cd > datetime.now(timezone.utc):
-                    self._cooldown_until = cd
-                    logger.warning(
-                        f"Restored active cooldown from disk — expires at {cd}"
-                    )
-                else:
-                    logger.info("Cooldown from disk has already expired — cleared.")
-
-            logger.info(
-                f"Risk state loaded: breached={self._daily_loss_breached}, "
-                f"stop_loss_count={self._stop_loss_count}"
-            )
-        except Exception as e:
-            logger.warning(f"Could not load risk state: {e}")
+    def _load_state(self):
+        try:
+            with open(self._state_filepath()) as stream:
+                state = json.load(stream)
+            day = state["session_date"]
+            datetime.strptime(day, "%Y-%m-%d")
+            baseline = float(state["day_start_balance"])
+            if not math.isfinite(baseline) or baseline <= 0:
+                raise ValueError("Invalid baseline")
+            for key in ("entries_ready", "daily_loss_breached"):
+                if not isinstance(state[key], bool):
+                    raise ValueError("Invalid flag")
+            cooldown = datetime.fromisoformat(state["cooldown_until"]) if state["cooldown_until"] else None
+            if cooldown and cooldown.tzinfo is None:
+                raise ValueError("Naive cooldown")
+            self._session_date = day
+            self._day_start_balance = baseline
+            self._daily_loss_breached = state["daily_loss_breached"]
+            self._cooldown_until = cooldown
+            self._stop_loss_count = int(state["stop_loss_count"])
+            self.entries_ready = state["entries_ready"]
+        except (OSError, ValueError, KeyError, TypeError):
+            self._session_date = None
+            self.entries_ready = False
 
     def get_status(self) -> dict:
         """
@@ -509,7 +512,7 @@ class RiskManager:
         dict
             Dictionary containing all current risk state fields.
         """
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         cooldown_active = (
             self._cooldown_until is not None and now < self._cooldown_until
         )

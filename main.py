@@ -507,8 +507,8 @@ def run_live():
 
     # Sync circuit breaker baseline to actual broker equity (not config hardcode)
     actual_equity = account.get("equity", config.TRADING["initial_balance"])
-    rm.sync_day_start_balance(actual_equity)
-    rm.reset_daily_state()
+    from risk.startup import initialize_live_risk
+    initialize_live_risk(rm, first_broker, account)
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
     logger.info("Execution source=%s | revision=%s | run=%s | PID=%s",
                 os.getenv("TRADING_EXECUTION_SOURCE", "local-unidentified"),
@@ -556,7 +556,7 @@ def run_live():
                 entry_clock = first_broker.get_clock()
             except Exception:
                 entry_clock = None
-            allow_new_entries = not _eod_triggered and _should_allow_new_entries(
+            allow_new_entries = rm.entries_ready and not _eod_triggered and _should_allow_new_entries(
                 min_hours_for_entries=_cutoff_hours, clock=entry_clock)
             if not allow_new_entries:
                 logger.info(
@@ -573,7 +573,7 @@ def run_live():
                     df = add_all_indicators(df)
 
                     # Multi-timeframe: check daily trend
-                    daily_trend_bullish = True
+                    daily_trend_bullish = None
                     try:
                         daily_df = get_historical_data(
                             ticker,
@@ -581,19 +581,17 @@ def run_live():
                             datetime.now().strftime("%Y-%m-%d"),
                             "1d",
                         )
-                        if len(daily_df) >= 20:
-                            daily_sma = daily_df["Close"].rolling(20).mean().iloc[-1]
-                            daily_close = daily_df["Close"].iloc[-1]
-                            daily_trend_bullish = daily_close > daily_sma
+                        from strategy.data_quality import daily_trend
+                        daily_trend_bullish = daily_trend(daily_df)
                     except Exception:
-                        pass  # default to bullish if daily fetch fails
+                        logger.warning("Daily trend unavailable for %s: new entries blocked", ticker)
 
                     tick = brokers[ticker].run_tick(
                         df,
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
                         pending_exposure=pending_exposure_dollars,
-                        allow_new_entries=allow_new_entries,
+                        allow_new_entries=allow_new_entries and daily_trend_bullish is not None,
                     )
 
                     # Track pending exposure for subsequent tickers in this scan
