@@ -68,3 +68,22 @@ No candidate approved for deployment. Passing offline tests verifies covered
 software behavior, not profitability or absence of all errors. The full strategy
 promotion objective remains blocked by prospective observations, hourly replay
 parity, missing historical decision evidence and independent review.
+
+## Cloud automation (added October 31)
+
+GitHub Actions `research.yml` runs read-only account observations weekdays at
+22:45 UTC and the fixed historical comparison Saturdays at 03:30 UTC. Manual
+workflow dispatch runs the daily observation. Render remains the only trading
+owner. Jobs cannot submit orders. Missing credentials or data produce FAILED,
+not a successful strategy evaluation. Public output contains aggregate metrics,
+code/protocol hashes and uncertainty; raw accounts/orders/fills are not uploaded.
+Successful summaries are committed under outputs/research_cloud/history with
+unique run IDs for durable evidence; artifacts retain 90 days of supplementary
+results. GitHub schedule delays are possible; these jobs are not execution timers.
+
+This automates the implemented research commands, not a prospective candidate
+portfolio. The daily job observes the existing paper account. It must not be
+presented as forward validation of the new ETF candidate. Historical version data
+cannot be recovered retroactively. Full hourly replay and a prospective candidate
+execution record remain uncompleted requirements. Monday readiness means the
+scheduled tooling is installed, not that the strategy has passed its holdout.
