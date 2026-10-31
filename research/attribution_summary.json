@@ -1,0 +1,15 @@
+{
+  "episodes": 70,
+  "gross_pnl": "-452.54",
+  "overnight_episodes": 4,
+  "exit_evidence": {
+    "unknown": 56,
+    "broker_stop": 14
+  },
+  "unknown_entry_versions": 70,
+  "limitations": [
+    "Order type establishes mechanism, not full causal attribution.",
+    "Historical quotes and order-linked decision/version traces unavailable."
+  ],
+  "account_mutations": 0
+}
