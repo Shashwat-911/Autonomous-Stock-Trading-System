@@ -108,3 +108,25 @@ Still unverified/incomplete: end-to-end alert delivery, external durable private
 raw-input/order-event retention, faithful live replay, model-promotion evaluation,
 Render deployment state and future prospective results. Do not equate these
 implemented components with completion of the full validation objective.
+
+## Private replay storage and deployment checkpoint
+
+A dedicated private GitHub repository Autonomous-Stock-Trading-Evidence stores
+compressed replay bundles. Uploads check repository privacy, use Render's existing
+GIT_TOKEN, retry three times, and retain failed bundles locally. Network writes run
+in a background thread so broker execution does not wait on GitHub. Ephemeral disk
+loss before successful upload can still lose evidence; this is not an exactly-once
+remote journal. The private repo received a credential-free connectivity probe.
+The Render token must have write access to that private repo; local success does
+not prove its remotely configured token has identical permissions.
+
+A weekday after-close evidence workflow fails if no bundle commit was uploaded
+since market open. It proves freshness only, not complete coverage. GitHub workflow
+failures are the selected alert channel; user email/app delivery settings remain
+external to this repository.
+
+Bundles include input CSV, config, revision and observed decision. Offline replay
+requires the exact code revision and returns unavailable when evidence is missing.
+It is SIGNAL replay, not a certified execution simulator: broker responses, partial
+fills and complete risk event ordering are not reconstructed by this tool.
+Prior historical gaps remain unknown. No replacement strategy is approved.

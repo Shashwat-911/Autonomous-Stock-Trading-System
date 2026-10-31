@@ -1,0 +1,22 @@
+name: Private evidence freshness
+on:
+  schedule:
+    - cron: '55 22 * * 1-5'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install python-dotenv
+      - run: python scripts/check_private_evidence.py
