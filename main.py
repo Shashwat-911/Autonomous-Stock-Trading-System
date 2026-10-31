@@ -594,6 +594,14 @@ def run_live():
                         allow_new_entries=allow_new_entries and daily_trend_bullish is not None,
                     )
 
+                    try:
+                        from analytics.decision_evidence import decision_event
+                        import json
+                        print(json.dumps(decision_event(ticker, df, tick,
+                              allow_new_entries and daily_trend_bullish is not None)), flush=True)
+                    except Exception:
+                        logger.error("Decision evidence unavailable for %s", ticker)
+
                     # Track pending exposure for subsequent tickers in this scan
                     if tick.get("action") == "BUY":
                         order_value = tick.get("order_value", 0.0)

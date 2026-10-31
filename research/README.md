@@ -87,3 +87,24 @@ presented as forward validation of the new ETF candidate. Historical version dat
 cannot be recovered retroactively. Full hourly replay and a prospective candidate
 execution record remain uncompleted requirements. Monday readiness means the
 scheduled tooling is installed, not that the strategy has passed its holdout.
+
+## Additional implementation checkpoint
+
+- ML research is in its own Sunday workflow; account reporting no longer depends
+  on training or optimization success. Artifacts are retained 90 days, not forever.
+- Render blueprint ignores research/ changes. Actual dashboard synchronization
+  must still be verified before relying on this setting.
+- Daily research advances an isolated ETF shadow portfolio after close. November 2
+  is the registered start; initial signals execute on the next observed open.
+  State/generations are committed with research results. Repeated same-day runs
+  are idempotent. Missing sessions or changed experiment hashes stop the experiment.
+  This is price-only OHLC simulation, not broker execution; dividends excluded.
+- Explicit evidence gates return PASS/FAIL/UNKNOWN and cannot deploy anything.
+- Trading stdout now includes sanitized code/config/input hashes and decisions;
+  existing log archival retains these events. Raw input hashes alone do not allow
+  exact replay, and this is not durable private raw-data storage.
+
+Still unverified/incomplete: end-to-end alert delivery, external durable private
+raw-input/order-event retention, faithful live replay, model-promotion evaluation,
+Render deployment state and future prospective results. Do not equate these
+implemented components with completion of the full validation objective.
