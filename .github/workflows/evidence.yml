@@ -19,4 +19,5 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install python-dotenv
-      - run: python scripts/check_private_evidence.py
+      - run: python -m scripts.check_private_evidence
+
