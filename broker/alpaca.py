@@ -151,6 +151,7 @@ class AlpacaPaperBroker:
             "portfolio_value": float(account.portfolio_value),
             "buying_power": float(account.buying_power),
             "equity": float(account.equity),
+            "last_equity": float(account.last_equity),
             "daytrade_count": getattr(account, "daytrade_count", 0),
         }
 
@@ -626,7 +627,7 @@ class AlpacaPaperBroker:
             state["trailing_activated"] = True
             new_stop = round(current_price - (trail_mult * atr), 2)
             logger.info(
-                "TRAILING STOP ACTIVATED for %s: gain=$%.2f >= %.1f×ATR($%.2f). "
+                "HYPOTHETICAL TRAILING LEVEL (NOT BROKER ENFORCED) for %s: gain=$%.2f >= %.1f×ATR($%.2f). "
                 "New mental stop=$%.2f (was $%.2f)",
                 ticker, unrealized_gain, activation_mult, activation_threshold,
                 new_stop, state["stop_price"],
@@ -637,7 +638,7 @@ class AlpacaPaperBroker:
             trail_stop = round(current_price - (trail_mult * atr), 2)
             if trail_stop > state["stop_price"]:
                 logger.info(
-                    "TRAILING STOP RAISED for %s: $%.2f -> $%.2f (price=$%.2f)",
+                    "HYPOTHETICAL TRAILING LEVEL UPDATED (NOT BROKER ENFORCED) for %s: $%.2f -> $%.2f (price=$%.2f)",
                     ticker, state["stop_price"], trail_stop, current_price,
                 )
                 state["stop_price"] = trail_stop
