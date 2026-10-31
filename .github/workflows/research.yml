@@ -32,12 +32,16 @@ jobs:
           EXTRA=""
           if [ "${{ github.event.schedule }}" = "30 3 * * 6" ]; then EXTRA="--weekly"; fi
           python -m research.cloud --output outputs/research_cloud/current $EXTRA
+      - name: Advance isolated ETF shadow portfolio
+        run: python -m research.shadow
       - name: Preserve sanitized results even on failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: research-${{ github.run_id }}
-          path: outputs/research_cloud/current/*.json
+          path: |
+            outputs/research_cloud/current/*.json
+            outputs/research_shadow/status.json
           if-no-files-found: warn
           retention-days: 90
       - name: Archive successful summaries permanently
@@ -49,6 +53,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -f outputs/research_cloud/history/${{ github.run_id }}/*.json
+          if [ -d outputs/research_shadow ]; then git add -f outputs/research_shadow; fi
           git commit -m "research: archive observation ${{ github.run_id }}"
           for attempt in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
