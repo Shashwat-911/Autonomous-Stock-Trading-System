@@ -30,6 +30,31 @@ class ConsumerTests(unittest.TestCase):
             self.assertEqual(text.count(END),1)
             self.assertIn("Unavailable",text)
             self.assertIn("not a validated baseline",text)
+            self.assertEqual(text.count("| Day | Date (New York) |"), 1)
+            self.assertNotIn("| Date | Broker equity |", text)
+            self.assertEqual(text.count("<details>"), 1)
+            self.assertEqual(text.count("</details>"), 1)
+
+    def test_refresh_preserves_chart_and_surrounding_readme(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run_report(snapshot=fixture(), start="2026-10-14", end="2026-10-15",
+                       private_root=root/"private", public_root=root/"public")
+            from analytics.reporting import latest_report
+            folder = latest_report(root/"public")
+            chart = "![Daily P&L Chart](existing-chart.png)"
+            original = ("# Project\n\n" + chart + "\n\n" + START + "\nOld summary\n" + END
+                        + "\n\n### Daily Session Breakdown\nOld table\n\n---\n\n## Setup\nKeep this.\n")
+            (root/"README.md").write_text(original, encoding="utf-8")
+            with patch("scripts.update_readme.ROOT", root), patch("scripts.update_readme.latest_report", return_value=folder):
+                update_readme()
+                first = (root/"README.md").read_text(encoding="utf-8")
+                update_readme()
+            text = (root/"README.md").read_text(encoding="utf-8")
+            self.assertEqual(first, text)
+            self.assertIn(chart, text)
+            self.assertIn("## Setup\nKeep this.", text)
+            self.assertEqual(text.count("| Day | Date (New York) |"), 1)
 
     def test_equity_script_import_does_not_fetch_or_overwrite_legacy(self):
         # The export is now guarded by main; importing it cannot touch the broker.
