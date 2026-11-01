@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-      - run: pip install -r requirements.txt optuna
+      - run: pip install -r requirements.txt
       - name: Record environment
         run: |
           mkdir -p outputs/ml_research
@@ -32,7 +32,6 @@ jobs:
             ml/research_meta_model.pkl
             ml/training_data.csv
             ml/feature_importance.csv
-            ml/optimal_params.json
-            ml/optimization_results.csv
+            ml/training_status.json
             outputs/ml_research/
           retention-days: 90
