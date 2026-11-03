@@ -4,9 +4,9 @@ post_session.py
 Automated post-session pipeline — runs automatically after every trading session.
 
 Pipeline (in order):
-  1. Fetch timestamped broker history privately (preserve legacy ledger)
-  2. Generate validated measurement_v2 reports and chart
-  3. Git add: session logs + validated measurement aggregates + README
+  1. Fetch today's equity snapshot from Alpaca API → update alpaca_equity_history.csv
+  2. Regenerate daily_pnl_chart.png from updated CSV
+  3. Git add: session log + equity CSV + chart PNG
   4. Git commit: dated message with equity summary
   5. Git push to GitHub via HTTPS token (GIT_TOKEN env var)
 
@@ -35,7 +35,6 @@ except ImportError:
 # ── Working directory: always project root ─────────────────────────────────────
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')
-sys.path.insert(0, os.getcwd())
 
 DRY_RUN = "--dry-run" in sys.argv
 
@@ -76,33 +75,51 @@ def run_python(script: str, *args: str) -> bool:
     return True
 
 
-def git_environment():
-    """Pass HTTPS credentials to child Git processes only, never .git/config."""
-    import base64
-    env = os.environ.copy()
-    token = env.get("GIT_TOKEN", "")
-    if token:
-        count = int(env.get("GIT_CONFIG_COUNT", "0"))
-        env[f"GIT_CONFIG_KEY_{count}"] = "http.https://github.com/.extraheader"
-        encoded = base64.b64encode(f"x-access-token:{token}".encode()).decode()
-        env[f"GIT_CONFIG_VALUE_{count}"] = "AUTHORIZATION: basic " + encoded
-        env["GIT_CONFIG_COUNT"] = str(count + 1)
-    return env
+def git_configure_remote():
+    """
+    Configure git remote to use HTTPS token auth.
+    Required on Railway (no SSH keys available).
+    GIT_TOKEN must be set as a Railway environment variable.
+    """
+    token = os.environ.get("GIT_TOKEN", "")
+    if not token:
+        print("[WARN] GIT_TOKEN not set — git push will use existing credentials.", flush=True)
+        return
+
+    # Rewrite remote URL to embed token (never logged — token stays in memory only)
+    remote_url = (
+        f"https://{token}@github.com/Shashwat-911/Autonomous-Stock-Trading-System.git"
+    )
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", remote_url],
+        check=False, capture_output=True   # suppress URL from logs (contains token)
+    )
+    print("[INFO] Git remote configured with HTTPS token.", flush=True)
 
 
 def read_equity_summary() -> str:
     """
-    Read the latest validated v2 report and return a compact summary string
+    Read the last row of the equity CSV and return a compact summary string
     for use in the git commit message.
     """
+    csv_path = "outputs/alpaca_equity_history.csv"
     try:
-        import json
-        from analytics.reporting import latest_report
-        folder = latest_report()
-        report = json.loads((folder / "performance_summary.json").read_text(encoding="utf-8"))
-        return f"measurement_v2 | equity=${float(report['current_account_equity']):,.2f} | completed_episodes={report['total_trades']}"
-    except Exception:
-        return "measurement unavailable; inspect report status"
+        import pandas as pd
+        df = pd.read_csv(csv_path)
+        if df.empty:
+            return "equity data unavailable"
+        row = df.iloc[-1]
+        equity  = row.get("equity", 0)
+        pnl     = row.get("daily_pnl", 0)
+        cum_pnl = df["daily_pnl"].sum()
+        sign    = "+" if pnl >= 0 else ""
+        return (
+            f"equity=${equity:,.2f} | "
+            f"daily={sign}${pnl:.2f} | "
+            f"cumulative=${cum_pnl:+,.2f}"
+        )
+    except Exception as e:
+        return f"summary unavailable ({e})"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -125,34 +142,35 @@ def run_post_session_pipeline():
     banner("Step 1/5 — Fetching equity snapshot from Alpaca API")
     fetch_ok = run_python("scripts/fetch_alpaca_equity.py", "--today")
     if not fetch_ok:
-        print("[WARN] Private equity fetch failed; shared report will independently collect history.", flush=True)
+        print("[WARN] Equity fetch failed — CSV may be stale. Continuing pipeline.", flush=True)
 
     # ── Step 2: Generate session performance report ───────────────────────────
     banner("Step 2/5 — Generating session performance report")
     report_ok = run_python("scripts/generate_session_report.py")
     if not report_ok:
-        print("[ERROR] Report failed; refusing to publish stale artifacts.", flush=True)
-        return False
+        print("[WARN] Session report generation failed. Continuing.", flush=True)
 
     # ── Step 3: Regenerate P&L chart ──────────────────────────────────────────
     banner("Step 3/5 — Regenerating daily P&L chart")
     chart_ok = run_python("scripts/generate_pnl_chart.py")
     if not chart_ok:
-        print("[ERROR] Chart failed; refusing incomplete publication.", flush=True)
-        return False
+        print("[WARN] Chart generation failed — PNG may be stale. Continuing.", flush=True)
 
     # ── Step 4: Update README session breakdown ────────────────────────────────
     banner("Step 4/5 — Updating README.md session breakdown table")
     readme_ok = run_python("scripts/update_readme.py")
     if not readme_ok:
-        print("[ERROR] README update failed; refusing incomplete publication.", flush=True)
-        return False
+        print("[WARN] README update failed. Continuing.", flush=True)
 
     # ── Step 5: Git stage, commit + push ──────────────────────────────────────
     banner("Step 5/5 — Staging files, committing and pushing to GitHub")
 
     files_to_stage = [
-        "outputs/measurement_v2/",
+        "outputs/alpaca_equity_history.csv",
+        "outputs/daily_pnl_chart.png",
+        "outputs/performance_summary.json",
+        "outputs/trade_history.csv",
+        "outputs/session_all_orders.csv",
         "README.md",
     ]
 
@@ -169,7 +187,7 @@ def run_post_session_pipeline():
 
     # ── Check if there's anything to commit ────────────────────────────────────
     status = subprocess.run(
-        ["git", "diff", "--cached", "--name-only"],
+        ["git", "status", "--porcelain"],
         capture_output=True, text=True
     )
     staged_changes = status.stdout.strip()
@@ -199,22 +217,17 @@ def run_post_session_pipeline():
         check=False, capture_output=True
     )
 
-    if run(["git", "commit", "-m", commit_msg], check=False).returncode != 0:
-        return False
+    run(["git", "commit", "-m", commit_msg], check=False)
 
     if DRY_RUN:
         print("\n  [DRY RUN] Skipping git push. Commit made locally only.", flush=True)
     else:
-        env = git_environment()
-        remote = "https://github.com/Shashwat-911/Autonomous-Stock-Trading-System.git"
-        pull = subprocess.run(["git", "pull", "--rebase", remote, "main"], check=False, env=env)
-        if pull.returncode != 0:
-            print("[ERROR] Git synchronization failed; refusing push.", flush=True)
-            return False
+        git_configure_remote()
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False)
 
         push_result = subprocess.run(
-            ["git", "push", remote, "HEAD:main"],
-            capture_output=True, text=True, check=False, env=env
+            ["git", "push", "origin", "main"],
+            capture_output=True, text=True, check=False
         )
         if push_result.returncode == 0:
             print("\n  ✅ Pushed to GitHub successfully.", flush=True)

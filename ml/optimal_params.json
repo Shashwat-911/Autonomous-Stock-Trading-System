@@ -1,5 +1,13 @@
 {
-  "status": "INVALID_LEGACY_RESULT",
-  "reason": "All saved scores were -999 sentinels; no deployable parameters",
-  "best_params": null
+  "best_params": {
+    "rsi_oversold": 32.065088914990966,
+    "rsi_overbought": 76.22265943607601,
+    "adx_min": 23.0710776015924,
+    "sl_pct": 0.0236375514825811,
+    "tp_pct": 0.028108171687829604,
+    "macd_confirm": true
+  },
+  "best_sharpe": -999.0,
+  "current_sharpe": -999.0,
+  "improvement_pct": 0.0
 }

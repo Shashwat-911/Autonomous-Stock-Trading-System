@@ -1,39 +1,58 @@
-"""Weekly research model training. Legacy optimization is not a deployment gate."""
+"""
+Master ML pipeline runner.
+Run this once to build the full ML system:
+  python ml/run_pipeline.py
+
+Steps:
+  1. Fetch 5 years of historical data + compute features
+  2. Train LightGBM meta-labeling model
+  3. Run Bayesian parameter optimization
+  4. Print summary and recommended config changes
+"""
+import os, sys
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..')))
+
+ML_DIR = os.path.dirname(os.path.abspath(__file__))
+
+print("="*60)
+print("AUTONOMOUS TRADING AGENT - ML PIPELINE")
+print("="*60)
+
+# Step 1: Build dataset
+print("\n[1/3] Building training dataset (5 years, 5 tickers)...")
+from ml.data_pipeline import build_dataset
+df = build_dataset()
+os.makedirs(ML_DIR, exist_ok=True)
+training_csv = os.path.join(ML_DIR, "training_data.csv")
+df.to_csv(training_csv)
+print(f"Dataset: {len(df)} samples saved")
+
+# Step 2: Train model
+print("\n[2/3] Training LightGBM meta-labeling model...")
+from ml.train_model import train_meta_labeling_model
+model, features = train_meta_labeling_model(data_path=training_csv)
+print("Model trained and saved")
+
+# Step 3: Bayesian optimization
+print("\n[3/3] Running Bayesian parameter optimization...")
+print("(50 trials - takes 3-5 minutes)")
+from ml.optimize import run_optimization
+best_params = run_optimization(n_trials=50)
+
+# Final summary
 import json
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+print("\n" + "="*60)
+print("ML PIPELINE COMPLETE")
+print("="*60)
+print("\nFiles created:")
+print("  ml/training_data.csv      - 5yr feature matrix")
+print("  ml/meta_model.pkl         - trained LightGBM model")
+print("  ml/feature_importance.csv - top predictive features")
+print("  ml/optimal_params.json    - Bayesian optimal params")
+print("  ml/optimization_results.csv - all trials")
 
-
-def run_training(build=None, train=None, output=None):
-    if build is None:
-        from ml.data_pipeline import build_dataset
-        build = build_dataset
-    if train is None:
-        from ml.train_model import train_meta_labeling_model
-        train = train_meta_labeling_model
-    output = Path(output or Path(__file__).resolve().parent)
-    output.mkdir(parents=True, exist_ok=True)
-    status = {'model_status':'RUNNING', 'promotion_eligible':False,
-              'optimization_status':'DISABLED_UNVALIDATED_LEGACY_SIMULATOR',
-              'reason':'Legacy optimizer does not reproduce live execution; run separately only for research.'}
-    path = output/'training_status.json'
-    path.write_text(json.dumps(status,indent=2))
-    try:
-        data = build()
-        if data.empty:
-            raise ValueError('No training samples')
-        training = output/'training_data.csv'
-        data.to_csv(training)
-        train(data_path=str(training))
-        status.update(model_status='TRAINED_RESEARCH_ONLY', samples=len(data))
-    except Exception as exc:
-        status.update(model_status='FAILED',error_type=type(exc).__name__)
-        raise
-    finally:
-        path.write_text(json.dumps(status,indent=2))
-    print(json.dumps(status,indent=2))
-    return status
-
-if __name__ == '__main__':
-    run_training()
+print("\nNext step:")
+print("  Review ml/optimal_params.json")
+print("  Update config.py with recommended values")
+print("  Integrate MetaLabelPredictor into signals.py")

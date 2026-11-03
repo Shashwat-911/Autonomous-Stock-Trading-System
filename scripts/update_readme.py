@@ -1,77 +1,174 @@
-"""Refresh the account summary and one collapsible daily-history table."""
-import csv
+"""
+update_readme.py
+================
+Auto-updates the Daily Session Breakdown table in README.md
+from the latest outputs/alpaca_equity_history.csv data.
+
+Usage:
+  python scripts/update_readme.py
+"""
+
+import pandas as pd
 import json
+import os
 import re
-from pathlib import Path
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analytics.reporting import latest_report, ROOT
-
-START = "<!-- MEASUREMENT_V2_START -->"
-END = "<!-- MEASUREMENT_V2_END -->"
+from datetime import datetime, timezone
 
 
-def render_block(folder):
-    summary = json.loads((folder/"performance_summary.json").read_text(encoding="utf-8"))
-    def money(value):
-        return f"${float(value):,.2f}" if value not in (None, "") else "Unavailable"
-    rate = summary["win_rate"]
-    lines = [START, "## Corrected account measurement", "",
-        "Mixed-version account history; **not a validated baseline for the current strategy**.",
-        "The earlier unverified session table is archived in docs/LEGACY_SESSION_TABLE.md.", "",
-        f"Period: {summary['period_start']} through {summary['period_end']} (New York dates).",
-        f"Source retrieved: {summary['source_retrieved_at']}. Report generated: {summary['generated_at']}.", "",
-        f"Completed flat-to-flat episodes: **{summary['total_trades']}**; gross win rate: **{rate:.2%}**." if rate is not None else "No completed episodes in this period.",
-        f"Gross expectancy: **{money(summary['expectancy'])}**. Fees are unallocated account-level costs, excluded from trade metrics.", "",
-        f"Latest account snapshot: **{money(summary['current_account_equity'])}** at {summary['current_account_observation']} (separate from daily history).", "",
-        "[Measurement definitions and limitations](docs/MEASUREMENT_V2.md)", END]
-    return "\n".join(lines)
-
-
-def render_daily_table(folder):
-    with (folder/"daily_account_measurement.csv").open(encoding="utf-8", newline="") as stream:
-        daily = list(csv.DictReader(stream))
-    def money(value):
-        return f"${float(value):,.2f}" if value not in (None, "") else "Unavailable"
-    lines = ["### Daily Session Breakdown", "", "<details>", "<summary>View daily account history and session logs</summary>", "",
-             "Validated account measurements (mixed strategy versions). Realized P&L excludes fees and open-position P&L.", "",
-             "| Day | Date (New York) | Broker equity | Gross realized P&L | Cumulative gross realized | Equity change | Session log |",
-             "|---:|---|---:|---:|---:|---:|---|"]
-    from decimal import Decimal
-    cumulative = Decimal(0)
-    for index, row in enumerate(daily, 1):
-        cumulative += Decimal(row["gross_realized_pnl"])
-        log = ROOT/"outputs/logs"/("session_"+row["date"].replace("-", "_")+".txt")
-        link = f"[Log]({log.relative_to(ROOT).as_posix()})" if log.exists() else "Not archived"
-        lines.append(f"| {index} | {row['date']} | {money(row['equity'])} | {money(row['gross_realized_pnl'])} | {money(cumulative)} | {money(row['equity_change_since_prior_observation'])} | {link} |")
-    lines += ["", "[Archived legacy table — unverified](docs/LEGACY_SESSION_TABLE.md). Missing equity is never estimated from the current account snapshot.", "", "</details>", ""]
-    return "\n".join(lines)
+def get_session_status(date_str, pnl):
+    """Return a human readable status for the session."""
+    notes = {
+        "2026-08-11": "First Trade - NVDA Bought",
+        "2026-08-12": "100-Ticker Chaos",
+        "2026-08-13": "Rebuilt Clean",
+        "2026-08-14": "5-Ticker Stable",
+        "2026-08-17": "Multi-ticker Session",
+        "2026-08-18": "Bracket Tuning - Profitable",
+        "2026-08-19": "RSI Experiment",
+        "2026-08-20": "Simple Reset - Profitable",
+        "2026-08-21": "Disciplined HOLD",
+        "2026-08-24": "Post-cleanup Fresh Start",
+        "2026-08-25": "Pre-earnings Watch",
+        "2026-08-26": "NVDA Earnings - Disciplined HOLD",
+        "2026-08-27": "Momentum Strategy - First Live Session",
+        "2026-08-28": "Momentum Whipsaw - Hard Learning Day",
+        "2026-08-31": "Sideways Market - Disciplined HOLD",
+        "2026-09-01": "MACD Bearish - Disciplined HOLD",
+        "2026-09-02": "RSI Threshold Adjusted to 45",
+        "2026-09-03": "Active Session",
+        "2026-09-04": "Bullish Rally - Disciplined HOLD / Best Day (+0.18%)",
+        "2026-09-07": "Labor Day Holiday - Disciplined HOLD / Equity $99,576",
+        "2026-09-08": "Active Multi-Ticker Session (-$63.02)",
+    }
+    if date_str in notes:
+        return notes[date_str]
+    if pnl > 50:
+        return f"Profitable Session (+${pnl:.2f})"
+    elif pnl < -100:
+        return f"Loss Session (-${abs(pnl):.2f})"
+    elif abs(pnl) < 1:
+        return "Flat Session - Disciplined HOLD"
+    else:
+        sign = "+" if pnl > 0 else "-"
+        return f"Active Session ({sign}${abs(pnl):.2f})"
 
 
 def update_readme():
-    folder = latest_report()
-    path = ROOT/"README.md"
-    text = path.read_text(encoding="utf-8")
-    block = render_block(folder)
-    if START in text and END in text:
-        before, rest = text.split(START,1)
-        _, after = rest.split(END,1)
-        text = before+block+after
-    else:
-        title, rest = text.split("\n",1)
-        text = title+"\n\n"+block+"\n"+rest
-    chart = folder/"daily_pnl_chart.png"
-    if chart.exists():
-        reference = f"![Daily P&L Chart]({chart.relative_to(ROOT).as_posix()})"
-        text = re.sub(r"!\[Daily P&L Chart\]\([^\n]+\)", lambda _: reference, text)
-    daily_table = render_daily_table(folder)
-    if "### Daily Session Breakdown\n" in text:
-        text = re.sub(r"### Daily Session Breakdown\n.*?(?=\n---|\Z)",
-                      lambda _: daily_table, text, flags=re.S)
-    else:
-        text = text.replace(END, END + "\n\n" + daily_table + "\n---", 1)
-    path.write_text(text,encoding="utf-8")
-    print("Updated corrected-measurement block; legacy content preserved.")
+    # ── Paths ──────────────────────────────────────────────────────────────────
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    csv_path     = os.path.join(project_root, "outputs", "alpaca_equity_history.csv")
+    readme_path  = os.path.join(project_root, "README.md")
+
+    if not os.path.exists(csv_path):
+        print(f"[ERROR] No equity history CSV found at: {csv_path}")
+        return
+
+    # ── Load equity history ────────────────────────────────────────────────────
+    df = pd.read_csv(csv_path)
+    df["date"] = pd.to_datetime(df["timestamp"])
+    df = df.sort_values("date").reset_index(drop=True)
+
+    # Calculate cumulative P&L and return %
+    starting = 100000.0
+    df["cumulative_pnl"] = df["daily_pnl"].cumsum()
+    df["return_pct"]     = (df["cumulative_pnl"] / starting) * 100
+
+    # ── Build session table rows ───────────────────────────────────────────────
+    rows = []
+    for i, row in df.iterrows():
+        day_num    = i + 1
+        date_str   = row["timestamp"]
+        date_obj   = pd.to_datetime(date_str)
+        date_label = date_obj.strftime("%b %d (%a)")
+        equity     = row["equity"]
+        daily_pnl  = row["daily_pnl"]
+        cum_pnl    = row["cumulative_pnl"]
+        ret_pct    = row["return_pct"]
+        status     = get_session_status(date_str, daily_pnl)
+
+        if daily_pnl > 0:
+            pnl_str = f"+${daily_pnl:.2f}"
+        elif daily_pnl < 0:
+            pnl_str = f"-${abs(daily_pnl):.2f}"
+        else:
+            pnl_str = "$0.00"
+
+        cum_str = f"+${cum_pnl:.2f}" if cum_pnl > 0 else f"-${abs(cum_pnl):.2f}"
+
+        # Bold profitable days (>$50)
+        if daily_pnl > 50:
+            pnl_str = f"**{pnl_str}**"
+
+        rows.append(
+            f"| **Day {day_num}** | {date_label} | "
+            f"${equity:,.2f} | {pnl_str} | "
+            f"{cum_str} | {ret_pct:+.3f}% | {status} |"
+        )
+
+    # ── Summary stats ──────────────────────────────────────────────────────────
+    total_pnl      = df["daily_pnl"].sum()
+    current_equity = df["equity"].iloc[-1]
+    win_days       = int((df["daily_pnl"] > 0).sum())
+    loss_days      = int((df["daily_pnl"] < 0).sum())
+    flat_days      = int((df["daily_pnl"] == 0).sum())
+    best_day       = df["daily_pnl"].max()
+    max_drawdown   = df["return_pct"].min()
+    sessions       = len(df)
+    win_rate       = (win_days / sessions * 100) if sessions > 0 else 0
+
+    # ── Build new table block ──────────────────────────────────────────────────
+    table_header = (
+        "### Daily Session Breakdown\n\n"
+        "| Session | Date | Ending Equity | Daily P&L | Cumulative P&L | Return (%) | Status |\n"
+        "|---|---|---|---|---|---|---|"
+    )
+    table_body = "\n".join(rows)
+    footer = (
+        f"\n> **Current Equity**: ${current_equity:,.2f} "
+        f"| **Total P&L**: ${total_pnl:+,.2f} "
+        f"| **Best Day**: ${best_day:+,.2f} "
+        f"| **Win Rate**: {win_rate:.1f}% "
+        f"({win_days}W / {loss_days}L / {flat_days} Flat) "
+        f"| **Max Drawdown**: {max_drawdown:.3f}% "
+        f"| **Sessions**: {sessions}"
+    )
+    new_table = f"{table_header}\n{table_body}\n{footer}"
+
+    # ── Read and patch README ──────────────────────────────────────────────────
+    with open(readme_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    new_content = content
+
+    # 1. Update chart image link with cache-busting version parameter
+    last_date = df["timestamp"].iloc[-1].replace("-", "")
+    chart_pattern = r"!\[Daily P&L Chart\]\(outputs/daily_pnl_chart\.png(?:\?[^)]*)?\)"
+    new_chart_tag = f"![Daily P&L Chart](outputs/daily_pnl_chart.png?v={last_date})"
+    new_content = re.sub(chart_pattern, new_chart_tag, new_content)
+
+    # 2. Update session breakdown table
+    pattern = r"### Daily Session Breakdown.*?(?=\n---|\n## |\Z)"
+    match   = re.search(pattern, new_content, flags=re.DOTALL)
+
+    if not match:
+        print("[WARNING] Could not find '### Daily Session Breakdown' section in README.")
+        print("          The table was NOT updated. Check the README header exactly.")
+        return
+
+    new_content = new_content[:match.start()] + new_table + new_content[match.end():]
+
+    if new_content == content:
+        print(f"[OK] README is already up to date with {sessions} sessions.")
+        return
+
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(new_content)
+
+    print(f"[OK] README updated with {sessions} sessions.")
+    print(f"     Current equity : ${current_equity:,.2f}")
+    print(f"     Total P&L      : ${total_pnl:+,.2f}")
+    print(f"     Win / Loss / Flat: {win_days} / {loss_days} / {flat_days}")
+    print(f"     Max Drawdown   : {max_drawdown:.3f}%")
 
 
 if __name__ == "__main__":

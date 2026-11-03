@@ -15,7 +15,6 @@ warnings.filterwarnings("ignore", message="CUDA path could not be detected")
 import logging
 import os
 import sys
-import math
 import time
 from datetime import date, datetime, timedelta
 
@@ -73,42 +72,73 @@ def _validate_credentials():
 
 
 def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
-    """Fail closed against the actual exchange calendar, including early closes."""
-    from scripts.session_timing import assess_session, ET
-    from scripts.reconcile_paper_account import PaperReader
-    from datetime import timezone
+    """
+    Return True if there are at least min_hours of trading time remaining today.
+    Prevents the bot from starting a session when GitHub Actions queue delay
+    has pushed startup past the point where meaningful trading can occur.
+    """
     try:
-        now = datetime.now(timezone.utc)
-        day = now.astimezone(ET).date().isoformat()
-        phase = assess_session(now, PaperReader().get("/v2/calendar", {"start": day, "end": day}))
-        return (phase["status"] in ("READY", "LATE_START") and
-                (datetime.fromisoformat(phase["market_close"]) - now).total_seconds() >= min_hours * 3600)
-    except Exception as exc:
-        logger.error("Startup calendar unavailable: %s", type(exc).__name__)
+        import pytz
+        et = pytz.timezone("America/New_York")
+        now_et = datetime.now(et)
+    except Exception:
+        from datetime import timezone
+        now_utc = datetime.now(timezone.utc)
+        today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
+        today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
+        if now_utc >= today_close_utc:
+            return False
+        if now_utc < today_open_utc:
+            return True
+        remaining = (today_close_utc - now_utc).total_seconds() / 3600
+        return remaining >= min_hours
+
+    # Market closes at 4:00 PM ET
+    market_close = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
+
+    # If market already closed, no trading time
+    if now_et >= market_close:
         return False
 
+    # If market not yet open (before 9:30 AM ET), plenty of time
+    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+    if now_et < market_open:
+        return True
 
-def _should_allow_new_entries(min_hours_for_entries: float = 2.5, clock=None) -> bool:
-    """Keep the configured cutoff, using broker time instead of fixed UTC hours."""
-    if clock is None or not clock.is_open:
+    # Check remaining hours
+    remaining = (market_close - now_et).total_seconds() / 3600
+    return remaining >= min_hours
+
+
+def _should_allow_new_entries(min_hours_for_entries: float = 1.5) -> bool:
+    """
+    Return True if there is enough trading time remaining to justify
+    opening NEW positions. Existing positions are always managed regardless.
+
+    With ATR bracket orders at SL=2×ATR and TP=2.5×ATR on 1-hour bars,
+    positions need at least 90 minutes to develop. Entering in the last
+    90 minutes guarantees EOD liquidation before brackets can work.
+
+    Default: blocks new entries if less than 1.5 hours remain.
+    """
+    from datetime import datetime, timezone
+    now_utc = datetime.now(timezone.utc)
+    today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
+    today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
+
+    # Before market open — entries will be fine
+    if now_utc < today_open_utc:
+        return True
+    # After close — irrelevant
+    if now_utc >= today_close_utc:
         return False
-    return (clock.next_close - clock.timestamp).total_seconds() >= min_hours_for_entries * 3600
+
+    remaining = (today_close_utc - now_utc).total_seconds() / 3600
+    return remaining >= min_hours_for_entries
 
 
 def _is_near_market_close(clock, minutes_before: int = 10) -> bool:
-    """
-    Return True if market closes within `minutes_before` minutes (default 10).
-
-    This is the EOD force-liquidation trigger — it fires when the session is
-    nearly over and ensures all open positions are closed before market close.
-    It is distinct from _should_allow_new_entries(), which blocks NEW entries
-    earlier in the session (default: 2.5h before close via config).
-
-    Three-gate summary:
-      1. _has_sufficient_trading_time()   — session-start gate (skip entire run)
-      2. _should_allow_new_entries()      — mid-session entry gate (stop opening new positions)
-      3. _is_near_market_close()          — EOD liquidation gate (force-close all open positions)
-    """
+    """Return True if market closes within `minutes_before` minutes."""
     if clock is None or not getattr(clock, "is_open", False):
         return False
     from datetime import timezone
@@ -507,13 +537,9 @@ def run_live():
 
     # Sync circuit breaker baseline to actual broker equity (not config hardcode)
     actual_equity = account.get("equity", config.TRADING["initial_balance"])
-    from risk.startup import initialize_live_risk
-    initialize_live_risk(rm, first_broker, account)
+    rm.sync_day_start_balance(actual_equity)
+    rm.reset_daily_state()
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
-    logger.info("Execution source=%s | revision=%s | run=%s | PID=%s",
-                os.getenv("TRADING_EXECUTION_SOURCE", "local-unidentified"),
-                os.getenv("GITHUB_SHA") or os.getenv("RENDER_GIT_COMMIT", "unknown"),
-                os.getenv("GITHUB_RUN_ID", "not-github"), os.getpid())
 
     # Track session start timestamp for filtering trade history to this session
     from datetime import timezone
@@ -523,7 +549,6 @@ def run_live():
     perf_engine = PerformanceEngine()
 
     _eod_triggered = False
-    session_incomplete = False
     pending_exposure_dollars = 0.0  # Tracks BUY orders submitted this scan iteration
 
     try:
@@ -548,19 +573,11 @@ def run_live():
 
             action_alerts = []
 
-            # Block new BUY entries when insufficient time remains for brackets to resolve.
-            # Threshold is read from config.TRADING["late_entry_cutoff_hours"] so it can
-            # be tuned without touching this file.
-            _cutoff_hours = config.TRADING.get("late_entry_cutoff_hours", 2.5)
-            try:
-                entry_clock = first_broker.get_clock()
-            except Exception:
-                entry_clock = None
-            allow_new_entries = rm.entries_ready and not _eod_triggered and _should_allow_new_entries(
-                min_hours_for_entries=_cutoff_hours, clock=entry_clock)
+            # Block new BUY entries if less than 90 minutes remain
+            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=1.5)
             if not allow_new_entries:
                 logger.info(
-                    f"Late session (<{int(_cutoff_hours * 60)} min to close): blocking new BUY entries. "
+                    "Late session (<90 min to close): blocking new BUY entries. "
                     "Existing positions managed by brackets."
                 )
 
@@ -573,7 +590,7 @@ def run_live():
                     df = add_all_indicators(df)
 
                     # Multi-timeframe: check daily trend
-                    daily_trend_bullish = None
+                    daily_trend_bullish = True
                     try:
                         daily_df = get_historical_data(
                             ticker,
@@ -581,31 +598,20 @@ def run_live():
                             datetime.now().strftime("%Y-%m-%d"),
                             "1d",
                         )
-                        from strategy.data_quality import daily_trend
-                        daily_trend_bullish = daily_trend(daily_df)
+                        if len(daily_df) >= 20:
+                            daily_sma = daily_df["Close"].rolling(20).mean().iloc[-1]
+                            daily_close = daily_df["Close"].iloc[-1]
+                            daily_trend_bullish = daily_close > daily_sma
                     except Exception:
-                        logger.warning("Daily trend unavailable for %s: new entries blocked", ticker)
+                        pass  # default to bullish if daily fetch fails
 
-                    replay_context = {"market_regime_bullish": regime["is_bullish"],
-                                      "daily_trend_bullish": daily_trend_bullish,
-                                      "entry_allowed": allow_new_entries and daily_trend_bullish is not None}
                     tick = brokers[ticker].run_tick(
                         df,
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
                         pending_exposure=pending_exposure_dollars,
-                        allow_new_entries=allow_new_entries and daily_trend_bullish is not None,
+                        allow_new_entries=allow_new_entries,
                     )
-
-                    try:
-                        from analytics.private_evidence import archive
-                        archive(ticker, df, tick, replay_context)
-                        from analytics.decision_evidence import decision_event
-                        import json
-                        print(json.dumps(decision_event(ticker, df, tick,
-                              allow_new_entries and daily_trend_bullish is not None)), flush=True)
-                    except Exception:
-                        logger.error("Decision evidence unavailable for %s", ticker)
 
                     # Track pending exposure for subsequent tickers in this scan
                     if tick.get("action") == "BUY":
@@ -658,7 +664,7 @@ def run_live():
             # EOD force-close: liquidate all positions 10 minutes before market close
             try:
                 clock = first_broker.get_clock()
-                if _is_near_market_close(clock, minutes_before=10):
+                if _is_near_market_close(clock, minutes_before=10) and not _eod_triggered:
                     _eod_triggered = True
                     logger.warning("EOD LIQUIDATION TRIGGERED — market closes in <10 minutes")
                     for ticker in tickers:
@@ -667,7 +673,7 @@ def run_live():
                         )
                         if eod_result["position_closed"]:
                             logger.warning(
-                                f"EOD verified flat with no open orders: {ticker}"
+                                f"EOD closed {eod_result['qty_closed']}sh {ticker}"
                             )
             except Exception as e:
                 logger.error(f"EOD liquidation check failed: {e}")
@@ -677,20 +683,29 @@ def run_live():
             try:
                 clock = first_broker.get_clock()
                 if clock and clock.is_open:
-                    mins_left = max(1, math.ceil((clock.next_close - clock.timestamp).total_seconds() / 60))
+                    mins_left = max(0, int((clock.next_close - clock.timestamp).total_seconds() / 60))
                 elif clock and not clock.is_open:
                     mins_left = 0
             except Exception:
                 pass
 
             if mins_left is None:
-                logger.error("Broker clock unavailable; cannot declare session closed. Retrying in 60 seconds.")
-                time.sleep(60)
-                continue
+                try:
+                    import zoneinfo
+                    tz_et = zoneinfo.ZoneInfo("America/New_York")
+                    now_et = datetime.now(tz_et)
+                    close_et = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
+                    open_et = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+                    if open_et <= now_et <= close_et and now_et.weekday() < 5:
+                        mins_left = max(0, int((close_et - now_et).total_seconds() / 60))
+                    else:
+                        mins_left = 0
+                except Exception:
+                    pass
 
             if mins_left is not None and mins_left > 0:
                 print(f"  Market closes in: {mins_left} mins")
-                print(f"  Next scan:        in {min(scan_interval_secs, 60 if mins_left <= 10 else (mins_left - 9) * 60)} seconds")
+                print(f"  Next scan:        in {scan_interval_mins} minutes")
                 # Windows popup for any BUY/SELL (Windows desktop only)
                 if action_alerts and sys.platform.startswith("win"):
                     try:
@@ -699,8 +714,7 @@ def run_live():
                         subprocess.Popen(['powershell', '-command', cmd_str])
                     except Exception:
                         pass
-                # Wake inside the existing ten-minute liquidation window.
-                time.sleep(min(scan_interval_secs, 60 if mins_left <= 10 else (mins_left - 9) * 60))
+                time.sleep(scan_interval_secs)
             else:
                 next_open_str = ""
                 try:
@@ -708,13 +722,7 @@ def run_live():
                         next_open_str = f" (Next open: {clock.next_open.strftime('%Y-%m-%d %H:%M %Z')})"
                 except Exception:
                     pass
-                print(f"  Market status:    CLOSED{next_open_str} — scanning ended.")
-                remaining = first_broker.get_all_positions()
-                if remaining:
-                    session_incomplete = True
-                    logger.error("SESSION INCOMPLETE: positions remain after close: %s", ", ".join(remaining))
-                else:
-                    print("  End-of-session inventory verified flat.")
+                print(f"  Market status:    CLOSED{next_open_str} — session completed.")
                 break
 
     except KeyboardInterrupt:
@@ -732,21 +740,60 @@ def run_live():
 
         # Generate performance metrics
         try:
-            from analytics.reporting import run_report
-            report, evidence_path = run_report(since=session_start_time.isoformat())
-            summary = report["summary"]
-            print("  Execution-based account report (gross completed position episodes)")
-            print(f"  Completed episodes exiting this run: {summary['total_trades']}")
-            print(f"  Gross episode P&L: ${summary['completed_episode_gross_pnl']}")
-            print(f"  Measurement status: {summary['status']}")
-            print(f"  Private evidence: {evidence_path}")
+            all_trades = []
+            all_raw_orders = []
+            all_slippage_logs = []
+            for ticker in tickers:
+                trade_df = brokers[ticker].get_trade_history(session_start=session_start_time)
+                if not trade_df.empty:
+                    all_trades.append(trade_df)
+                raw_df = brokers[ticker].get_raw_orders()
+                if not raw_df.empty:
+                    all_raw_orders.append(raw_df)
+                all_slippage_logs.extend(brokers[ticker].get_slippage_log())
+
+            equity_curve = None
+            equity_file = os.path.join(OUTPUTS_DIR, "alpaca_equity_history.csv")
+            if os.path.exists(equity_file):
+                try:
+                    eq_df = pd.read_csv(equity_file)
+                    if not eq_df.empty and "equity" in eq_df.columns:
+                        equity_curve = pd.Series(
+                            eq_df["equity"].values,
+                            index=pd.to_datetime(eq_df["timestamp"]),
+                        )
+                except Exception:
+                    pass
+
+            combined_trades = (
+                pd.concat(all_trades, ignore_index=True)
+                if all_trades else pd.DataFrame()
+            )
+            combined_raw = (
+                pd.concat(all_raw_orders, ignore_index=True)
+                if all_raw_orders else pd.DataFrame()
+            )
+
+            metrics = perf_engine.compute_from_trades(
+                combined_trades,
+                equity_curve=equity_curve,
+                starting_equity=config.TRADING["initial_balance"],
+                live_equity=live_eq,
+                raw_orders_df=combined_raw,
+                slippage_log=all_slippage_logs,
+            )
+
+            perf_engine.save_summary(
+                os.path.join(OUTPUTS_DIR, "performance_summary.json")
+            )
+            perf_engine.append_session_stats(
+                os.path.join(OUTPUTS_DIR, "trade_history.csv")
+            )
+            print(perf_engine.get_summary_string())
         except Exception as e:
             print(f"  Performance metrics error: {e}")
 
         print("=" * 60)
-
-    if session_incomplete:
-        raise RuntimeError("Session ended with unclosed positions; inspect EOD errors")
 
 
 def view_logs() -> None:

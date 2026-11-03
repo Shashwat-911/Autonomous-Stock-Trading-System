@@ -89,17 +89,14 @@ def generate_labels(df: pd.DataFrame,
         sl = entry * (1 - sl_pct)
         
         label = 0  # default: SL hit or neither
-        if i + forward_bars >= len(closes):
-            labels.append(float("nan"))
-            continue
-        end = i + forward_bars + 1
+        end = min(i + forward_bars, len(closes))
         
         for j in range(i + 1, end):
-            if lows[j] <= sl:
-                label = 0  # Conservative: stop first when OHLC cannot resolve order.
-                break
             if highs[j] >= tp:
-                label = 1
+                label = 1  # TP hit first
+                break
+            if lows[j] <= sl:
+                label = 0  # SL hit first
                 break
         
         labels.append(label)

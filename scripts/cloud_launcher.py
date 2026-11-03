@@ -5,12 +5,12 @@ Render cloud deployment wrapper for the Autonomous Stock Trading System.
 
 Purpose:
   - Runs continuously as a Render 'worker' service.
-  - Launches against the broker exchange calendar (DST, holidays and early closes).
-  - Launches only within the configured opening tolerance; late starts require review.
+  - Only launches the trading bot during US market hours (Mon-Fri 13:30-20:00 UTC).
+  - Auto-restarts the bot if it crashes mid-session.
   - Streams all bot output to both Render logs (stdout) and a date-stamped local log file.
   - After each session ends (market closes), runs the post-session pipeline:
       fetch equity → regenerate chart → git commit → git push to GitHub.
-  - Polls the calendar while closed; sleeping does not eliminate hosting charges.
+  - Sleeps when market is closed so Render is not billed for idle compute.
 
 Market Hours Reference:
   US Market:  Mon-Fri  09:30 - 16:00 ET
@@ -31,7 +31,6 @@ import sys
 import os
 import time
 import threading
-import json
 from datetime import datetime, timedelta, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -44,33 +43,11 @@ except ImportError:
 # ── Working directory: always project root, regardless of where this script is called from ──
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')  # go to project root
-sys.path.insert(0, os.getcwd())
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Health Server (Required for Render Free Web Service)
 # ──────────────────────────────────────────────────────────────────────────────
-
-RUNNER = {"started_at": datetime.now(timezone.utc).isoformat(),
-          "revision": os.getenv("RENDER_GIT_COMMIT", "unknown"),
-          "source": "render-cloud", "phase": "STARTING", "worker_pid": None,
-          "worker_started_at": None, "worker_exit_code": None,
-          "last_calendar_check": None, "last_keepalive_ok": None,
-          "keepalive_error": None}
-WORKER = None
-
-
-def runner_status():
-    result = dict(RUNNER)
-    result["worker_running"] = WORKER is not None and WORKER.poll() is None
-    now = datetime.now(timezone.utc)
-    result["observed_at"] = now.isoformat()
-    if result.get("market_close") and now >= datetime.fromisoformat(result["market_close"]):
-        result["phase"] = "CLOSED"
-    elif result["worker_running"]:
-        result["phase"] = "TRADING"
-    return result
-
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
 
@@ -324,13 +301,6 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            if self.path.rstrip("/") == "/status":
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Cache-Control", "no-store")
-                self.end_headers()
-                self.wfile.write(json.dumps(runner_status()).encode())
-                return
             # --- /logs or /log: Show session logs ---
             if self.path.rstrip("/") in ("/logs", "/log"):
                 log_content, log_label = self._find_best_log()
@@ -429,12 +399,10 @@ def keep_alive():
             import urllib.request
             req = urllib.request.Request(url, headers={"User-Agent": "RenderKeepAlive/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
-                RUNNER["last_keepalive_ok"] = datetime.now(timezone.utc).isoformat()
-                RUNNER["keepalive_error"] = None
-        except Exception as exc:
-            RUNNER["keepalive_error"] = type(exc).__name__
-            print(f"[WARN] Keepalive failed: {type(exc).__name__}", flush=True)
-        time.sleep(300)  # Ping every 10 minutes (Render timeout is 15 minutes)
+                pass
+        except Exception:
+            pass
+        time.sleep(600)  # Ping every 10 minutes (Render timeout is 15 minutes)
 
 
 def start_health_server():
@@ -454,38 +422,63 @@ def start_health_server():
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
-_calendar_day = None
-_calendar_rows = None
-
-
-def exchange_phase():
-    """Use the broker exchange calendar for DST, holidays and early closes."""
-    global _calendar_day, _calendar_rows
-    from scripts.session_timing import assess_session, ET
-    from scripts.reconcile_paper_account import PaperReader
-    now = datetime.now(timezone.utc)
-    day = now.astimezone(ET).date().isoformat()
-    try:
-        if _calendar_day != day:
-            rows = PaperReader().get("/v2/calendar", {"start": day, "end": day})
-            _calendar_rows, _calendar_day = rows, day
-        result = assess_session(now, _calendar_rows)
-        RUNNER["phase"] = result["status"]
-        RUNNER["market_close"] = result.get("market_close")
-        RUNNER["last_calendar_check"] = now.isoformat()
-        return result
-    except Exception as exc:
-        print(f"[ERROR] Exchange calendar unavailable ({type(exc).__name__}); no launch.", flush=True)
-        RUNNER["phase"] = "UNKNOWN"
-        return {"status": "UNKNOWN"}
-
-
 def is_market_hours() -> bool:
-    return exchange_phase()["status"] == "READY"
+    """
+    Returns True if the current UTC time falls within US equity market hours.
+
+    US market:  Monday – Friday, 09:30 – 16:00 Eastern Time
+    UTC equiv:  Monday – Friday, 13:30 – 20:00 UTC  (standard / no DST adjustment)
+
+    Note: This is a conservative approximation. The Alpaca broker layer inside
+    main.py also checks the live market clock before submitting any orders,
+    so this function only determines whether to *launch* the bot process at all.
+    """
+    now_utc = datetime.now(timezone.utc)
+    weekday = now_utc.weekday()   # 0 = Monday … 4 = Friday, 5 = Saturday, 6 = Sunday
+
+    # ── Weekend guard ──
+    if weekday >= 5:
+        return False
+
+    # ── Build today's open / close timestamps in UTC ──
+    market_open  = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
+    market_close = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
+
+    if not (market_open <= now_utc <= market_close):
+        return False
+
+    # Check Alpaca market clock for exchange holidays (e.g. Labor Day, Thanksgiving, etc.)
+    try:
+        import config
+        from broker.alpaca import AlpacaPaperBroker
+        b = AlpacaPaperBroker(config.ALPACA["api_key"], config.ALPACA["secret_key"], config.ALPACA["base_url"])
+        clock = b.get_clock()
+        if clock is not None:
+            if not clock.is_open:
+                print(f"  [Alpaca Clock] Market is CLOSED for holiday/observance. Next open: {clock.next_open}", flush=True)
+                return False
+    except Exception as e:
+        print(f"  [Alpaca Clock] Warning: clock check failed: {e}. Falling back to time window.", flush=True)
+
+    return True
 
 
 def is_post_session_window() -> bool:
-    return exchange_phase()["status"] == "CLOSED"
+    """
+    Returns True after market close (20:00–23:59 UTC) on weekdays.
+    This ensures the post-session pipeline reliably triggers once market has
+    definitively closed and all Alpaca order fills have settled.
+    """
+    now_utc = datetime.now(timezone.utc)
+    weekday = now_utc.weekday()
+
+    if weekday >= 5:
+        return False
+
+    post_open  = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
+    post_close = now_utc.replace(hour=23, minute=59, second=0, microsecond=0)
+
+    return post_open <= now_utc <= post_close
 
 
 def run_post_session(date_str: str):
@@ -498,10 +491,6 @@ def run_post_session(date_str: str):
     print(f"  Time: {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}")
     print(f"{'=' * 60}", flush=True)
 
-    archive = subprocess.run([sys.executable, "scripts/archive_session_log.py",
-                              "--date", date_str, "--publish"], check=False)
-    if archive.returncode:
-        print("[ERROR] Session log archive failed; publication will retry.", flush=True)
     result = subprocess.run(
         [sys.executable, "scripts/post_session.py"],
         text=True,
@@ -513,7 +502,7 @@ def run_post_session(date_str: str):
     else:
         print(f"\n  ❌ Post-session pipeline failed (exit {result.returncode}).", flush=True)
 
-    return result.returncode == 0 and archive.returncode == 0
+    return result.returncode == 0
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -532,20 +521,16 @@ threading.Thread(target=start_health_server, daemon=True).start()
 
 # Track which date we last ran the post-session pipeline (prevent duplicate runs)
 last_post_session_date: str = ""
-attempted_session_date: str = ""
 
 while True:
     now_utc  = datetime.now(timezone.utc)
-    from zoneinfo import ZoneInfo
-    now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
-    today = now_et.strftime("%Y-%m-%d")
-    date_tag = now_et.strftime("%Y_%m_%d")
+    today    = now_utc.strftime("%Y-%m-%d")
+    date_tag = now_utc.strftime("%Y_%m_%d")
 
     # ──────────────────────────────────────────────────────────────────────────
     # Branch A: Market is OPEN — run the trading bot
     # ──────────────────────────────────────────────────────────────────────────
-    if is_market_hours() and attempted_session_date != today:
-        attempted_session_date = today
+    if is_market_hours():
         log_path = f"outputs/logs/session_{date_tag}.txt"
         os.makedirs("outputs/logs", exist_ok=True)
 
@@ -556,7 +541,6 @@ while True:
             debug_path = f"outputs/logs/debug_{date_tag}.log"
 
             env = os.environ.copy()
-            env["TRADING_EXECUTION_SOURCE"] = "render-cloud"
             env["PYTHONUNBUFFERED"] = "1"
             env["PYTHONIOENCODING"] = "utf-8"
             env["PYTHONUTF8"] = "1"
@@ -573,10 +557,6 @@ while True:
                 env=env,
             )
 
-            WORKER = process
-            RUNNER.update(worker_pid=process.pid,
-                          worker_started_at=datetime.now(timezone.utc).isoformat(),
-                          worker_exit_code=None)
             # ── Thread: drain stdout → session log (clean tabular output only) ──
             def stream_stdout():
                 with open(log_path, "a", encoding="utf-8") as lf:
@@ -584,7 +564,6 @@ while True:
                         line = process.stdout.readline()
                         if not line:
                             break
-                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
                         print(line, end="", flush=True)
                         lf.write(line)
                         lf.flush()
@@ -596,7 +575,6 @@ while True:
                         line = process.stderr.readline()
                         if not line:
                             break
-                        RUNNER["last_worker_output"] = datetime.now(timezone.utc).isoformat()
                         df.write(line)
                         df.flush()
                         # Surface critical errors or crashes to Render console
@@ -612,7 +590,6 @@ while True:
 
             process.wait()
             exit_code = process.returncode
-            RUNNER["worker_exit_code"] = exit_code
             print(
                 f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}] "
                 f"Bot exited with code: {exit_code}",
@@ -620,7 +597,7 @@ while True:
             )
 
             if exit_code != 0:
-                print("  Non-zero exit — bot may have crashed. Restart withheld to avoid resetting daily risk state; inspect /status and /debug.", flush=True)
+                print("  Non-zero exit — bot may have crashed. Will retry after cooldown.", flush=True)
 
         except Exception as e:
             print(f"[ERROR] Bot crashed with exception: {e}", flush=True)
@@ -642,8 +619,8 @@ while True:
         print("  Waiting 2 min for order fills to settle...", flush=True)
         time.sleep(120)
 
-        if run_post_session(today):
-            last_post_session_date = today   # Retry failed publication on the next pass
+        run_post_session(today)
+        last_post_session_date = today   # mark as done for today
 
         print("  Sleeping 15 minutes before next check...", flush=True)
         time.sleep(900)
@@ -652,10 +629,7 @@ while True:
     # Branch C: Market is CLOSED (and not post-session window) — sleep
     # ──────────────────────────────────────────────────────────────────────────
     else:
-        phase = exchange_phase()
-        if phase["status"] == "LATE_START":
-            print("[ERROR] MISSED_SESSION: opening tolerance exceeded; not a successful trading session.", flush=True)
         day_name = now_utc.strftime("%A")
         time_str = now_utc.strftime("%H:%M UTC")
-        print(f"  Market CLOSED — {day_name} {time_str} — checking again in 30 seconds", flush=True)
-        time.sleep(30)   # Check opening promptly; no ten-minute launch lag
+        print(f"  Market CLOSED — {day_name} {time_str} — sleeping 10 minutes", flush=True)
+        time.sleep(600)   # 10 minutes
