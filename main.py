@@ -509,6 +509,11 @@ def run_live():
     actual_equity = account.get("equity", config.TRADING["initial_balance"])
     from risk.startup import initialize_live_risk
     initialize_live_risk(rm, first_broker, account)
+    from analytics.private_evidence import check_configuration, EvidenceError
+    try:
+        check_configuration()
+    except EvidenceError as exc:
+        logger.error('Private replay configuration invalid [%s]; local storage is not durable', exc)
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
     logger.info("Execution source=%s | revision=%s | run=%s | PID=%s",
                 os.getenv("TRADING_EXECUTION_SOURCE", "local-unidentified"),
