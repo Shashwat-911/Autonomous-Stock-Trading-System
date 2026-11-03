@@ -15,7 +15,7 @@ A Python system for multi-asset paper trading, risk-controlled execution, and qu
 
 ## Paper trading performance
 
-![Daily P&L Chart](outputs/measurement_v2/generations/20261031T013647849545Z/daily_pnl_chart.png)
+![Daily P&L Chart](outputs/measurement_v2/generations/20261103T032858304788Z/daily_pnl_chart.png)
 
 <!-- MEASUREMENT_V2_START -->
 ## Corrected account measurement
@@ -23,13 +23,13 @@ A Python system for multi-asset paper trading, risk-controlled execution, and qu
 Mixed-version account history; **not a validated baseline for the current strategy**.
 The earlier unverified session table is archived in docs/LEGACY_SESSION_TABLE.md.
 
-Period: 2026-08-09 through 2026-10-30 (New York dates).
-Source retrieved: 2026-10-31T01:36:47.947490+00:00. Report generated: 2026-10-31T01:36:50.358851+00:00.
+Period: 2026-08-09 through 2026-11-02 (New York dates).
+Source retrieved: 2026-11-03T03:28:58.761055+00:00. Report generated: 2026-11-03T03:29:04.315763+00:00.
 
 Completed flat-to-flat episodes: **405**; gross win rate: **41.23%**.
 Gross expectancy: **$-2.03**. Fees are unallocated account-level costs, excluded from trade metrics.
 
-Latest account snapshot: **$99,155.96** at 2026-10-31T01:36:47.947490+00:00 (separate from daily history).
+Latest account snapshot: **$99,155.54** at 2026-11-03T03:28:58.761055+00:00 (separate from daily history).
 
 [Measurement definitions and limitations](docs/MEASUREMENT_V2.md)
 <!-- MEASUREMENT_V2_END -->
@@ -101,7 +101,8 @@ Validated account measurements (mixed strategy versions). Realized P&L excludes 
 | 56 | 2026-10-27 | $99,388.49 | $76.75 | $-590.16 | $76.33 | [Log](outputs/logs/session_2026_10_27.txt) |
 | 57 | 2026-10-28 | $99,323.95 | $-63.95 | $-654.11 | $-64.54 | [Log](outputs/logs/session_2026_10_28.txt) |
 | 58 | 2026-10-29 | $99,245.10 | $-78.43 | $-732.54 | $-78.85 | [Log](outputs/logs/session_2026_10_29.txt) |
-| 59 | 2026-10-30 | $99,155.96 | $-89.14 | $-821.68 | $-89.14 | [Log](outputs/logs/session_2026_10_30.txt) |
+| 59 | 2026-10-30 | $99,155.54 | $-89.14 | $-821.68 | $-89.56 | [Log](outputs/logs/session_2026_10_30.txt) |
+| 60 | 2026-11-02 | $99,155.54 | $0.00 | $-821.68 | $0.00 | [Log](outputs/logs/session_2026_11_02.txt) |
 
 [Archived legacy table — unverified](docs/LEGACY_SESSION_TABLE.md). Missing equity is never estimated from the current account snapshot.
 
