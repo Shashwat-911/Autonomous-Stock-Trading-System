@@ -1,0 +1,949 @@
+============================================================
+  LIVE PAPER TRADING — 20 tickers
+  NVDA, AAPL, MSFT, TSLA, AMZN, GOOGL, META, AMD, NFLX, CRM, JPM, GS, BAC, V, MA, LLY, UNH, JNJ, PG, XOM
+  Interval: 1h | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.0×ATR, TP=2.5×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,312.16
+  Buying power: $397,248.64
+
+
+[13:30:24] Scanning 20 tickers... | SPY regime: BULL ($767.43 vs SMA-200 $724.80)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.12 BUY     0.75 $   1.77         none
+  AAPL     $ 343.48 HOLD    0.00 $   2.00         none
+  MSFT     $ 530.80 BUY     0.80 $   2.90         none
+  TSLA     $ 397.32 HOLD    0.00 $   4.94         none
+  AMZN     $ 250.30 BUY     0.75 $   1.76         none
+  GOOGL    $ 317.99 HOLD    0.00 $   1.80         none
+  META     $ 626.25 HOLD    0.00 $   7.50         none
+  AMD      $ 539.79 BUY     0.75 $   6.96         none
+  NFLX     $  63.22 HOLD    0.00 $   0.68         none
+  CRM      $ 245.51 HOLD    0.00 $   2.58         none
+  JPM      $ 336.95 HOLD    0.00 $   1.90         none
+  GS       $ 913.00 HOLD    0.00 $   8.06         none
+  BAC      $  50.98 HOLD    0.00 $   0.32         none
+  V        $ 402.76 HOLD    0.00 $   1.98         none
+  MA       $ 611.39 HOLD    0.00 $   3.18         none
+  LLY      $1274.52 HOLD    0.00 $  10.52         none
+  UNH      $ 411.54 HOLD    0.00 $   2.96         none
+  JNJ      $ 265.29 HOLD    0.00 $   1.83         none
+  PG       $ 159.30 HOLD    0.00 $   0.96         none
+  XOM      $ 183.63 HOLD    0.00 $   1.13         none
+
+  Equity: $99,312.16 | Long exposure: $0 (0.0%) | Cash: $99,312.16
+  Market closes in: 390 mins
+  Next scan:        in 900 seconds
+
+[13:45:42] Scanning 20 tickers... | SPY regime: BULL ($767.95 vs SMA-200 $724.80)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.87 BUY     0.75 $   1.80         13sh
+  AAPL     $ 343.66 HOLD    0.00 $   2.12         none
+  MSFT     $ 530.55 BUY     0.80 $   3.03          5sh
+  TSLA     $ 403.55 HOLD    0.00 $   5.41         none
+  AMZN     $ 250.92 BUY     0.75 $   1.83         11sh
+  GOOGL    $ 319.47 HOLD    0.00 $   1.94         none
+  META     $ 625.19 HOLD    0.00 $   7.72         none
+  AMD      $ 553.64 HOLD    0.00 $   8.04          5sh
+  NFLX     $  63.49 HOLD    0.00 $   0.69         none
+  CRM      $ 243.42 HOLD    0.00 $   2.81         none
+  JPM      $ 335.21 HOLD    0.00 $   1.94         none
+  GS       $ 911.20 HOLD    0.00 $   8.23         none
+  BAC      $  50.70 HOLD    0.00 $   0.32         none
+  V        $ 401.70 HOLD    0.00 $   2.13         none
+  MA       $ 610.84 HOLD    0.00 $   3.37         none
+  LLY      $1291.41 HOLD    0.00 $  11.75         none
+  UNH      $ 411.51 HOLD    0.00 $   3.19         none
+  JNJ      $ 267.02 HOLD    0.00 $   1.92         none
+  PG       $ 158.79 HOLD    0.00 $   1.02         none
+  XOM      $ 183.73 HOLD    0.00 $   1.17         none
+
+  Equity: $99,358.74 | Long exposure: $11,012 (11.1%) | Cash: $88,346.92
+  Market closes in: 375 mins
+  Next scan:        in 900 seconds
+
+[14:01:00] Scanning 20 tickers... | SPY regime: BULL ($765.79 vs SMA-200 $724.79)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 215.89 BUY     0.70 $   1.80         13sh
+  AAPL     $ 343.38 HOLD    0.00 $   2.15         none
+  MSFT     $ 528.98 BUY     0.80 $   3.13          5sh
+  TSLA     $ 402.36 HOLD    0.00 $   5.42         none
+  AMZN     $ 249.36 HOLD    0.00 $   1.85         11sh
+  GOOGL    $ 317.74 HOLD    0.00 $   1.94         none
+  META     $ 624.27 HOLD    0.00 $   7.84         none
+  AMD      $ 548.55 HOLD    0.00 $   8.04          5sh
+  NFLX     $  63.10 HOLD    0.00 $   0.71         none
+  CRM      $ 243.93 HOLD    0.00 $   2.81         none
+  JPM      $ 335.18 HOLD    0.00 $   1.94         none
+  GS       $ 907.64 HOLD    0.00 $   8.23         none
+  BAC      $  50.57 HOLD    0.00 $   0.33         none
+  V        $ 401.23 HOLD    0.00 $   2.13         none
+  MA       $ 608.46 HOLD    0.00 $   3.49         none
+  LLY      $1294.73 HOLD    0.00 $  12.00         none
+  UNH      $ 411.11 HOLD    0.00 $   3.20         none
+  JNJ      $ 267.33 HOLD    0.00 $   1.97         none
+  PG       $ 159.34 HOLD    0.00 $   1.02         none
+  XOM      $ 183.59 BUY     0.80 $   1.19         none
+
+  Equity: $99,284.44 | Long exposure: $10,938 (11.0%) | Cash: $88,346.92
+  Market closes in: 359 mins
+  Next scan:        in 900 seconds
+
+[14:16:17] Scanning 20 tickers... | SPY regime: BULL ($765.74 vs SMA-200 $724.79)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 215.85 BUY     0.70 $   1.83         13sh
+  AAPL     $ 344.39 HOLD    0.00 $   2.15         none
+  MSFT     $ 529.14 BUY     0.80 $   3.16          5sh
+  TSLA     $ 401.70 HOLD    0.00 $   5.42         none
+  AMZN     $ 249.68 BUY     0.75 $   1.85         11sh
+  GOOGL    $ 317.97 HOLD    0.00 $   1.94         none
+  META     $ 622.46 HOLD    0.00 $   7.84         none
+  AMD      $ 546.95 HOLD    0.00 $   8.04          5sh
+  NFLX     $  63.06 HOLD    0.00 $   0.71         none
+  CRM      $ 243.07 HOLD    0.00 $   2.81         none
+  JPM      $ 336.17 HOLD    0.00 $   1.94         none
+  GS       $ 911.32 HOLD    0.00 $   8.23         none
+  BAC      $  50.67 HOLD    0.00 $   0.33         none
+  V        $ 400.29 HOLD    0.00 $   2.16         none
+  MA       $ 607.82 HOLD    0.00 $   3.49         none
+  LLY      $1287.13 HOLD    0.00 $  12.02         none
+  UNH      $ 411.43 HOLD    0.00 $   3.20         none
+  JNJ      $ 267.46 HOLD    0.00 $   1.97         none
+  PG       $ 159.19 HOLD    0.00 $   1.02         none
+  XOM      $ 182.81 SELL    0.33 $   1.25         16sh
+
+  Equity: $99,265.21 | Long exposure: $13,857 (14.0%) | Cash: $85,408.68
+  Market closes in: 344 mins
+  Next scan:        in 900 seconds
+
+[14:31:34] Scanning 20 tickers... | SPY regime: BULL ($767.06 vs SMA-200 $724.80)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.37 BUY     0.75 $   1.72         13sh
+  AAPL     $ 345.10 HOLD    0.00 $   2.04         none
+  MSFT     $ 530.91 BUY     0.80 $   2.98          5sh
+  TSLA     $ 402.45 HOLD    0.00 $   5.07         none
+  AMZN     $ 250.76 BUY     0.75 $   1.74         11sh
+  GOOGL    $ 319.86 HOLD    0.00 $   1.84         none
+  META     $ 625.30 HOLD    0.00 $   7.39         none
+  AMD      $ 552.34 HOLD    0.00 $   7.56          5sh
+  NFLX     $  63.15 HOLD    0.00 $   0.67         none
+  CRM      $ 241.52 HOLD    0.00 $   2.74         none
+  JPM      $ 335.88 HOLD    0.00 $   1.82         none
+  GS       $ 910.38 HOLD    0.00 $   7.70         none
+  BAC      $  50.65 HOLD    0.00 $   0.31         none
+  V        $ 398.78 HOLD    0.00 $   2.13         none
+  MA       $ 606.04 HOLD    0.00 $   3.36         none
+  LLY      $1286.71 HOLD    0.00 $  11.30         none
+  UNH      $ 412.03 HOLD    0.00 $   3.04         none
+  JNJ      $ 267.39 HOLD    0.00 $   1.85         none
+  PG       $ 159.10 HOLD    0.00 $   0.95         none
+  XOM      $ 182.36 SELL    0.33 $   1.21         16sh
+
+  Equity: $99,323.68 | Long exposure: $13,915 (14.0%) | Cash: $85,408.68
+  Market closes in: 329 mins
+  Next scan:        in 900 seconds
+
+[14:46:52] Scanning 20 tickers... | SPY regime: BULL ($767.75 vs SMA-200 $724.80)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.05 BUY     0.70 $   1.75         13sh
+  AAPL     $ 345.95 HOLD    0.00 $   2.11         none
+  MSFT     $ 532.93 BUY     0.80 $   3.12          5sh
+  TSLA     $ 401.75 HOLD    0.00 $   5.16         none
+  AMZN     $ 251.27 BUY     0.75 $   1.79         11sh
+  GOOGL    $ 319.86 HOLD    0.00 $   1.88         none
+  META     $ 624.15 HOLD    0.00 $   7.44         none
+  AMD      $ 550.70 HOLD    0.00 $   7.77          5sh
+  NFLX     $  63.06 HOLD    0.00 $   0.67         none
+  CRM      $ 242.80 HOLD    0.00 $   2.85         none
+  JPM      $ 335.65 HOLD    0.00 $   1.88         none
+  GS       $ 908.90 HOLD    0.00 $   7.98         none
+  BAC      $  50.53 HOLD    0.00 $   0.32         none
+  V        $ 400.74 HOLD    0.00 $   2.26         none
+  MA       $ 608.79 HOLD    0.00 $   3.55         none
+  LLY      $1292.63 HOLD    0.00 $  11.74         none
+  UNH      $ 412.71 HOLD    0.00 $   3.06         none
+  JNJ      $ 268.33 HOLD    0.00 $   1.92         none
+  PG       $ 159.09 HOLD    0.00 $   0.97         none
+  XOM      $ 182.07 SELL    0.33 $   1.24         16sh
+
+  Equity: $99,325.30 | Long exposure: $13,917 (14.0%) | Cash: $85,408.68
+  Market closes in: 313 mins
+  Next scan:        in 900 seconds
+
+[15:02:10] Scanning 20 tickers... | SPY regime: BULL ($769.16 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.76 BUY     0.75 $   1.77         13sh
+  AAPL     $ 346.66 HOLD    0.00 $   2.15         none
+  MSFT     $ 533.57 BUY     0.85 $   3.15          5sh
+  TSLA     $ 403.01 HOLD    0.00 $   5.19         none
+  AMZN     $ 252.06 BUY     0.75 $   1.84         11sh
+  GOOGL    $ 320.40 HOLD    0.00 $   1.92         none
+  META     $ 627.94 HOLD    0.00 $   7.62         none
+  AMD      $ 552.47 HOLD    0.00 $   7.84          5sh
+  NFLX     $  63.04 HOLD    0.00 $   0.67         none
+  CRM      $ 243.02 HOLD    0.00 $   2.85         none
+  JPM      $ 336.34 HOLD    0.00 $   1.89         none
+  GS       $ 909.83 HOLD    0.00 $   7.99         none
+  BAC      $  50.76 HOLD    0.00 $   0.33         none
+  V        $ 401.21 HOLD    0.00 $   2.31         none
+  MA       $ 610.32 HOLD    0.00 $   3.66         none
+  LLY      $1288.30 HOLD    0.00 $  11.74         none
+  UNH      $ 412.31 HOLD    0.00 $   3.13         none
+  JNJ      $ 268.38 HOLD    0.00 $   1.93         none
+  PG       $ 159.19 HOLD    0.00 $   0.97         none
+  XOM      $ 181.76 SELL    0.33 $   1.28         16sh
+
+  Equity: $99,354.34 | Long exposure: $13,946 (14.0%) | Cash: $85,408.68
+  Market closes in: 298 mins
+  Next scan:        in 900 seconds
+
+[15:17:28] Scanning 20 tickers... | SPY regime: BULL ($769.64 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.65 BUY     0.75 $   1.78         13sh
+  AAPL     $ 347.36 HOLD    0.00 $   2.22         none
+  MSFT     $ 532.84 BUY     0.80 $   3.17          5sh
+  TSLA     $ 403.43 HOLD    0.00 $   5.21         none
+  AMZN     $ 251.58 BUY     0.75 $   1.84         11sh
+  GOOGL    $ 320.24 HOLD    0.00 $   1.94         none
+  META     $ 624.84 HOLD    0.00 $   7.64         none
+  AMD      $ 555.29 SELL    0.33 $   7.92          5sh
+  NFLX     $  62.97 HOLD    0.00 $   0.68         none
+  CRM      $ 243.36 HOLD    0.00 $   2.90         none
+  JPM      $ 335.86 HOLD    0.00 $   1.89         none
+  GS       $ 908.19 HOLD    0.00 $   8.06         none
+  BAC      $  50.65 HOLD    0.00 $   0.33         none
+  V        $ 401.51 HOLD    0.00 $   2.31         none
+  MA       $ 610.94 HOLD    0.00 $   3.70         none
+  LLY      $1294.87 HOLD    0.00 $  11.92         none
+  UNH      $ 412.94 HOLD    0.00 $   3.13         none
+  JNJ      $ 268.72 HOLD    0.00 $   1.95         none
+  PG       $ 159.12 HOLD    0.00 $   0.97         none
+  XOM      $ 181.52 SELL    0.33 $   1.28         16sh
+
+  Equity: $99,350.72 | Long exposure: $13,942 (14.0%) | Cash: $85,408.68
+  Market closes in: 283 mins
+  Next scan:        in 900 seconds
+
+[15:32:46] Scanning 20 tickers... | SPY regime: BULL ($769.44 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.73 BUY     0.70 $   1.67         13sh
+  AAPL     $ 347.21 HOLD    0.00 $   2.07         none
+  MSFT     $ 532.65 BUY     0.80 $   2.96          5sh
+  TSLA     $ 404.62 HOLD    0.00 $   5.08         none
+  AMZN     $ 251.72 BUY     0.75 $   1.73         11sh
+  GOOGL    $ 320.16 HOLD    0.00 $   1.82         none
+  META     $ 625.02 HOLD    0.00 $   7.15         none
+  AMD      $ 555.54 SELL    0.33 $   7.53          5sh
+  NFLX     $  62.85 HOLD    0.00 $   0.64         none
+  CRM      $ 243.02 HOLD    0.00 $   2.72         none
+  JPM      $ 336.17 HOLD    0.00 $   1.78         none
+  GS       $ 910.44 HOLD    0.00 $   7.54         none
+  BAC      $  50.74 HOLD    0.00 $   0.31         none
+  V        $ 401.60 HOLD    0.00 $   2.17         none
+  MA       $ 611.01 HOLD    0.00 $   3.48         none
+  LLY      $1290.10 HOLD    0.00 $  11.41         none
+  UNH      $ 412.75 HOLD    0.00 $   2.93         none
+  JNJ      $ 268.39 BUY     0.90 $   1.85         none
+  PG       $ 159.07 HOLD    0.00 $   0.91         none
+  XOM      $ 181.33 HOLD    0.00 $   1.24         none
+
+  Equity: $99,347.05 | Long exposure: $13,992 (14.1%) | Cash: $85,354.77
+  Market closes in: 267 mins
+  Next scan:        in 900 seconds
+
+[15:48:04] Scanning 20 tickers... | SPY regime: BULL ($770.04 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.46 BUY     0.75 $   1.75         13sh
+  AAPL     $ 347.57 HOLD    0.00 $   2.11         none
+  MSFT     $ 534.12 BUY     0.85 $   3.08          5sh
+  TSLA     $ 405.85 HOLD    0.00 $   5.13         none
+  AMZN     $ 252.26 BUY     0.75 $   1.78         11sh
+  GOOGL    $ 320.20 HOLD    0.00 $   1.85         none
+  META     $ 625.09 HOLD    0.00 $   7.23         none
+  AMD      $ 559.40 HOLD    0.00 $   7.82         none
+  NFLX     $  62.82 HOLD    0.00 $   0.65         none
+  CRM      $ 243.12 HOLD    0.00 $   2.75         none
+  JPM      $ 335.58 HOLD    0.00 $   1.82         none
+  GS       $ 911.40 HOLD    0.00 $   7.68         none
+  BAC      $  50.70 HOLD    0.00 $   0.31         none
+  V        $ 401.32 HOLD    0.00 $   2.22         none
+  MA       $ 610.70 HOLD    0.00 $   3.51         none
+  LLY      $1286.85 HOLD    0.00 $  11.62         none
+  UNH      $ 411.77 HOLD    0.00 $   3.02         none
+  JNJ      $ 267.83 SELL    0.33 $   1.90         11sh
+  PG       $ 158.99 HOLD    0.00 $   0.93         none
+  XOM      $ 181.26 HOLD    0.00 $   1.26         none
+
+  Equity: $99,372.01 | Long exposure: $11,231 (11.3%) | Cash: $88,140.88
+  Market closes in: 252 mins
+  Next scan:        in 900 seconds
+
+[16:03:22] Scanning 20 tickers... | SPY regime: BULL ($770.70 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.91 BUY     0.75 $   1.79         13sh
+  AAPL     $ 346.71 HOLD    0.00 $   2.13         none
+  MSFT     $ 534.47 BUY     0.85 $   3.10          5sh
+  TSLA     $ 406.82 HOLD    0.00 $   5.24         none
+  AMZN     $ 252.64 BUY     0.75 $   1.80         11sh
+  GOOGL    $ 321.03 HOLD    0.00 $   2.04         none
+  META     $ 625.43 HOLD    0.00 $   7.28         none
+  AMD      $ 559.50 HOLD    0.00 $   7.89         none
+  NFLX     $  62.83 HOLD    0.00 $   0.65         none
+  CRM      $ 243.25 HOLD    0.00 $   2.75         none
+  JPM      $ 336.38 HOLD    0.00 $   1.83         none
+  GS       $ 912.71 HOLD    0.00 $   7.78         none
+  BAC      $  50.72 HOLD    0.00 $   0.31         none
+  V        $ 401.52 HOLD    0.00 $   2.23         none
+  MA       $ 610.97 HOLD    0.00 $   3.54         none
+  LLY      $1284.36 HOLD    0.00 $  11.82         none
+  UNH      $ 412.38 HOLD    0.00 $   3.02         none
+  JNJ      $ 267.84 SELL    0.33 $   1.91         11sh
+  PG       $ 158.87 HOLD    0.00 $   0.93         none
+  XOM      $ 181.23 HOLD    0.00 $   1.27         none
+
+  Equity: $99,383.76 | Long exposure: $11,243 (11.3%) | Cash: $88,140.88
+  Market closes in: 237 mins
+  Next scan:        in 900 seconds
+
+[16:18:39] Scanning 20 tickers... | SPY regime: BULL ($770.27 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.71 BUY     0.75 $   1.79         13sh
+  AAPL     $ 346.02 HOLD    0.00 $   2.18         none
+  MSFT     $ 533.88 BUY     0.85 $   3.10          5sh
+  TSLA     $ 406.14 HOLD    0.00 $   5.24         none
+  AMZN     $ 253.65 BUY     0.75 $   1.87         11sh
+  GOOGL    $ 322.03 BUY     0.75 $   2.04         none
+  META     $ 625.20 HOLD    0.00 $   7.28         none
+  AMD      $ 558.87 HOLD    0.00 $   7.89         none
+  NFLX     $  62.74 HOLD    0.00 $   0.66         none
+  CRM      $ 242.95 HOLD    0.00 $   2.76         none
+  JPM      $ 336.12 HOLD    0.00 $   1.83         none
+  GS       $ 912.88 HOLD    0.00 $   7.78         none
+  BAC      $  50.63 HOLD    0.00 $   0.32         none
+  V        $ 400.58 HOLD    0.00 $   2.23         none
+  MA       $ 610.18 HOLD    0.00 $   3.54         none
+  LLY      $1284.83 HOLD    0.00 $  11.91         none
+  UNH      $ 410.02 HOLD    0.00 $   3.11         none
+  JNJ      $ 267.72 SELL    0.33 $   1.91         11sh
+  PG       $ 158.50 HOLD    0.00 $   0.96         none
+  XOM      $ 180.85 HOLD    0.00 $   1.28         none
+
+  Equity: $99,385.04 | Long exposure: $14,142 (14.2%) | Cash: $85,242.61
+  Market closes in: 222 mins
+  Next scan:        in 900 seconds
+
+[16:33:57] Scanning 20 tickers... | SPY regime: BULL ($769.96 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.93 BUY     0.70 $   1.72         13sh
+  AAPL     $ 346.80 HOLD    0.00 $   2.07         none
+  MSFT     $ 533.17 BUY     0.80 $   2.90          5sh
+  TSLA     $ 405.70 HOLD    0.00 $   4.92         none
+  AMZN     $ 253.62 BUY     0.75 $   1.77         11sh
+  GOOGL    $ 321.83 BUY     0.75 $   1.93          9sh
+  META     $ 624.88 HOLD    0.00 $   6.88         none
+  AMD      $ 558.93 HOLD    0.00 $   7.40         none
+  NFLX     $  62.69 HOLD    0.00 $   0.62         none
+  CRM      $ 242.92 HOLD    0.00 $   2.58         none
+  JPM      $ 336.16 HOLD    0.00 $   1.72         none
+  GS       $ 912.42 HOLD    0.00 $   7.27         none
+  BAC      $  50.70 HOLD    0.00 $   0.30         none
+  V        $ 401.01 HOLD    0.00 $   2.09         none
+  MA       $ 610.64 HOLD    0.00 $   3.31         none
+  LLY      $1280.99 HOLD    0.00 $  11.44         none
+  UNH      $ 409.58 HOLD    0.00 $   3.00         none
+  JNJ      $ 267.31 SELL    0.33 $   1.84         11sh
+  PG       $ 158.70 HOLD    0.00 $   0.91         none
+  XOM      $ 181.03 HOLD    0.00 $   1.21         none
+
+  Equity: $99,367.19 | Long exposure: $14,125 (14.2%) | Cash: $85,242.61
+  Market closes in: 206 mins
+  Next scan:        in 900 seconds
+
+[16:49:16] Scanning 20 tickers... | SPY regime: BULL ($769.16 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.76 BUY     0.70 $   1.73         13sh
+  AAPL     $ 345.92 HOLD    0.00 $   2.10         none
+  MSFT     $ 532.17 BUY     0.80 $   2.98          5sh
+  TSLA     $ 405.65 HOLD    0.00 $   4.95         none
+  AMZN     $ 253.96 BUY     0.75 $   1.79         11sh
+  GOOGL    $ 321.33 BUY     0.75 $   1.96          9sh
+  META     $ 623.51 HOLD    0.00 $   6.93         none
+  AMD      $ 557.67 HOLD    0.00 $   7.47         none
+  NFLX     $  62.67 HOLD    0.00 $   0.62         none
+  CRM      $ 242.76 HOLD    0.00 $   2.60         none
+  JPM      $ 335.89 HOLD    0.00 $   1.73         none
+  GS       $ 910.62 HOLD    0.00 $   7.39         none
+  BAC      $  50.65 HOLD    0.00 $   0.30         none
+  V        $ 400.26 HOLD    0.00 $   2.23         none
+  MA       $ 610.07 HOLD    0.00 $   3.48         none
+  LLY      $1283.03 HOLD    0.00 $  11.72         none
+  UNH      $ 409.17 HOLD    0.00 $   3.08         none
+  JNJ      $ 267.57 SELL    0.33 $   1.86         11sh
+  PG       $ 158.93 HOLD    0.00 $   0.93         none
+  XOM      $ 180.71 HOLD    0.00 $   1.23         none
+
+  Equity: $99,360.38 | Long exposure: $14,118 (14.2%) | Cash: $85,242.61
+  Market closes in: 191 mins
+  Next scan:        in 900 seconds
+
+[17:04:33] Scanning 20 tickers... | SPY regime: BULL ($769.24 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.88 BUY     0.70 $   1.74         13sh
+  AAPL     $ 345.92 HOLD    0.00 $   2.10         none
+  MSFT     $ 531.60 BUY     0.80 $   3.03          5sh
+  TSLA     $ 406.61 HOLD    0.00 $   4.99         none
+  AMZN     $ 253.40 BUY     0.75 $   1.79         11sh
+  GOOGL    $ 320.85 BUY     0.75 $   1.99          9sh
+  META     $ 623.66 HOLD    0.00 $   6.93         none
+  AMD      $ 559.16 HOLD    0.00 $   7.49         none
+  NFLX     $  62.58 HOLD    0.00 $   0.63         none
+  CRM      $ 242.48 HOLD    0.00 $   2.62         none
+  JPM      $ 335.98 HOLD    0.00 $   1.73         none
+  GS       $ 911.69 HOLD    0.00 $   7.42         none
+  BAC      $  50.65 HOLD    0.00 $   0.30         none
+  V        $ 399.80 HOLD    0.00 $   2.24         none
+  MA       $ 608.78 HOLD    0.00 $   3.48         none
+  LLY      $1281.89 HOLD    0.00 $  11.72         none
+  UNH      $ 409.17 HOLD    0.00 $   3.08         none
+  JNJ      $ 267.19 SELL    0.33 $   1.86         11sh
+  PG       $ 158.78 HOLD    0.00 $   0.93         none
+  XOM      $ 180.93 HOLD    0.00 $   1.24         none
+
+  Equity: $99,347.44 | Long exposure: $14,105 (14.2%) | Cash: $85,242.61
+  Market closes in: 176 mins
+  Next scan:        in 900 seconds
+
+[17:19:52] Scanning 20 tickers... | SPY regime: BULL ($769.53 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.14 BUY     0.70 $   1.74         13sh
+  AAPL     $ 345.32 HOLD    0.00 $   2.14         none
+  MSFT     $ 532.25 BUY     0.80 $   3.03          5sh
+  TSLA     $ 405.98 HOLD    0.00 $   5.01         none
+  AMZN     $ 253.30 BUY     0.75 $   1.80         11sh
+  GOOGL    $ 320.80 HOLD    0.00 $   2.00          9sh
+  META     $ 623.59 HOLD    0.00 $   6.93         none
+  AMD      $ 558.68 HOLD    0.00 $   7.51         none
+  NFLX     $  62.58 HOLD    0.00 $   0.63         none
+  CRM      $ 241.77 HOLD    0.00 $   2.66         none
+  JPM      $ 336.77 HOLD    0.00 $   1.77         none
+  GS       $ 912.70 HOLD    0.00 $   7.43         none
+  BAC      $  50.75 HOLD    0.00 $   0.30         none
+  V        $ 399.95 HOLD    0.00 $   2.24         none
+  MA       $ 609.16 HOLD    0.00 $   3.48         none
+  LLY      $1282.85 HOLD    0.00 $  11.80         none
+  UNH      $ 410.22 HOLD    0.00 $   3.11         none
+  JNJ      $ 267.67 SELL    0.33 $   1.86         11sh
+  PG       $ 158.93 HOLD    0.00 $   0.93         none
+  XOM      $ 180.99 HOLD    0.00 $   1.24         none
+
+  Equity: $99,355.06 | Long exposure: $14,112 (14.2%) | Cash: $85,242.61
+  Market closes in: 160 mins
+  Next scan:        in 900 seconds
+
+[17:35:10] Scanning 20 tickers... | SPY regime: BULL ($769.73 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.82 BUY     0.70 $   1.64         13sh
+  AAPL     $ 345.90 HOLD    0.00 $   2.03         none
+  MSFT     $ 532.55 BUY     0.80 $   2.85          5sh
+  TSLA     $ 406.65 HOLD    0.00 $   4.71         none
+  AMZN     $ 253.45 BUY     0.75 $   1.71         11sh
+  GOOGL    $ 321.35 BUY     0.75 $   1.88          9sh
+  META     $ 623.41 HOLD    0.00 $   6.59         none
+  AMD      $ 559.31 HOLD    0.00 $   7.03         none
+  NFLX     $  62.56 HOLD    0.00 $   0.59         none
+  CRM      $ 242.11 HOLD    0.00 $   2.49         none
+  JPM      $ 336.64 HOLD    0.00 $   1.66         none
+  GS       $ 912.27 HOLD    0.00 $   6.97         none
+  BAC      $  50.74 HOLD    0.00 $   0.29         none
+  V        $ 400.18 HOLD    0.00 $   2.10         none
+  MA       $ 608.34 HOLD    0.00 $   3.27         none
+  LLY      $1281.74 HOLD    0.00 $  11.10         none
+  UNH      $ 410.36 HOLD    0.00 $   2.97         none
+  JNJ      $ 268.23 SELL    0.33 $   1.78         11sh
+  PG       $ 158.97 HOLD    0.00 $   0.87         none
+  XOM      $ 180.79 HOLD    0.00 $   1.18         none
+
+  Equity: $99,366.75 | Long exposure: $14,124 (14.2%) | Cash: $85,242.61
+  Market closes in: 145 mins
+  Next scan:        in 900 seconds
+
+[17:50:29] Scanning 20 tickers... | SPY regime: BULL ($769.84 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.05 BUY     0.70 $   1.66         13sh
+  AAPL     $ 345.92 HOLD    0.00 $   2.05         none
+  MSFT     $ 531.95 BUY     0.80 $   2.88          5sh
+  TSLA     $ 405.85 HOLD    0.00 $   4.75         none
+  AMZN     $ 253.76 BUY     0.75 $   1.73         11sh
+  GOOGL    $ 322.03 BUY     0.75 $   1.93          9sh
+  META     $ 624.10 HOLD    0.00 $   6.63         none
+  AMD      $ 559.85 HOLD    0.00 $   7.07         none
+  NFLX     $  62.62 HOLD    0.00 $   0.60         none
+  CRM      $ 241.81 HOLD    0.00 $   2.51         none
+  JPM      $ 336.48 HOLD    0.00 $   1.69         none
+  GS       $ 911.84 HOLD    0.00 $   7.06         none
+  BAC      $  50.76 HOLD    0.00 $   0.29         none
+  V        $ 400.00 HOLD    0.00 $   2.17         none
+  MA       $ 607.82 HOLD    0.00 $   3.33         none
+  LLY      $1279.16 HOLD    0.00 $  11.23         none
+  UNH      $ 409.40 HOLD    0.00 $   3.05         none
+  JNJ      $ 268.20 SELL    0.33 $   1.80         11sh
+  PG       $ 159.05 HOLD    0.00 $   0.88         none
+  XOM      $ 180.65 HOLD    0.00 $   1.19         none
+
+  Equity: $99,376.79 | Long exposure: $14,134 (14.2%) | Cash: $85,242.61
+  Market closes in: 130 mins
+  Next scan:        in 900 seconds
+
+[18:05:47] Scanning 20 tickers... | SPY regime: BULL ($769.56 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.76 BUY     0.70 $   1.66         13sh
+  AAPL     $ 346.05 HOLD    0.00 $   2.05         none
+  MSFT     $ 531.21 BUY     0.80 $   2.94          5sh
+  TSLA     $ 406.41 HOLD    0.00 $   4.78         none
+  AMZN     $ 254.21 BUY     0.75 $   1.76         11sh
+  GOOGL    $ 321.90 BUY     0.75 $   1.93          9sh
+  META     $ 623.50 HOLD    0.00 $   6.64         none
+  AMD      $ 559.26 HOLD    0.00 $   7.14         none
+  NFLX     $  62.62 HOLD    0.00 $   0.60         none
+  CRM      $ 242.06 HOLD    0.00 $   2.53         none
+  JPM      $ 336.26 HOLD    0.00 $   1.69         none
+  GS       $ 910.53 BUY     0.80 $   7.13         none
+  BAC      $  50.72 HOLD    0.00 $   0.29         none
+  V        $ 399.61 HOLD    0.00 $   2.17         none
+  MA       $ 608.03 HOLD    0.00 $   3.33         none
+  LLY      $1279.27 HOLD    0.00 $  11.37         none
+  UNH      $ 408.75 HOLD    0.00 $   3.09         none
+  JNJ      $ 268.15 SELL    0.33 $   1.80         11sh
+  PG       $ 158.96 HOLD    0.00 $   0.88         none
+  XOM      $ 181.02 HOLD    0.00 $   1.20         none
+
+  Equity: $99,374.15 | Long exposure: $14,132 (14.2%) | Cash: $85,242.61
+  Market closes in: 114 mins
+  Next scan:        in 900 seconds
+
+[18:21:05] Scanning 20 tickers... | SPY regime: BULL ($769.35 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.80 BUY     0.70 $   1.66         13sh
+  AAPL     $ 345.41 HOLD    0.00 $   2.05         none
+  MSFT     $ 531.15 BUY     0.80 $   2.95          5sh
+  TSLA     $ 405.56 HOLD    0.00 $   4.78         none
+  AMZN     $ 254.00 BUY     0.75 $   1.76         11sh
+  GOOGL    $ 321.82 BUY     0.75 $   1.93          9sh
+  META     $ 622.78 HOLD    0.00 $   6.64         none
+  AMD      $ 560.10 HOLD    0.00 $   7.14         none
+  NFLX     $  62.62 HOLD    0.00 $   0.60         none
+  CRM      $ 241.96 HOLD    0.00 $   2.53         none
+  JPM      $ 336.30 HOLD    0.00 $   1.71         none
+  GS       $ 912.86 HOLD    0.00 $   7.14         none
+  BAC      $  50.73 HOLD    0.00 $   0.29         none
+  V        $ 399.20 HOLD    0.00 $   2.17         none
+  MA       $ 608.20 HOLD    0.00 $   3.33         none
+  LLY      $1281.05 HOLD    0.00 $  11.39         none
+  UNH      $ 409.35 HOLD    0.00 $   3.11         none
+  JNJ      $ 268.61 SELL    0.33 $   1.81         11sh
+  PG       $ 158.93 HOLD    0.00 $   0.88         none
+  XOM      $ 181.10 HOLD    0.00 $   1.21         none
+
+  Equity: $99,373.06 | Long exposure: $14,130 (14.2%) | Cash: $85,242.61
+  Market closes in: 99 mins
+  Next scan:        in 900 seconds
+
+[18:36:23] Scanning 20 tickers... | SPY regime: BULL ($769.19 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.54 BUY     0.70 $   1.57         13sh
+  AAPL     $ 345.72 HOLD    0.00 $   1.93         none
+  MSFT     $ 530.66 BUY     0.80 $   2.77          5sh
+  TSLA     $ 405.98 HOLD    0.00 $   4.46         none
+  AMZN     $ 254.08 BUY     0.75 $   1.65         11sh
+  GOOGL    $ 321.86 BUY     0.75 $   1.82          9sh
+  META     $ 622.99 HOLD    0.00 $   6.28         none
+  AMD      $ 560.00 HOLD    0.00 $   6.68         none
+  NFLX     $  62.62 HOLD    0.00 $   0.56         none
+  CRM      $ 241.18 HOLD    0.00 $   2.38         none
+  JPM      $ 336.31 HOLD    0.00 $   1.60         none
+  GS       $ 912.60 HOLD    0.00 $   6.74         none
+  BAC      $  50.72 HOLD    0.00 $   0.27         none
+  V        $ 398.01 HOLD    0.00 $   2.17         none
+  MA       $ 607.06 HOLD    0.00 $   3.18         none
+  LLY      $1279.37 HOLD    0.00 $  10.76         none
+  UNH      $ 409.93 HOLD    0.00 $   2.92         none
+  JNJ      $ 268.69 BUY     0.90 $   1.70         11sh
+  PG       $ 158.85 HOLD    0.00 $   0.83         none
+  XOM      $ 180.61 HOLD    0.00 $   1.14         none
+
+  Equity: $99,371.11 | Long exposure: $14,128 (14.2%) | Cash: $85,242.61
+  Market closes in: 84 mins
+  Next scan:        in 900 seconds
+
+[18:51:41] Scanning 20 tickers... | SPY regime: BULL ($769.33 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.52 BUY     0.70 $   1.57         13sh
+  AAPL     $ 345.86 HOLD    0.00 $   1.94         none
+  MSFT     $ 531.01 BUY     0.80 $   2.81          5sh
+  TSLA     $ 406.48 HOLD    0.00 $   4.52         none
+  AMZN     $ 254.41 BUY     0.75 $   1.67         11sh
+  GOOGL    $ 321.92 BUY     0.75 $   1.83          9sh
+  META     $ 622.63 HOLD    0.00 $   6.28         none
+  AMD      $ 559.48 HOLD    0.00 $   6.70         none
+  NFLX     $  62.59 HOLD    0.00 $   0.57         none
+  CRM      $ 241.40 HOLD    0.00 $   2.42         none
+  JPM      $ 336.27 HOLD    0.00 $   1.61         none
+  GS       $ 912.97 HOLD    0.00 $   6.80         none
+  BAC      $  50.71 HOLD    0.00 $   0.27         none
+  V        $ 398.85 HOLD    0.00 $   2.23         none
+  MA       $ 608.14 HOLD    0.00 $   3.25         none
+  LLY      $1277.97 HOLD    0.00 $  10.79         none
+  UNH      $ 410.38 HOLD    0.00 $   2.97         none
+  JNJ      $ 268.45 SELL    0.33 $   1.72         11sh
+  PG       $ 158.99 HOLD    0.00 $   0.83         none
+  XOM      $ 180.36 HOLD    0.00 $   1.16         none
+
+  Equity: $99,375.85 | Long exposure: $14,133 (14.2%) | Cash: $85,242.61
+  Market closes in: 69 mins
+  Next scan:        in 900 seconds
+
+[19:06:58] Scanning 20 tickers... | SPY regime: BULL ($769.77 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.89 BUY     0.70 $   1.58         13sh
+  AAPL     $ 346.75 HOLD    0.00 $   2.00         none
+  MSFT     $ 531.59 BUY     0.80 $   2.85          5sh
+  TSLA     $ 407.24 HOLD    0.00 $   4.57         none
+  AMZN     $ 254.42 BUY     0.75 $   1.69         11sh
+  GOOGL    $ 321.93 BUY     0.75 $   1.83          9sh
+  META     $ 622.61 HOLD    0.00 $   6.28         none
+  AMD      $ 559.82 HOLD    0.00 $   6.74         none
+  NFLX     $  62.79 HOLD    0.00 $   0.58         none
+  CRM      $ 241.09 HOLD    0.00 $   2.42         none
+  JPM      $ 336.33 HOLD    0.00 $   1.61         none
+  GS       $ 912.64 HOLD    0.00 $   6.80         none
+  BAC      $  50.69 HOLD    0.00 $   0.27         none
+  V        $ 399.56 HOLD    0.00 $   2.27         none
+  MA       $ 608.72 HOLD    0.00 $   3.28         none
+  LLY      $1278.84 HOLD    0.00 $  10.90         none
+  UNH      $ 410.55 HOLD    0.00 $   2.98         none
+  JNJ      $ 268.30 SELL    0.33 $   1.74         11sh
+  PG       $ 159.04 HOLD    0.00 $   0.84         none
+  XOM      $ 179.95 HOLD    0.00 $   1.20         none
+
+  Equity: $99,381.73 | Long exposure: $14,139 (14.2%) | Cash: $85,242.61
+  Market closes in: 53 mins
+  Next scan:        in 900 seconds
+
+[19:22:16] Scanning 20 tickers... | SPY regime: BULL ($770.32 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.81 BUY     0.70 $   1.58         13sh
+  AAPL     $ 347.01 HOLD    0.00 $   2.05         none
+  MSFT     $ 532.14 BUY     0.80 $   2.88          5sh
+  TSLA     $ 408.10 HOLD    0.00 $   4.63         none
+  AMZN     $ 254.31 BUY     0.75 $   1.69         11sh
+  GOOGL    $ 323.54 BUY     0.75 $   1.95          9sh
+  META     $ 623.45 HOLD    0.00 $   6.37         none
+  AMD      $ 559.23 HOLD    0.00 $   6.78         none
+  NFLX     $  62.74 HOLD    0.00 $   0.58         none
+  CRM      $ 241.57 HOLD    0.00 $   2.42         none
+  JPM      $ 336.08 HOLD    0.00 $   1.62         none
+  GS       $ 911.78 BUY     0.80 $   6.82         none
+  BAC      $  50.69 HOLD    0.00 $   0.27         none
+  V        $ 399.22 HOLD    0.00 $   2.27         none
+  MA       $ 609.23 HOLD    0.00 $   3.33         none
+  LLY      $1279.99 HOLD    0.00 $  10.96         none
+  UNH      $ 411.42 HOLD    0.00 $   3.03         none
+  JNJ      $ 268.63 BUY     0.90 $   1.75         11sh
+  PG       $ 159.00 HOLD    0.00 $   0.84         none
+  XOM      $ 180.35 HOLD    0.00 $   1.20         none
+
+  Equity: $99,398.43 | Long exposure: $14,156 (14.2%) | Cash: $85,242.61
+  Market closes in: 38 mins
+  Next scan:        in 900 seconds
+
+[19:37:34] Scanning 20 tickers... | SPY regime: BULL ($770.94 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.97 BUY     0.70 $   1.52         13sh
+  AAPL     $ 347.43 HOLD    0.00 $   1.93         none
+  MSFT     $ 532.65 BUY     0.80 $   2.75          5sh
+  TSLA     $ 407.67 HOLD    0.00 $   4.35         none
+  AMZN     $ 254.35 BUY     0.70 $   1.60         11sh
+  GOOGL    $ 323.61 BUY     0.75 $   1.87          9sh
+  META     $ 622.43 HOLD    0.00 $   6.03         none
+  AMD      $ 562.38 HOLD    0.00 $   6.58         none
+  NFLX     $  62.62 HOLD    0.00 $   0.55         none
+  CRM      $ 241.37 HOLD    0.00 $   2.30         none
+  JPM      $ 336.28 BUY     0.80 $   1.53         none
+  GS       $ 913.28 HOLD    0.00 $   6.45         none
+  BAC      $  50.72 HOLD    0.00 $   0.26         none
+  V        $ 399.84 HOLD    0.00 $   2.19         none
+  MA       $ 609.63 HOLD    0.00 $   3.24         none
+  LLY      $1279.37 HOLD    0.00 $  10.36         none
+  UNH      $ 410.51 HOLD    0.00 $   2.90         none
+  JNJ      $ 268.69 SELL    0.33 $   1.66         11sh
+  PG       $ 159.02 HOLD    0.00 $   0.79         none
+  XOM      $ 180.22 HOLD    0.00 $   1.13         none
+
+  Equity: $99,405.23 | Long exposure: $14,163 (14.2%) | Cash: $85,242.61
+  Market closes in: 23 mins
+  Next scan:        in 840 seconds
+
+[19:51:51] Scanning 20 tickers... | SPY regime: BULL ($770.35 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.89 BUY     0.70 $   1.55         13sh
+  AAPL     $ 346.95 HOLD    0.00 $   1.97         none
+  MSFT     $ 532.19 BUY     0.80 $   2.83          5sh
+  TSLA     $ 407.37 HOLD    0.00 $   4.40         none
+  AMZN     $ 254.13 BUY     0.70 $   1.62         11sh
+  GOOGL    $ 322.80 BUY     0.75 $   1.93          9sh
+  META     $ 620.05 HOLD    0.00 $   6.22         none
+  AMD      $ 559.24 HOLD    0.00 $   6.68         none
+  NFLX     $  62.62 HOLD    0.00 $   0.55         none
+  CRM      $ 241.07 HOLD    0.00 $   2.35         none
+  JPM      $ 336.18 BUY     0.80 $   1.54         none
+  GS       $ 911.64 BUY     0.80 $   6.51         none
+  BAC      $  50.71 HOLD    0.00 $   0.26         none
+  V        $ 400.67 HOLD    0.00 $   2.26         none
+  MA       $ 610.17 HOLD    0.00 $   3.29         none
+  LLY      $1282.82 HOLD    0.00 $  10.72         none
+  UNH      $ 409.77 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.77 BUY     0.85 $   1.68         11sh
+  PG       $ 159.36 HOLD    0.00 $   0.82         none
+  XOM      $ 180.38 HOLD    0.00 $   1.15         none
+
+  Equity: $99,394.26 | Long exposure: $14,152 (14.2%) | Cash: $85,242.61
+  Market closes in: 8 mins
+  Next scan:        in 60 seconds
+
+[19:53:14] Scanning 20 tickers... | SPY regime: BULL ($770.39 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.88 BUY     0.70 $   1.55         13sh
+  AAPL     $ 347.10 HOLD    0.00 $   1.97         none
+  MSFT     $ 532.28 BUY     0.80 $   2.83          5sh
+  TSLA     $ 406.97 HOLD    0.00 $   4.40         none
+  AMZN     $ 254.07 BUY     0.70 $   1.62         11sh
+  GOOGL    $ 322.53 BUY     0.75 $   1.93          9sh
+  META     $ 620.24 HOLD    0.00 $   6.23         none
+  AMD      $ 560.28 HOLD    0.00 $   6.68         none
+  NFLX     $  62.60 HOLD    0.00 $   0.55         none
+  CRM      $ 241.21 HOLD    0.00 $   2.35         none
+  JPM      $ 336.21 BUY     0.80 $   1.54         none
+  GS       $ 912.64 HOLD    0.00 $   6.51         none
+  BAC      $  50.69 HOLD    0.00 $   0.26         none
+  V        $ 400.82 HOLD    0.00 $   2.26         none
+  MA       $ 609.63 HOLD    0.00 $   3.29         none
+  LLY      $1283.15 HOLD    0.00 $  10.72         none
+  UNH      $ 409.84 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.86 BUY     0.85 $   1.68         11sh
+  PG       $ 159.32 HOLD    0.00 $   0.82         none
+  XOM      $ 180.27 HOLD    0.00 $   1.15         none
+
+  Equity: $99,390.20 | Long exposure: $14,148 (14.2%) | Cash: $85,242.61
+  Market closes in: 7 mins
+  Next scan:        in 60 seconds
+
+[19:54:31] Scanning 20 tickers... | SPY regime: BULL ($770.27 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.93 BUY     0.70 $   1.55         none
+  AAPL     $ 346.82 HOLD    0.00 $   1.97         none
+  MSFT     $ 532.35 BUY     0.80 $   2.83         none
+  TSLA     $ 406.43 HOLD    0.00 $   4.45         none
+  AMZN     $ 253.89 BUY     0.70 $   1.62         none
+  GOOGL    $ 322.10 BUY     0.70 $   1.94         none
+  META     $ 620.54 HOLD    0.00 $   6.23         none
+  AMD      $ 559.91 HOLD    0.00 $   6.68         none
+  NFLX     $  62.56 HOLD    0.00 $   0.55         none
+  CRM      $ 241.21 HOLD    0.00 $   2.35         none
+  JPM      $ 336.30 BUY     0.80 $   1.54         none
+  GS       $ 912.46 HOLD    0.00 $   6.51         none
+  BAC      $  50.71 HOLD    0.00 $   0.26         none
+  V        $ 401.19 HOLD    0.00 $   2.29         none
+  MA       $ 610.03 HOLD    0.00 $   3.29         none
+  LLY      $1282.60 HOLD    0.00 $  10.72         none
+  UNH      $ 410.13 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.67 HOLD    0.00 $   1.68         none
+  PG       $ 159.34 HOLD    0.00 $   0.82         none
+  XOM      $ 180.30 HOLD    0.00 $   1.15         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market closes in: 6 mins
+  Next scan:        in 60 seconds
+
+[19:55:48] Scanning 20 tickers... | SPY regime: BULL ($770.03 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.90 BUY     0.70 $   1.55         none
+  AAPL     $ 347.21 HOLD    0.00 $   1.99         none
+  MSFT     $ 531.94 BUY     0.80 $   2.83         none
+  TSLA     $ 407.13 HOLD    0.00 $   4.46         none
+  AMZN     $ 253.25 BUY     0.70 $   1.66         none
+  GOOGL    $ 320.55 BUY     0.70 $   2.05         none
+  META     $ 620.43 HOLD    0.00 $   6.23         none
+  AMD      $ 559.97 HOLD    0.00 $   6.68         none
+  NFLX     $  62.58 HOLD    0.00 $   0.55         none
+  CRM      $ 241.16 HOLD    0.00 $   2.35         none
+  JPM      $ 336.33 BUY     0.80 $   1.54         none
+  GS       $ 913.15 HOLD    0.00 $   6.51         none
+  BAC      $  50.71 HOLD    0.00 $   0.26         none
+  V        $ 401.44 HOLD    0.00 $   2.31         none
+  MA       $ 610.31 HOLD    0.00 $   3.29         none
+  LLY      $1282.55 HOLD    0.00 $  10.72         none
+  UNH      $ 410.45 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.44 HOLD    0.00 $   1.68         none
+  PG       $ 159.35 HOLD    0.00 $   0.82         none
+  XOM      $ 180.12 HOLD    0.00 $   1.15         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market closes in: 4 mins
+  Next scan:        in 60 seconds
+
+[19:57:05] Scanning 20 tickers... | SPY regime: BULL ($769.99 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.93 BUY     0.70 $   1.55         none
+  AAPL     $ 347.08 HOLD    0.00 $   1.99         none
+  MSFT     $ 531.15 BUY     0.80 $   2.83         none
+  TSLA     $ 406.97 HOLD    0.00 $   4.46         none
+  AMZN     $ 253.34 BUY     0.70 $   1.67         none
+  GOOGL    $ 320.82 BUY     0.70 $   2.06         none
+  META     $ 620.07 HOLD    0.00 $   6.23         none
+  AMD      $ 559.71 HOLD    0.00 $   6.68         none
+  NFLX     $  62.55 HOLD    0.00 $   0.55         none
+  CRM      $ 241.10 HOLD    0.00 $   2.35         none
+  JPM      $ 335.95 BUY     0.80 $   1.55         none
+  GS       $ 912.75 HOLD    0.00 $   6.51         none
+  BAC      $  50.72 HOLD    0.00 $   0.27         none
+  V        $ 401.31 HOLD    0.00 $   2.33         none
+  MA       $ 610.30 HOLD    0.00 $   3.30         none
+  LLY      $1282.86 HOLD    0.00 $  10.72         none
+  UNH      $ 410.11 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.75 BUY     0.85 $   1.68         none
+  PG       $ 159.35 HOLD    0.00 $   0.82         none
+  XOM      $ 180.33 HOLD    0.00 $   1.15         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market closes in: 3 mins
+  Next scan:        in 60 seconds
+
+[19:58:21] Scanning 20 tickers... | SPY regime: BULL ($770.05 vs SMA-200 $724.82)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 218.09 BUY     0.70 $   1.55         none
+  AAPL     $ 347.15 HOLD    0.00 $   1.99         none
+  MSFT     $ 531.19 BUY     0.80 $   2.83         none
+  TSLA     $ 407.41 HOLD    0.00 $   4.46         none
+  AMZN     $ 253.22 BUY     0.70 $   1.67         none
+  GOOGL    $ 320.65 BUY     0.70 $   2.06         none
+  META     $ 620.16 HOLD    0.00 $   6.23         none
+  AMD      $ 560.45 HOLD    0.00 $   6.68         none
+  NFLX     $  62.56 HOLD    0.00 $   0.55         none
+  CRM      $ 240.90 HOLD    0.00 $   2.35         none
+  JPM      $ 335.90 BUY     0.80 $   1.56         none
+  GS       $ 912.34 HOLD    0.00 $   6.51         none
+  BAC      $  50.69 HOLD    0.00 $   0.27         none
+  V        $ 401.42 HOLD    0.00 $   2.33         none
+  MA       $ 610.34 HOLD    0.00 $   3.30         none
+  LLY      $1283.53 HOLD    0.00 $  10.72         none
+  UNH      $ 410.56 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.83 BUY     0.85 $   1.68         none
+  PG       $ 159.28 HOLD    0.00 $   0.82         none
+  XOM      $ 180.18 HOLD    0.00 $   1.15         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market closes in: 2 mins
+  Next scan:        in 60 seconds
+
+[19:59:37] Scanning 20 tickers... | SPY regime: BULL ($769.67 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.79 BUY     0.70 $   1.55         none
+  AAPL     $ 346.98 HOLD    0.00 $   1.99         none
+  MSFT     $ 531.22 BUY     0.80 $   2.83         none
+  TSLA     $ 407.17 HOLD    0.00 $   4.46         none
+  AMZN     $ 253.17 BUY     0.70 $   1.67         none
+  GOOGL    $ 320.68 BUY     0.70 $   2.06         none
+  META     $ 620.09 HOLD    0.00 $   6.23         none
+  AMD      $ 560.34 HOLD    0.00 $   6.68         none
+  NFLX     $  62.50 HOLD    0.00 $   0.55         none
+  CRM      $ 240.90 HOLD    0.00 $   2.35         none
+  JPM      $ 335.73 BUY     0.80 $   1.56         none
+  GS       $ 912.37 HOLD    0.00 $   6.51         none
+  BAC      $  50.67 HOLD    0.00 $   0.27         none
+  V        $ 401.33 HOLD    0.00 $   2.33         none
+  MA       $ 609.86 HOLD    0.00 $   3.30         none
+  LLY      $1282.68 HOLD    0.00 $  10.72         none
+  UNH      $ 410.73 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.89 BUY     0.85 $   1.68         none
+  PG       $ 159.26 HOLD    0.00 $   0.82         none
+  XOM      $ 179.96 HOLD    0.00 $   1.16         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market closes in: 1 mins
+  Next scan:        in 60 seconds
+
+[20:00:53] Scanning 20 tickers... | SPY regime: BULL ($769.71 vs SMA-200 $724.81)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+  NVDA     $ 217.88 BUY     0.70 $   1.55         none
+  AAPL     $ 347.09 HOLD    0.00 $   1.99         none
+  MSFT     $ 531.60 BUY     0.80 $   2.83         none
+  TSLA     $ 407.46 HOLD    0.00 $   4.46         none
+  AMZN     $ 253.15 BUY     0.70 $   1.67         none
+  GOOGL    $ 320.57 BUY     0.70 $   2.06         none
+  META     $ 620.12 HOLD    0.00 $   6.23         none
+  AMD      $ 560.45 HOLD    0.00 $   6.68         none
+  NFLX     $  62.52 HOLD    0.00 $   0.55         none
+  CRM      $ 240.90 HOLD    0.00 $   2.35         none
+  JPM      $ 335.78 BUY     0.80 $   1.56         none
+  GS       $ 912.08 HOLD    0.00 $   6.51         none
+  BAC      $  50.68 HOLD    0.00 $   0.27         none
+  V        $ 401.94 HOLD    0.00 $   2.34         none
+  MA       $ 609.78 HOLD    0.00 $   3.30         none
+  LLY      $1281.52 HOLD    0.00 $  10.72         none
+  UNH      $ 410.61 HOLD    0.00 $   2.95         none
+  JNJ      $ 268.78 BUY     0.85 $   1.68         none
+  PG       $ 159.13 HOLD    0.00 $   0.82         none
+  XOM      $ 179.90 HOLD    0.00 $   1.16         none
+
+  Equity: $99,388.91 | Long exposure: $0 (0.0%) | Cash: $99,388.91
+  Market status:    CLOSED (Next open: 2026-10-28 09:30 -04:00) — scanning ended.
+  End-of-session inventory verified flat.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,388.91
+Reading all retained account activities...
+Reading orders with timestamp-safe pagination...
+  Execution-based account report (gross completed position episodes)
+  Completed episodes exiting this run: 7
+  Gross episode P&L: $76.75
+  Measurement status: VALIDATED_ACCOUNT_MEASUREMENT
+  Private evidence: /opt/render/project/src/outputs/reporting_private/20261027T200104149407Z
+============================================================
