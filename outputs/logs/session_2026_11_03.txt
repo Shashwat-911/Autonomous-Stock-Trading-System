@@ -1,0 +1,444 @@
+2026-11-03 20:15:22,940 - risk.manager - INFO - RiskManager initialised -- balance=100000.00, max_daily_loss=5.0%, max_trade_loss=5.0%, max_position=5.0%, cooldown=5min, max_pos_dollars=$3000, portfolio_heat=60%
+2026-11-03 20:15:22,941 - strategy.signals - INFO - SignalGenerator initialised (Pure Momentum) -- RSI momentum band=[40.0, 65.0], RSI overbought=70.0, ADX min=20.0, confirmation=False
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NVDA, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AAPL, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MSFT, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=TSLA, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AMZN, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,941 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=GOOGL, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=META, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=AMD, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=NFLX, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=CRM, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=JPM, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=GS, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=BAC, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=V, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=MA, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=LLY, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,942 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=UNH, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,943 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=JNJ, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,943 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=PG, feed=iex, min_confidence=0.70
+2026-11-03 20:15:22,943 - broker.alpaca - INFO - AlpacaPaperBroker initialized -- ticker=XOM, feed=iex, min_confidence=0.70
+============================================================
+  LIVE PAPER TRADING — 20 tickers
+  NVDA, AAPL, MSFT, TSLA, AMZN, GOOGL, META, AMD, NFLX, CRM, JPM, GS, BAC, V, MA, LLY, UNH, JNJ, PG, XOM
+  Interval: 1h | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.0×ATR, TP=2.5×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $99,166.85
+  Buying power: $396,667.40
+
+2026-11-03 20:15:23,192 - risk.manager - INFO - Day-start balance synced from broker: $99,166.85 (was: $100,000.00)
+2026-11-03 20:15:23,192 - risk.manager - INFO - Daily state reset -- day-start balance=99166.85
+2026-11-03 20:15:23,192 - main - INFO - Session started. Actual broker equity: $99,166.85
+
+[20:15:23] Scanning 20 tickers... | SPY regime: BULL ($753.78 vs SMA-200 $726.65)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-11-03 20:15:23,504 - main - INFO - Late session (<90 min to close): blocking new BUY entries. Existing positions managed by brackets.
+2026-11-03 20:15:23,955 - strategy.signals - INFO - Evaluating signal -- Close=206.44, RSI=45.01, MACD=-1.2514, MACD_Signal=-1.7935, SMA_20=205.82, BB_Lower=201.17, ADX=21.72
+2026-11-03 20:15:23,955 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 45.0 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:15:23,955 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 45.0 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:15:23,955 - broker.alpaca - INFO - New entry blocked for NVDA — <90 min to market close.
+  NVDA     $   0.00 HOLD    0.00 $   2.15         none
+2026-11-03 20:15:24,553 - strategy.signals - INFO - Evaluating signal -- Close=330.82, RSI=29.44, MACD=-3.8979, MACD_Signal=-3.0800, SMA_20=338.90, BB_Lower=326.69, ADX=37.01
+2026-11-03 20:15:24,553 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:24,553 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (330.82 > 326.69)', 'RSI oversold (29.4 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 330.82 HOLD    0.00 $   2.97         none
+2026-11-03 20:15:25,114 - strategy.signals - INFO - Evaluating signal -- Close=522.41, RSI=51.89, MACD=-1.9041, MACD_Signal=-2.6050, SMA_20=519.60, BB_Lower=510.17, ADX=17.36
+2026-11-03 20:15:25,115 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=17.4 < 20.0)
+2026-11-03 20:15:25,115 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:25,115 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 51.9 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)', 'BLOCKED: Market choppy/sideways (ADX=17.4 < 20.0)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 522.41 HOLD    0.00 $   4.54         none
+2026-11-03 20:15:25,680 - strategy.signals - INFO - Evaluating signal -- Close=397.55, RSI=43.21, MACD=-0.3864, MACD_Signal=0.7300, SMA_20=401.79, BB_Lower=392.29, ADX=14.92
+2026-11-03 20:15:25,680 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=14.9 < 20.0)
+2026-11-03 20:15:25,680 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:25,680 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (397.55 > 392.29)', 'RSI in momentum corridor (43.2)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 397.55 HOLD    0.00 $   3.96         none
+2026-11-03 20:15:26,224 - strategy.signals - INFO - Evaluating signal -- Close=251.39, RSI=58.55, MACD=0.7950, MACD_Signal=-0.0252, SMA_20=245.89, BB_Lower=235.01, ADX=21.50
+2026-11-03 20:15:26,224 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 58.6 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:15:26,224 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 58.6 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:15:26,224 - broker.alpaca - INFO - New entry blocked for AMZN — <90 min to market close.
+  AMZN     $   0.00 HOLD    0.00 $   2.82         none
+2026-11-03 20:15:26,770 - strategy.signals - INFO - Evaluating signal -- Close=278.14, RSI=32.55, MACD=-5.5381, MACD_Signal=-6.7299, SMA_20=280.61, BB_Lower=276.13, ADX=41.62
+2026-11-03 20:15:26,770 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:26,770 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (278.14 > 276.13)', 'RSI oversold (32.5 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  GOOGL    $ 278.14 HOLD    0.00 $   2.98         none
+2026-11-03 20:15:27,322 - strategy.signals - INFO - Evaluating signal -- Close=618.28, RSI=48.40, MACD=-1.3069, MACD_Signal=-2.8844, SMA_20=616.39, BB_Lower=606.56, ADX=22.35
+2026-11-03 20:15:27,322 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 48.4 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:15:27,322 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 48.4 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:15:27,322 - broker.alpaca - INFO - New entry blocked for META — <90 min to market close.
+  META     $   0.00 HOLD    0.00 $   5.56         none
+2026-11-03 20:15:27,876 - strategy.signals - INFO - Evaluating signal -- Close=485.93, RSI=37.08, MACD=-13.8023, MACD_Signal=-15.5669, SMA_20=491.98, BB_Lower=466.68, ADX=36.72
+2026-11-03 20:15:27,876 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:27,876 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (485.93 > 466.68)'], 'blocked': False, 'block_reason': ''}
+  AMD      $ 485.93 HOLD    0.00 $   9.30         none
+2026-11-03 20:15:28,419 - strategy.signals - INFO - Evaluating signal -- Close=62.83, RSI=55.15, MACD=0.0346, MACD_Signal=-0.1001, SMA_20=62.39, BB_Lower=61.71, ADX=25.71
+2026-11-03 20:15:28,419 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 55.1 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:15:28,419 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 55.1 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:15:28,419 - broker.alpaca - INFO - New entry blocked for NFLX — <90 min to market close.
+  NFLX     $   0.00 HOLD    0.00 $   0.47         none
+2026-11-03 20:15:29,017 - strategy.signals - INFO - Evaluating signal -- Close=222.64, RSI=31.09, MACD=-3.6105, MACD_Signal=-3.3728, SMA_20=227.67, BB_Lower=219.64, ADX=47.29
+2026-11-03 20:15:29,017 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:29,017 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (222.64 > 219.64)', 'RSI oversold (31.1 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  CRM      $ 222.64 HOLD    0.00 $   2.69         none
+2026-11-03 20:15:29,622 - strategy.signals - INFO - Evaluating signal -- Close=337.36, RSI=43.81, MACD=-0.3497, MACD_Signal=0.0617, SMA_20=338.81, BB_Lower=334.77, ADX=18.76
+2026-11-03 20:15:29,622 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.8 < 20.0)
+2026-11-03 20:15:29,622 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:29,622 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (337.36 > 334.77)', 'RSI in momentum corridor (43.8)'], 'blocked': False, 'block_reason': ''}
+  JPM      $ 337.36 HOLD    0.00 $   1.82         none
+2026-11-03 20:15:30,203 - strategy.signals - INFO - Evaluating signal -- Close=896.77, RSI=43.73, MACD=-3.4616, MACD_Signal=-2.9272, SMA_20=898.37, BB_Lower=881.67, ADX=24.46
+2026-11-03 20:15:30,203 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:30,204 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (896.77 > 881.67)', 'RSI in momentum corridor (43.7)'], 'blocked': False, 'block_reason': ''}
+  GS       $ 896.77 HOLD    0.00 $   7.30         none
+2026-11-03 20:15:30,785 - strategy.signals - INFO - Evaluating signal -- Close=49.60, RSI=37.63, MACD=-0.2933, MACD_Signal=-0.2839, SMA_20=49.91, BB_Lower=49.46, ADX=26.51
+2026-11-03 20:15:30,786 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:30,786 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (49.60 > 49.46)'], 'blocked': False, 'block_reason': ''}
+  BAC      $  49.60 HOLD    0.00 $   0.34         none
+2026-11-03 20:15:31,366 - strategy.signals - INFO - Evaluating signal -- Close=421.27, RSI=57.59, MACD=3.3972, MACD_Signal=4.0305, SMA_20=420.57, BB_Lower=410.90, ADX=31.90
+2026-11-03 20:15:31,366 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:31,366 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above SMA_20 (421.27 > 420.57)', 'Above BB_Lower (421.27 > 410.90)', 'RSI in momentum corridor (57.6)'], 'blocked': False, 'block_reason': ''}
+  V        $ 421.27 HOLD    0.00 $   2.53         none
+2026-11-03 20:15:31,932 - strategy.signals - INFO - Evaluating signal -- Close=647.76, RSI=56.03, MACD=5.4062, MACD_Signal=7.0267, SMA_20=648.21, BB_Lower=630.29, ADX=41.24
+2026-11-03 20:15:31,932 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:31,932 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (647.76 > 630.29)', 'RSI in momentum corridor (56.0)'], 'blocked': False, 'block_reason': ''}
+  MA       $ 647.76 HOLD    0.00 $   4.17         none
+2026-11-03 20:15:32,531 - strategy.signals - INFO - Evaluating signal -- Close=1416.55, RSI=62.90, MACD=18.4680, MACD_Signal=22.3783, SMA_20=1416.86, BB_Lower=1402.47, ADX=26.08
+2026-11-03 20:15:32,531 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:32,531 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (1416.55 > 1402.47)', 'RSI in momentum corridor (62.9)'], 'blocked': False, 'block_reason': ''}
+  LLY      $1416.55 HOLD    0.00 $  15.22         none
+2026-11-03 20:15:33,084 - strategy.signals - INFO - Evaluating signal -- Close=402.55, RSI=45.90, MACD=-1.5886, MACD_Signal=-2.2147, SMA_20=403.07, BB_Lower=394.58, ADX=18.00
+2026-11-03 20:15:33,084 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.0 < 20.0)
+2026-11-03 20:15:33,084 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:33,084 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (402.55 > 394.58)', 'RSI in momentum corridor (45.9)'], 'blocked': False, 'block_reason': ''}
+  UNH      $ 402.55 HOLD    0.00 $   3.46         none
+2026-11-03 20:15:33,677 - strategy.signals - INFO - Evaluating signal -- Close=266.89, RSI=36.29, MACD=-1.0459, MACD_Signal=-0.4004, SMA_20=271.14, BB_Lower=264.09, ADX=23.41
+2026-11-03 20:15:33,677 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:33,677 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (266.89 > 264.09)', 'RSI oversold (36.3 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  JNJ      $ 266.89 HOLD    0.00 $   1.80         none
+2026-11-03 20:15:34,310 - strategy.signals - INFO - Evaluating signal -- Close=162.17, RSI=51.50, MACD=0.4356, MACD_Signal=0.6455, SMA_20=162.76, BB_Lower=161.25, ADX=26.55
+2026-11-03 20:15:34,310 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:34,310 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (162.17 > 161.25)', 'RSI in momentum corridor (51.5)'], 'blocked': False, 'block_reason': ''}
+  PG       $ 162.17 HOLD    0.00 $   0.92         none
+2026-11-03 20:15:34,919 - strategy.signals - INFO - Evaluating signal -- Close=177.86, RSI=36.56, MACD=-1.4327, MACD_Signal=-0.8491, SMA_20=182.10, BB_Lower=174.82, ADX=24.84
+2026-11-03 20:15:34,919 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:15:34,919 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (177.86 > 174.82)', 'RSI oversold (36.6 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  XOM      $ 177.86 HOLD    0.00 $   1.50         none
+
+  Equity: $99,166.85 | Long exposure: $0 (0.0%) | Cash: $99,166.85
+  Market closes in: 44 mins
+  Next scan:        in 15 minutes
+
+[20:30:35] Scanning 20 tickers... | SPY regime: BULL ($754.51 vs SMA-200 $726.65)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-11-03 20:30:35,307 - main - INFO - Late session (<90 min to close): blocking new BUY entries. Existing positions managed by brackets.
+2026-11-03 20:30:36,077 - strategy.signals - INFO - Evaluating signal -- Close=206.91, RSI=46.15, MACD=-1.1288, MACD_Signal=-1.6547, SMA_20=205.88, BB_Lower=201.19, ADX=20.68
+2026-11-03 20:30:36,077 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 46.1 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:30:36,077 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 46.1 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:30:36,077 - broker.alpaca - INFO - New entry blocked for NVDA — <90 min to market close.
+  NVDA     $   0.00 HOLD    0.00 $   2.00         none
+2026-11-03 20:30:36,531 - strategy.signals - INFO - Evaluating signal -- Close=331.42, RSI=30.57, MACD=-3.8557, MACD_Signal=-3.2291, SMA_20=338.18, BB_Lower=326.11, ADX=38.40
+2026-11-03 20:30:36,531 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:36,531 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (331.42 > 326.11)', 'RSI oversold (30.6 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 331.42 HOLD    0.00 $   2.77         none
+2026-11-03 20:30:37,096 - strategy.signals - INFO - Evaluating signal -- Close=522.26, RSI=51.67, MACD=-1.5146, MACD_Signal=-2.3878, SMA_20=519.60, BB_Lower=510.16, ADX=16.21
+2026-11-03 20:30:37,096 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=16.2 < 20.0)
+2026-11-03 20:30:37,096 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:37,096 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 51.7 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)', 'BLOCKED: Market choppy/sideways (ADX=16.2 < 20.0)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 522.26 HOLD    0.00 $   4.22         none
+2026-11-03 20:30:37,534 - strategy.signals - INFO - Evaluating signal -- Close=397.64, RSI=43.40, MACD=-0.6084, MACD_Signal=0.4625, SMA_20=401.76, BB_Lower=392.21, ADX=14.67
+2026-11-03 20:30:37,534 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=14.7 < 20.0)
+2026-11-03 20:30:37,534 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:37,534 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (397.64 > 392.21)', 'RSI in momentum corridor (43.4)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 397.64 HOLD    0.00 $   3.68         none
+2026-11-03 20:30:37,991 - strategy.signals - INFO - Evaluating signal -- Close=252.26, RSI=60.53, MACD=1.0492, MACD_Signal=0.1975, SMA_20=246.61, BB_Lower=235.91, ADX=20.74
+2026-11-03 20:30:37,991 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 60.5 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:30:37,991 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 60.5 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:30:37,991 - broker.alpaca - INFO - New entry blocked for AMZN — <90 min to market close.
+  AMZN     $   0.00 HOLD    0.00 $   2.69         none
+2026-11-03 20:30:38,455 - strategy.signals - INFO - Evaluating signal -- Close=278.99, RSI=33.64, MACD=-5.1974, MACD_Signal=-6.4116, SMA_20=280.60, BB_Lower=276.16, ADX=41.05
+2026-11-03 20:30:38,455 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:38,455 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (278.99 > 276.16)', 'RSI oversold (33.6 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  GOOGL    $ 278.99 HOLD    0.00 $   2.78         none
+2026-11-03 20:30:38,916 - strategy.signals - INFO - Evaluating signal -- Close=619.36, RSI=49.59, MACD=-1.0254, MACD_Signal=-2.4963, SMA_20=616.49, BB_Lower=606.55, ADX=21.41
+2026-11-03 20:30:38,916 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.6 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:30:38,916 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.6 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:30:38,916 - broker.alpaca - INFO - New entry blocked for META — <90 min to market close.
+  META     $   0.00 HOLD    0.00 $   5.18         none
+2026-11-03 20:30:39,355 - strategy.signals - INFO - Evaluating signal -- Close=487.24, RSI=37.71, MACD=-13.6978, MACD_Signal=-15.5460, SMA_20=492.05, BB_Lower=466.80, ADX=36.72
+2026-11-03 20:30:39,355 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:39,355 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (487.24 > 466.80)'], 'blocked': False, 'block_reason': ''}
+  AMD      $ 487.24 HOLD    0.00 $   9.30         none
+2026-11-03 20:30:39,793 - strategy.signals - INFO - Evaluating signal -- Close=62.99, RSI=58.23, MACD=0.0727, MACD_Signal=-0.0637, SMA_20=62.42, BB_Lower=61.67, ADX=26.78
+2026-11-03 20:30:39,793 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 58.2 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:30:39,793 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 58.2 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:30:39,793 - broker.alpaca - INFO - New entry blocked for NFLX — <90 min to market close.
+  NFLX     $   0.00 HOLD    0.00 $   0.44         none
+2026-11-03 20:30:40,234 - strategy.signals - INFO - Evaluating signal -- Close=222.32, RSI=30.54, MACD=-3.5822, MACD_Signal=-3.4182, SMA_20=227.20, BB_Lower=218.99, ADX=48.31
+2026-11-03 20:30:40,234 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:40,234 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (222.32 > 218.99)', 'RSI oversold (30.5 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  CRM      $ 222.32 HOLD    0.00 $   2.51         none
+2026-11-03 20:30:40,674 - strategy.signals - INFO - Evaluating signal -- Close=337.40, RSI=43.93, MACD=-0.4100, MACD_Signal=-0.0313, SMA_20=338.77, BB_Lower=334.68, ADX=17.90
+2026-11-03 20:30:40,674 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=17.9 < 20.0)
+2026-11-03 20:30:40,674 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:40,674 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (337.40 > 334.68)', 'RSI in momentum corridor (43.9)'], 'blocked': False, 'block_reason': ''}
+  JPM      $ 337.40 HOLD    0.00 $   1.69         none
+2026-11-03 20:30:41,104 - strategy.signals - INFO - Evaluating signal -- Close=896.24, RSI=43.29, MACD=-3.4827, MACD_Signal=-3.0432, SMA_20=898.26, BB_Lower=881.53, ADX=24.31
+2026-11-03 20:30:41,104 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:41,104 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (896.24 > 881.53)', 'RSI in momentum corridor (43.3)'], 'blocked': False, 'block_reason': ''}
+  GS       $ 896.24 HOLD    0.00 $   6.79         none
+2026-11-03 20:30:41,565 - strategy.signals - INFO - Evaluating signal -- Close=49.54, RSI=36.65, MACD=-0.2966, MACD_Signal=-0.2871, SMA_20=49.88, BB_Lower=49.41, ADX=27.07
+2026-11-03 20:30:41,565 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:41,565 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (49.54 > 49.41)', 'RSI oversold (36.7 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  BAC      $  49.54 HOLD    0.00 $   0.32         none
+2026-11-03 20:30:42,015 - strategy.signals - INFO - Evaluating signal -- Close=421.11, RSI=57.16, MACD=3.0949, MACD_Signal=3.8434, SMA_20=420.96, BB_Lower=411.90, ADX=30.07
+2026-11-03 20:30:42,015 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:42,015 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above SMA_20 (421.11 > 420.96)', 'Above BB_Lower (421.11 > 411.90)', 'RSI in momentum corridor (57.2)'], 'blocked': False, 'block_reason': ''}
+  V        $ 421.11 HOLD    0.00 $   2.37         none
+2026-11-03 20:30:42,497 - strategy.signals - INFO - Evaluating signal -- Close=647.49, RSI=55.59, MACD=4.8329, MACD_Signal=6.5869, SMA_20=648.78, BB_Lower=631.77, ADX=39.32
+2026-11-03 20:30:42,497 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:42,497 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (647.49 > 631.77)', 'RSI in momentum corridor (55.6)'], 'blocked': False, 'block_reason': ''}
+  MA       $ 647.49 HOLD    0.00 $   3.88         none
+2026-11-03 20:30:42,942 - strategy.signals - INFO - Evaluating signal -- Close=1410.51, RSI=58.88, MACD=16.3547, MACD_Signal=21.0850, SMA_20=1415.90, BB_Lower=1401.23, ADX=24.36
+2026-11-03 20:30:42,942 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:42,942 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (1410.51 > 1401.23)', 'RSI in momentum corridor (58.9)'], 'blocked': False, 'block_reason': ''}
+  LLY      $1410.51 HOLD    0.00 $  14.83         none
+2026-11-03 20:30:43,378 - strategy.signals - INFO - Evaluating signal -- Close=401.93, RSI=44.61, MACD=-1.5432, MACD_Signal=-2.0863, SMA_20=402.74, BB_Lower=394.58, ADX=17.80
+2026-11-03 20:30:43,378 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=17.8 < 20.0)
+2026-11-03 20:30:43,378 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:43,378 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (401.93 > 394.58)', 'RSI in momentum corridor (44.6)'], 'blocked': False, 'block_reason': ''}
+  UNH      $ 401.93 HOLD    0.00 $   3.26         none
+2026-11-03 20:30:43,844 - strategy.signals - INFO - Evaluating signal -- Close=266.32, RSI=34.68, MACD=-1.2146, MACD_Signal=-0.5689, SMA_20=270.57, BB_Lower=263.76, ADX=23.47
+2026-11-03 20:30:43,845 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:43,845 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (266.32 > 263.76)', 'RSI oversold (34.7 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  JNJ      $ 266.32 HOLD    0.00 $   1.72         none
+2026-11-03 20:30:44,291 - strategy.signals - INFO - Evaluating signal -- Close=161.94, RSI=49.82, MACD=0.3534, MACD_Signal=0.5851, SMA_20=162.68, BB_Lower=161.14, ADX=25.52
+2026-11-03 20:30:44,291 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:44,291 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (161.94 > 161.14)', 'RSI in momentum corridor (49.8)'], 'blocked': False, 'block_reason': ''}
+  PG       $ 161.94 HOLD    0.00 $   0.86         none
+2026-11-03 20:30:44,741 - strategy.signals - INFO - Evaluating signal -- Close=177.79, RSI=36.43, MACD=-1.4639, MACD_Signal=-0.9714, SMA_20=181.65, BB_Lower=174.50, ADX=25.61
+2026-11-03 20:30:44,741 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:30:44,741 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (177.79 > 174.50)', 'RSI oversold (36.4 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  XOM      $ 177.79 HOLD    0.00 $   1.41         none
+
+  Equity: $99,166.85 | Long exposure: $0 (0.0%) | Cash: $99,166.85
+  Market closes in: 29 mins
+  Next scan:        in 15 minutes
+
+[20:45:45] Scanning 20 tickers... | SPY regime: BULL ($754.41 vs SMA-200 $726.65)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-11-03 20:45:45,140 - main - INFO - Late session (<90 min to close): blocking new BUY entries. Existing positions managed by brackets.
+2026-11-03 20:45:45,611 - strategy.signals - INFO - Evaluating signal -- Close=207.33, RSI=47.40, MACD=-1.0949, MACD_Signal=-1.6480, SMA_20=205.90, BB_Lower=201.18, ADX=20.55
+2026-11-03 20:45:45,611 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 47.4 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:45:45,611 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 47.4 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:45:45,611 - broker.alpaca - INFO - New entry blocked for NVDA — <90 min to market close.
+  NVDA     $   0.00 HOLD    0.00 $   2.06         none
+2026-11-03 20:45:46,046 - strategy.signals - INFO - Evaluating signal -- Close=330.63, RSI=29.11, MACD=-3.9187, MACD_Signal=-3.2417, SMA_20=338.14, BB_Lower=325.97, ADX=38.40
+2026-11-03 20:45:46,047 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:46,047 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (330.63 > 325.97)', 'RSI oversold (29.1 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 330.63 HOLD    0.00 $   2.87         none
+2026-11-03 20:45:46,501 - strategy.signals - INFO - Evaluating signal -- Close=521.35, RSI=50.33, MACD=-1.5868, MACD_Signal=-2.4023, SMA_20=519.56, BB_Lower=510.16, ADX=16.21
+2026-11-03 20:45:46,501 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=16.2 < 20.0)
+2026-11-03 20:45:46,501 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:46,501 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 50.3 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)', 'BLOCKED: Market choppy/sideways (ADX=16.2 < 20.0)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 521.35 HOLD    0.00 $   4.31         none
+2026-11-03 20:45:46,936 - strategy.signals - INFO - Evaluating signal -- Close=397.34, RSI=42.87, MACD=-0.6323, MACD_Signal=0.4577, SMA_20=401.75, BB_Lower=392.16, ADX=14.81
+2026-11-03 20:45:46,936 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=14.8 < 20.0)
+2026-11-03 20:45:46,936 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:46,936 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (397.34 > 392.16)', 'RSI in momentum corridor (42.9)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 397.34 HOLD    0.00 $   3.76         none
+2026-11-03 20:45:47,375 - strategy.signals - INFO - Evaluating signal -- Close=252.14, RSI=60.30, MACD=1.0400, MACD_Signal=0.1956, SMA_20=246.60, BB_Lower=235.92, ADX=20.74
+2026-11-03 20:45:47,375 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 60.3 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:45:47,376 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 60.3 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:45:47,376 - broker.alpaca - INFO - New entry blocked for AMZN — <90 min to market close.
+  AMZN     $   0.00 HOLD    0.00 $   2.72         none
+2026-11-03 20:45:47,809 - strategy.signals - INFO - Evaluating signal -- Close=279.11, RSI=33.90, MACD=-5.1875, MACD_Signal=-6.4096, SMA_20=280.61, BB_Lower=276.17, ADX=41.01
+2026-11-03 20:45:47,809 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:47,809 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (279.11 > 276.17)', 'RSI oversold (33.9 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  GOOGL    $ 279.11 HOLD    0.00 $   2.81         none
+2026-11-03 20:45:48,314 - strategy.signals - INFO - Evaluating signal -- Close=619.38, RSI=49.61, MACD=-1.0242, MACD_Signal=-2.4960, SMA_20=616.49, BB_Lower=606.55, ADX=21.41
+2026-11-03 20:45:48,314 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.6 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:45:48,314 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.6 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:45:48,314 - broker.alpaca - INFO - New entry blocked for META — <90 min to market close.
+  META     $   0.00 HOLD    0.00 $   5.26         none
+2026-11-03 20:45:48,766 - strategy.signals - INFO - Evaluating signal -- Close=488.24, RSI=38.56, MACD=-12.8657, MACD_Signal=-15.0099, SMA_20=490.90, BB_Lower=467.28, ADX=35.58
+2026-11-03 20:45:48,766 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:48,766 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (488.24 > 467.28)'], 'blocked': False, 'block_reason': ''}
+  AMD      $ 488.24 HOLD    0.00 $   8.84         none
+2026-11-03 20:45:49,209 - strategy.signals - INFO - Evaluating signal -- Close=63.24, RSI=62.06, MACD=0.0927, MACD_Signal=-0.0597, SMA_20=62.43, BB_Lower=61.63, ADX=26.99
+2026-11-03 20:45:49,209 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 62.1 in [40, 65]); MACD histogram accelerating positive; Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 20:45:49,209 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 62.1 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+2026-11-03 20:45:49,209 - broker.alpaca - INFO - New entry blocked for NFLX — <90 min to market close.
+  NFLX     $   0.00 HOLD    0.00 $   0.46         none
+2026-11-03 20:45:49,640 - strategy.signals - INFO - Evaluating signal -- Close=221.93, RSI=29.86, MACD=-3.6129, MACD_Signal=-3.4244, SMA_20=227.18, BB_Lower=218.92, ADX=48.39
+2026-11-03 20:45:49,641 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:49,641 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (221.93 > 218.92)', 'RSI oversold (29.9 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  CRM      $ 221.93 HOLD    0.00 $   2.56         none
+2026-11-03 20:45:50,077 - strategy.signals - INFO - Evaluating signal -- Close=336.70, RSI=41.58, MACD=-0.4659, MACD_Signal=-0.0425, SMA_20=338.73, BB_Lower=334.59, ADX=18.28
+2026-11-03 20:45:50,077 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.3 < 20.0)
+2026-11-03 20:45:50,077 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:50,077 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (336.70 > 334.59)', 'RSI in momentum corridor (41.6)'], 'blocked': False, 'block_reason': ''}
+  JPM      $ 336.70 HOLD    0.00 $   1.77         none
+2026-11-03 20:45:50,534 - strategy.signals - INFO - Evaluating signal -- Close=895.51, RSI=42.67, MACD=-3.5410, MACD_Signal=-3.0549, SMA_20=898.22, BB_Lower=881.47, ADX=24.38
+2026-11-03 20:45:50,534 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:50,534 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (895.51 > 881.47)', 'RSI in momentum corridor (42.7)'], 'blocked': False, 'block_reason': ''}
+  GS       $ 895.51 HOLD    0.00 $   6.89         none
+2026-11-03 20:45:51,356 - strategy.signals - INFO - Evaluating signal -- Close=49.57, RSI=37.25, MACD=-0.2945, MACD_Signal=-0.2867, SMA_20=49.88, BB_Lower=49.41, ADX=27.35
+2026-11-03 20:45:51,356 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:51,356 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (49.57 > 49.41)'], 'blocked': False, 'block_reason': ''}
+  BAC      $  49.57 HOLD    0.00 $   0.33         none
+2026-11-03 20:45:51,786 - strategy.signals - INFO - Evaluating signal -- Close=420.49, RSI=55.52, MACD=3.0455, MACD_Signal=3.8335, SMA_20=420.93, BB_Lower=411.86, ADX=29.64
+2026-11-03 20:45:51,786 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:51,786 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (420.49 > 411.86)', 'RSI in momentum corridor (55.5)'], 'blocked': False, 'block_reason': ''}
+  V        $ 420.49 HOLD    0.00 $   2.44         none
+2026-11-03 20:45:52,243 - strategy.signals - INFO - Evaluating signal -- Close=646.68, RSI=54.26, MACD=4.7679, MACD_Signal=6.5739, SMA_20=648.74, BB_Lower=631.71, ADX=39.01
+2026-11-03 20:45:52,243 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:52,243 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (646.68 > 631.71)', 'RSI in momentum corridor (54.3)'], 'blocked': False, 'block_reason': ''}
+  MA       $ 646.68 HOLD    0.00 $   4.00         none
+2026-11-03 20:45:52,691 - strategy.signals - INFO - Evaluating signal -- Close=1408.18, RSI=57.58, MACD=16.1688, MACD_Signal=21.0478, SMA_20=1415.78, BB_Lower=1400.89, ADX=24.53
+2026-11-03 20:45:52,691 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:52,691 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (1408.18 > 1400.89)', 'RSI in momentum corridor (57.6)'], 'blocked': False, 'block_reason': ''}
+  LLY      $1408.18 HOLD    0.00 $  15.27         none
+2026-11-03 20:45:53,189 - strategy.signals - INFO - Evaluating signal -- Close=400.81, RSI=42.31, MACD=-1.6329, MACD_Signal=-2.1042, SMA_20=402.68, BB_Lower=394.48, ADX=18.06
+2026-11-03 20:45:53,189 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.1 < 20.0)
+2026-11-03 20:45:53,189 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:53,189 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (400.81 > 394.48)', 'RSI in momentum corridor (42.3)'], 'blocked': False, 'block_reason': ''}
+  UNH      $ 400.81 HOLD    0.00 $   3.36         none
+2026-11-03 20:45:53,625 - strategy.signals - INFO - Evaluating signal -- Close=265.64, RSI=32.87, MACD=-1.2685, MACD_Signal=-0.5797, SMA_20=270.54, BB_Lower=263.63, ADX=23.84
+2026-11-03 20:45:53,625 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:53,625 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (265.64 > 263.63)', 'RSI oversold (32.9 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  JNJ      $ 265.64 HOLD    0.00 $   1.79         none
+2026-11-03 20:45:54,060 - strategy.signals - INFO - Evaluating signal -- Close=161.64, RSI=47.68, MACD=0.3295, MACD_Signal=0.5803, SMA_20=162.67, BB_Lower=161.09, ADX=25.11
+2026-11-03 20:45:54,060 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:54,060 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (161.64 > 161.09)', 'RSI in momentum corridor (47.7)'], 'blocked': False, 'block_reason': ''}
+  PG       $ 161.64 HOLD    0.00 $   0.89         none
+2026-11-03 20:45:54,516 - strategy.signals - INFO - Evaluating signal -- Close=177.61, RSI=35.90, MACD=-1.4778, MACD_Signal=-0.9742, SMA_20=181.64, BB_Lower=174.47, ADX=25.64
+2026-11-03 20:45:54,516 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 20:45:54,516 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (177.61 > 174.47)', 'RSI oversold (35.9 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  XOM      $ 177.61 HOLD    0.00 $   1.43         none
+
+  Equity: $99,166.85 | Long exposure: $0 (0.0%) | Cash: $99,166.85
+  Market closes in: 14 mins
+  Next scan:        in 15 minutes
+
+[21:00:54] Scanning 20 tickers... | SPY regime: BULL ($754.44 vs SMA-200 $726.65)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+2026-11-03 21:00:55,198 - main - INFO - Late session (<90 min to close): blocking new BUY entries. Existing positions managed by brackets.
+2026-11-03 21:00:55,653 - strategy.signals - INFO - Evaluating signal -- Close=206.57, RSI=45.29, MACD=-1.1556, MACD_Signal=-1.6601, SMA_20=205.86, BB_Lower=201.18, ADX=20.53
+2026-11-03 21:00:55,653 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 45.3 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 21:00:55,653 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 45.3 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+  NVDA     $ 206.57 BUY     0.70 $   2.08         none
+2026-11-03 21:00:56,104 - strategy.signals - INFO - Evaluating signal -- Close=331.74, RSI=31.70, MACD=-3.8302, MACD_Signal=-3.2240, SMA_20=338.20, BB_Lower=326.16, ADX=38.40
+2026-11-03 21:00:56,104 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:56,104 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (331.74 > 326.16)', 'RSI oversold (31.7 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  AAPL     $ 331.74 HOLD    0.00 $   2.92         none
+2026-11-03 21:00:56,548 - strategy.signals - INFO - Evaluating signal -- Close=520.77, RSI=49.50, MACD=-1.6330, MACD_Signal=-2.4115, SMA_20=519.53, BB_Lower=510.16, ADX=16.20
+2026-11-03 21:00:56,549 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=16.2 < 20.0)
+2026-11-03 21:00:56,549 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:56,549 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.5 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)', 'BLOCKED: Market choppy/sideways (ADX=16.2 < 20.0)'], 'blocked': False, 'block_reason': ''}
+  MSFT     $ 520.77 HOLD    0.00 $   4.36         none
+2026-11-03 21:00:56,991 - strategy.signals - INFO - Evaluating signal -- Close=398.22, RSI=44.62, MACD=-0.5622, MACD_Signal=0.4717, SMA_20=401.79, BB_Lower=392.28, ADX=14.43
+2026-11-03 21:00:56,991 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=14.4 < 20.0)
+2026-11-03 21:00:56,991 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:56,991 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (398.22 > 392.28)', 'RSI in momentum corridor (44.6)'], 'blocked': False, 'block_reason': ''}
+  TSLA     $ 398.22 HOLD    0.00 $   3.92         none
+2026-11-03 21:00:57,642 - strategy.signals - INFO - Evaluating signal -- Close=250.74, RSI=56.40, MACD=0.9283, MACD_Signal=0.1733, SMA_20=246.53, BB_Lower=235.99, ADX=20.58
+2026-11-03 21:00:57,642 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 56.4 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 21:00:57,643 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 56.4 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+  AMZN     $ 250.74 BUY     0.70 $   2.80         none
+2026-11-03 21:00:58,078 - strategy.signals - INFO - Evaluating signal -- Close=279.91, RSI=36.07, MACD=-5.1241, MACD_Signal=-6.3969, SMA_20=280.65, BB_Lower=276.25, ADX=40.59
+2026-11-03 21:00:58,078 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:58,078 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (279.91 > 276.25)', 'RSI oversold (36.1 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  GOOGL    $ 279.91 HOLD    0.00 $   2.88         none
+2026-11-03 21:00:58,521 - strategy.signals - INFO - Evaluating signal -- Close=620.95, RSI=51.54, MACD=-0.8986, MACD_Signal=-2.4709, SMA_20=616.57, BB_Lower=606.51, ADX=21.41
+2026-11-03 21:00:58,521 - strategy.signals - INFO - BUY signal generated (confidence=0.70) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 51.5 in [40, 65]); Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 21:00:58,521 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.7, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 51.5 in [40, 65])', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+  META     $ 620.95 BUY     0.70 $   5.38         none
+2026-11-03 21:00:58,951 - strategy.signals - INFO - Evaluating signal -- Close=484.47, RSI=36.32, MACD=-13.1668, MACD_Signal=-15.0701, SMA_20=490.71, BB_Lower=466.94, ADX=35.58
+2026-11-03 21:00:58,952 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:58,952 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['MACD bullish (MACD > Signal)', 'Above BB_Lower (484.47 > 466.94)', 'RSI oversold (36.3 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  AMD      $ 484.47 HOLD    0.00 $   9.09         none
+2026-11-03 21:00:59,378 - strategy.signals - INFO - Evaluating signal -- Close=63.38, RSI=63.97, MACD=0.1043, MACD_Signal=-0.0574, SMA_20=62.44, BB_Lower=61.61, ADX=27.29
+2026-11-03 21:00:59,378 - strategy.signals - INFO - BUY signal generated (confidence=0.75) -- Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 64.0 in [40, 65]); MACD histogram accelerating positive; Daily trend neutral/bearish (confidence adjusted)
+2026-11-03 21:00:59,378 - strategy.signals - INFO - Signal result: {'signal': 'BUY', 'confidence': 0.75, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 64.0 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend neutral/bearish (confidence adjusted)'], 'blocked': False, 'block_reason': ''}
+  NFLX     $  63.38 BUY     0.75 $   0.47         none
+2026-11-03 21:00:59,817 - strategy.signals - INFO - Evaluating signal -- Close=222.18, RSI=30.28, MACD=-3.5938, MACD_Signal=-3.4205, SMA_20=227.20, BB_Lower=218.97, ADX=48.42
+2026-11-03 21:00:59,818 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:00:59,818 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (222.18 > 218.97)', 'RSI oversold (30.3 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  CRM      $ 222.18 HOLD    0.00 $   2.57         none
+2026-11-03 21:01:00,270 - strategy.signals - INFO - Evaluating signal -- Close=337.99, RSI=46.43, MACD=-0.3630, MACD_Signal=-0.0219, SMA_20=338.79, BB_Lower=334.75, ADX=18.38
+2026-11-03 21:01:00,270 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.4 < 20.0)
+2026-11-03 21:01:00,270 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:00,270 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (337.99 > 334.75)', 'RSI in momentum corridor (46.4)'], 'blocked': False, 'block_reason': ''}
+  JPM      $ 337.99 HOLD    0.00 $   1.82         none
+2026-11-03 21:01:00,738 - strategy.signals - INFO - Evaluating signal -- Close=895.71, RSI=42.84, MACD=-3.5250, MACD_Signal=-3.0517, SMA_20=898.23, BB_Lower=881.49, ADX=24.59
+2026-11-03 21:01:00,738 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:00,738 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (895.71 > 881.49)', 'RSI in momentum corridor (42.8)'], 'blocked': False, 'block_reason': ''}
+  GS       $ 895.71 HOLD    0.00 $   7.02         none
+2026-11-03 21:01:01,353 - strategy.signals - INFO - Evaluating signal -- Close=49.66, RSI=39.74, MACD=-0.2873, MACD_Signal=-0.2852, SMA_20=49.88, BB_Lower=49.43, ADX=27.35
+2026-11-03 21:01:01,353 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:01,353 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (49.66 > 49.43)'], 'blocked': False, 'block_reason': ''}
+  BAC      $  49.66 HOLD    0.00 $   0.33         none
+2026-11-03 21:01:01,784 - strategy.signals - INFO - Evaluating signal -- Close=420.36, RSI=55.18, MACD=3.0351, MACD_Signal=3.8314, SMA_20=420.92, BB_Lower=411.86, ADX=29.61
+2026-11-03 21:01:01,784 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:01,784 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (420.36 > 411.86)', 'RSI in momentum corridor (55.2)'], 'blocked': False, 'block_reason': ''}
+  V        $ 420.36 HOLD    0.00 $   2.45         none
+2026-11-03 21:01:02,237 - strategy.signals - INFO - Evaluating signal -- Close=647.17, RSI=55.05, MACD=4.8070, MACD_Signal=6.5817, SMA_20=648.76, BB_Lower=631.75, ADX=38.99
+2026-11-03 21:01:02,237 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:02,237 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (647.17 > 631.75)', 'RSI in momentum corridor (55.1)'], 'blocked': False, 'block_reason': ''}
+  MA       $ 647.17 HOLD    0.00 $   4.04         none
+2026-11-03 21:01:02,679 - strategy.signals - INFO - Evaluating signal -- Close=1408.48, RSI=57.77, MACD=16.1931, MACD_Signal=21.0527, SMA_20=1415.80, BB_Lower=1400.94, ADX=24.58
+2026-11-03 21:01:02,679 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:02,679 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (1408.48 > 1400.94)', 'RSI in momentum corridor (57.8)'], 'blocked': False, 'block_reason': ''}
+  LLY      $1408.48 HOLD    0.00 $  15.31         none
+2026-11-03 21:01:03,134 - strategy.signals - INFO - Evaluating signal -- Close=403.98, RSI=49.58, MACD=-1.3800, MACD_Signal=-2.0536, SMA_20=402.84, BB_Lower=394.67, ADX=18.11
+2026-11-03 21:01:03,134 - strategy.signals - INFO - BUY blocked: Market choppy/sideways (ADX=18.1 < 20.0)
+2026-11-03 21:01:03,134 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:03,134 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Momentum confirmed (Close > SMA_20, MACD > Signal, RSI 49.6 in [40, 65])', 'MACD histogram accelerating positive', 'Daily trend bullish alignment', 'BLOCKED: Market choppy/sideways (ADX=18.1 < 20.0)'], 'blocked': False, 'block_reason': ''}
+  UNH      $ 403.98 HOLD    0.00 $   3.51         none
+2026-11-03 21:01:03,569 - strategy.signals - INFO - Evaluating signal -- Close=266.18, RSI=34.30, MACD=-1.2254, MACD_Signal=-0.5711, SMA_20=270.57, BB_Lower=263.74, ADX=23.86
+2026-11-03 21:01:03,569 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:03,569 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (266.18 > 263.74)', 'RSI oversold (34.3 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  JNJ      $ 266.18 HOLD    0.00 $   1.79         none
+2026-11-03 21:01:04,209 - strategy.signals - INFO - Evaluating signal -- Close=162.05, RSI=50.64, MACD=0.3622, MACD_Signal=0.5868, SMA_20=162.69, BB_Lower=161.16, ADX=24.99
+2026-11-03 21:01:04,210 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:04,210 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (162.05 > 161.16)', 'RSI in momentum corridor (50.6)'], 'blocked': False, 'block_reason': ''}
+  PG       $ 162.05 HOLD    0.00 $   0.90         none
+2026-11-03 21:01:04,654 - strategy.signals - INFO - Evaluating signal -- Close=177.44, RSI=35.40, MACD=-1.4914, MACD_Signal=-0.9769, SMA_20=181.63, BB_Lower=174.44, ADX=25.73
+2026-11-03 21:01:04,655 - strategy.signals - INFO - HOLD signal -- no actionable conditions detected.
+2026-11-03 21:01:04,655 - strategy.signals - INFO - Signal result: {'signal': 'HOLD', 'confidence': 0.0, 'reasons': ['Above BB_Lower (177.44 > 174.44)', 'RSI oversold (35.4 < 37.0)'], 'blocked': False, 'block_reason': ''}
+  XOM      $ 177.44 HOLD    0.00 $   1.44         none
+
+  Equity: $99,166.85 | Long exposure: $0 (0.0%) | Cash: $99,166.85
+  Market status:    CLOSED (Next open: 2026-11-04 09:30 -05:00) — session completed.
+
+============================================================
+  SESSION WRAP-UP
+  Final equity: $99,166.85
+2026-11-03 21:01:06,573 - analytics.metrics - INFO - Performance metrics computed: {'session_timestamp': '2026-11-03T21:01:06.566751', 'starting_equity': 100000.0, 'ending_equity': 99166.85, 'total_return_pct': -0.8331, 'sharpe_ratio': -2.2976, 'sortino_ratio': -3.387, 'max_drawdown_pct': -0.6972, 'max_drawdown_duration_days': 28, 'total_trades': 0, 'winning_trades': 0, 'losing_trades': 0, 'win_rate': 0.0, 'expectancy': 0.0, 'profit_factor': 0.0, 'avg_gain': 0.0, 'avg_loss': 0.0, 'avg_slippage_pct': 0.164585, 'avg_execution_latency_ms': 3609.18}
+2026-11-03 21:01:06,574 - analytics.metrics - INFO - Performance summary saved to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/performance_summary.json
+2026-11-03 21:01:06,578 - analytics.metrics - INFO - Session stats saved to /home/runner/work/Autonomous-Stock-Trading-System/Autonomous-Stock-Trading-System/outputs/trade_history.csv (date: 2026-11-03)
+============================================================
+  QUANTITATIVE PERFORMANCE SUMMARY
+============================================================
+  Total Return:       -0.83%
+  Sharpe Ratio:       -2.2976
+  Sortino Ratio:      -3.3870
+  Max Drawdown:       -0.70%
+  Drawdown Duration:  28 periods
+  Win Rate:           0.0%
+  Expectancy:         $0.00
+  Profit Factor:      0.00
+  Avg Slippage:       0.1646%
+  Avg Latency:        3609ms
+  Total Trades:       0
+============================================================
+============================================================

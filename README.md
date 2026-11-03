@@ -47,7 +47,7 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 
 > **Paper Trading on Alpaca** | Started: Aug 11, 2026 | Initial Capital: $100,000.00 | Universe: NVDA, TSLA, META, MSFT, AAPL (5-Stock High-Momentum Universe)
 
-![Daily P&L Chart](outputs/daily_pnl_chart.png?v=20261009)
+![Daily P&L Chart](outputs/daily_pnl_chart.png?v=20261103)
 
 *Chart auto-generated from live Alpaca Portfolio History API and verified session telemetry via [`scripts/generate_pnl_chart.py`](scripts/generate_pnl_chart.py).*
 
@@ -99,8 +99,16 @@ The automated trading bot is deployed in the cloud on Render with continuous mon
 | **Day 42** | Oct 07 (Wed) | $99,968.75 | **+$155.71** | -$31.25 | -0.031% | Profitable Session (+$155.71) |
 | **Day 43** | Oct 08 (Thu) | $99,897.03 | -$71.72 | -$102.97 | -0.103% | Active Session (-$71.72) |
 | **Day 44** | Oct 09 (Fri) | $100,006.95 | **+$109.92** | +$6.95 | +0.007% | Profitable Session (+$109.92) |
+| **Day 45** | Oct 12 (Mon) | $100,042.75 | +$35.80 | +$42.75 | +0.043% | Active Session (+$35.80) |
+| **Day 46** | Oct 13 (Tue) | $100,189.49 | **+$146.74** | +$189.49 | +0.189% | Profitable Session (+$146.74) |
+| **Day 47** | Oct 14 (Wed) | $99,940.50 | -$248.99 | -$59.50 | -0.059% | Loss Session (-$248.99) |
+| **Day 48** | Oct 15 (Thu) | $99,865.67 | -$74.83 | -$134.33 | -0.134% | Active Session (-$74.83) |
+| **Day 49** | Oct 16 (Fri) | $99,612.93 | -$252.74 | -$387.07 | -0.387% | Loss Session (-$252.74) |
+| **Day 50** | Oct 30 (Fri) | $99,155.54 | -$457.39 | -$844.46 | -0.844% | Loss Session (-$457.39) |
+| **Day 51** | Nov 02 (Mon) | $99,155.54 | $0.00 | -$844.46 | -0.844% | Flat Session - Disciplined HOLD |
+| **Day 52** | Nov 03 (Tue) | $99,166.85 | +$11.31 | -$833.15 | -0.833% | Active Session (+$11.31) |
 
-> **Current Equity**: $100,006.95 | **Total P&L**: $+6.95 | **Best Day**: $+575.51 | **Win Rate**: 36.4% (16W / 24L / 4 Flat) | **Max Drawdown**: -0.773% | **Sessions**: 44
+> **Current Equity**: $99,166.85 | **Total P&L**: $-833.15 | **Best Day**: $+575.51 | **Win Rate**: 36.5% (19W / 28L / 5 Flat) | **Max Drawdown**: -0.844% | **Sessions**: 52
 ---
 
 ## System Architecture
