@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-11-03T03:44:41.128711+00:00",
+  "git_sha": "f6363fd0b99250b609ca39860c5c187e528bb788",
+  "protocol_sha256": "3e6dc75f864421f6b10c8455056c753de30df38bb3133b896270ab9bacd82282",
+  "promotion_eligible": false,
+  "limitations": [
+    "Historical entry versions and unknown exit reasons cannot be reconstructed",
+    "Prospective holdout incomplete; no replacement is approved"
+  ],
+  "status": "OBSERVED_NOT_VALIDATED_STRATEGY",
+  "completed_episodes": 70,
+  "gross_pnl": "-452.54",
+  "unknown_entry_versions": 70,
+  "exit_evidence": {
+    "unknown": 56,
+    "broker_stop": 14
+  }
+}
