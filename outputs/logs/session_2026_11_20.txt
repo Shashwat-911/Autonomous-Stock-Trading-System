@@ -1,0 +1,1 @@
+2026-11-20 21:27:11,288 - main - WARNING - Insufficient trading time remaining (<15 minutes). Session skipped. Next session will run tomorrow.
