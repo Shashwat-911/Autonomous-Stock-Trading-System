@@ -1,10 +1,10 @@
 {
-  "session_timestamp": "2026-11-22T08:59:15.163148",
+  "session_timestamp": "2026-11-24T01:09:03.469018",
   "starting_equity": 100000.0,
   "ending_equity": 98455.71,
   "total_return_pct": -1.5443,
-  "sharpe_ratio": -3.1706,
-  "sortino_ratio": -3.8598,
+  "sharpe_ratio": -3.1663,
+  "sortino_ratio": -3.8545,
   "max_drawdown_pct": -1.9541,
   "max_drawdown_duration_days": 28,
   "total_trades": 14,
