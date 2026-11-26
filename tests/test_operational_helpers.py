@@ -1,4 +1,5 @@
 import io
+import importlib
 import json
 from pathlib import Path
 import sys
@@ -12,9 +13,20 @@ sys.path.insert(0, str(ROOT))
 from scripts.check_trading_day import is_trading_day
 from scripts.fetch_render_session_log import SessionLogParser
 from scripts.report_schedule import resolve_report_window
+from scripts.runtime_paths import ensure_project_root_on_path
 
 
 class OperationalHelperTests(unittest.TestCase):
+    def test_launcher_bootstrap_resolves_root_config_from_scripts_path(self):
+        # Render starts the launcher by filename, leaving scripts/ at sys.path[0].
+        with patch.object(sys, "path", [str(ROOT / "scripts")]), patch.dict(sys.modules):
+            sys.modules.pop("config", None)
+            resolved_root = ensure_project_root_on_path(ROOT / "scripts" / "cloud_launcher.py")
+            self.assertEqual(resolved_root, ROOT)
+            self.assertEqual(Path(sys.path[0]), ROOT)
+            config = importlib.import_module("config")
+            self.assertIn("ALPACA", config.__dict__)
+
     def test_calendar_lookup_uses_only_paper_host_and_parses_session(self):
         class Response(io.BytesIO):
             def __enter__(self):

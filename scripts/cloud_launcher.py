@@ -21,6 +21,10 @@ from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlsplit
 
+from runtime_paths import ensure_project_root_on_path
+
+PROJECT_ROOT = ensure_project_root_on_path(__file__)
+
 from market_schedule import (
     market_is_open,
     new_york_now,
@@ -36,8 +40,7 @@ except ImportError:
     pass
 
 # ── Working directory: always project root, regardless of where this script is called from ──
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-os.chdir('..')  # go to project root
+os.chdir(PROJECT_ROOT)
 
 _clock_client = None
 _active_process = None
