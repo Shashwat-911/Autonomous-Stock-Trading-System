@@ -3,6 +3,9 @@ import logging
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from zoneinfo import ZoneInfo
+
+_NEW_YORK = ZoneInfo("America/New_York")
 
 # Configure logger for risk manager module
 logger = logging.getLogger(__name__)
@@ -90,6 +93,7 @@ class RiskManager:
         # Daily tracking state
         self._day_start_balance: float = initial_balance
         self._daily_loss_breached: bool = False
+        self._trading_date: str | None = None
 
         # Cooldown state
         self._cooldown_until: datetime | None = None
@@ -407,14 +411,29 @@ class RiskManager:
         Must be called once at the beginning of each live session AFTER
         fetching account info from the broker.
         """
-        if current_equity > 0:
+        if current_equity <= 0:
+            return
+
+        today = datetime.now(_NEW_YORK).date().isoformat()
+        is_new_trading_date = self._trading_date != today
+        previous_balance = self._day_start_balance
+        if is_new_trading_date:
             self._day_start_balance = current_equity
             self._daily_loss_breached = False
-            self._save_state()
-            logger.info(
-                f"Day-start balance synced from broker: ${current_equity:,.2f} "
-                f"(was: ${self.initial_balance:,.2f})"
-            )
+            self._cooldown_until = None
+            self._stop_loss_count = 0
+            self._trading_date = today
+            logger.info("New New York trading date; daily risk state reset.")
+        elif self._day_start_balance <= 0:
+            self._day_start_balance = current_equity
+
+        self._save_state()
+        logger.info(
+            "Day-start equity: $%.2f (persisted baseline was $%.2f; breach=%s)",
+            self._day_start_balance,
+            previous_balance,
+            self._daily_loss_breached,
+        )
 
     def reset_daily_state(self) -> None:
         """
@@ -426,6 +445,7 @@ class RiskManager:
         self._daily_loss_breached = False
         self._cooldown_until = None
         self._stop_loss_count = 0
+        self._trading_date = datetime.now(_NEW_YORK).date().isoformat()
         self._save_state()
         logger.info(
             "Daily state reset -- day-start balance=%.2f", self._day_start_balance
@@ -445,6 +465,7 @@ class RiskManager:
             ),
             "stop_loss_count": self._stop_loss_count,
             "day_start_balance": self._day_start_balance,
+            "trading_date": self._trading_date or datetime.now(_NEW_YORK).date().isoformat(),
             "saved_at": datetime.now(timezone.utc).isoformat(),
         }
         try:
@@ -454,7 +475,7 @@ class RiskManager:
             logger.warning(f"Could not save risk state: {e}")
 
     def _load_state(self) -> None:
-        """Load persisted circuit breaker state at startup. Clears stale cooldowns."""
+        """Load same-date circuit-breaker state; discard prior-date daily flags."""
         fp = self._state_filepath()
         if not os.path.exists(fp):
             return
@@ -463,17 +484,21 @@ class RiskManager:
                 state = json.load(f)
 
             saved_at_str = state.get("saved_at")
-            if saved_at_str:
-                saved_at = datetime.fromisoformat(saved_at_str)
-                if saved_at.tzinfo is None:
-                    saved_at = saved_at.replace(tzinfo=timezone.utc)
-                age_hours = (
-                    datetime.now(timezone.utc) - saved_at
-                ).total_seconds() / 3600
-                # State older than 18 hours is from a previous session — ignore it
-                if age_hours > 18:
-                    logger.info("Risk state file is stale (>18h) — starting fresh.")
-                    return
+            saved_at = datetime.fromisoformat(saved_at_str) if saved_at_str else None
+            if saved_at and saved_at.tzinfo is None:
+                saved_at = saved_at.replace(tzinfo=timezone.utc)
+            saved_date = (
+                state.get("trading_date")
+                or (saved_at.astimezone(_NEW_YORK).date().isoformat() if saved_at else None)
+            )
+            today = datetime.now(_NEW_YORK).date().isoformat()
+            if saved_date and saved_date != today:
+                logger.info("Risk state belongs to a prior New York date; daily flags reset.")
+                self._trading_date = saved_date
+                return
+
+            self._trading_date = today
+            self._day_start_balance = float(state.get("day_start_balance", self.initial_balance))
 
             self._daily_loss_breached = state.get("daily_loss_breached", False)
             self._stop_loss_count = state.get("stop_loss_count", 0)
@@ -493,7 +518,7 @@ class RiskManager:
                     logger.info("Cooldown from disk has already expired — cleared.")
 
             logger.info(
-                f"Risk state loaded: breached={self._daily_loss_breached}, "
+                f"Risk state loaded for {self._trading_date}: breached={self._daily_loss_breached}, "
                 f"stop_loss_count={self._stop_loss_count}"
             )
         except Exception as e:
