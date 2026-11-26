@@ -71,46 +71,25 @@ def _validate_credentials():
         )
 
 
-def _has_sufficient_trading_time(min_hours: float = 2.0) -> bool:
+def _has_sufficient_trading_time(min_hours: float = 2.0, clock=None) -> bool:
     """
     Return True if there are at least min_hours of trading time remaining today.
-    Prevents the bot from starting a session when GitHub Actions queue delay
-    has pushed startup past the point where meaningful trading can occur.
+    Uses Alpaca's live exchange clock so DST, holidays, and early closes are
+    handled by the broker's actual session schedule.
     """
-    try:
-        import pytz
-        et = pytz.timezone("America/New_York")
-        now_et = datetime.now(et)
-    except Exception:
-        from datetime import timezone
-        now_utc = datetime.now(timezone.utc)
-        today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
-        today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-        if now_utc >= today_close_utc:
-            return False
-        if now_utc < today_open_utc:
-            return True
-        remaining = (today_close_utc - now_utc).total_seconds() / 3600
-        return remaining >= min_hours
-
-    # Market closes at 4:00 PM ET
-    market_close = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
-
-    # If market already closed, no trading time
-    if now_et >= market_close:
+    if clock is None or not getattr(clock, "is_open", False):
         return False
+    from datetime import timezone
+    close_at = getattr(clock, "next_close", None)
+    now = datetime.now(timezone.utc)
+    if close_at is None:
+        return False
+    if close_at.tzinfo is None:
+        close_at = close_at.replace(tzinfo=timezone.utc)
+    return (close_at - now).total_seconds() >= min_hours * 3600
 
-    # If market not yet open (before 9:30 AM ET), plenty of time
-    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
-    if now_et < market_open:
-        return True
 
-    # Check remaining hours
-    remaining = (market_close - now_et).total_seconds() / 3600
-    return remaining >= min_hours
-
-
-def _should_allow_new_entries(min_hours_for_entries: float = 1.5) -> bool:
+def _should_allow_new_entries(min_hours_for_entries: float = 1.5, clock=None) -> bool:
     """
     Return True if there is enough trading time remaining to justify
     opening NEW positions. Existing positions are always managed regardless.
@@ -121,19 +100,15 @@ def _should_allow_new_entries(min_hours_for_entries: float = 1.5) -> bool:
 
     Default: blocks new entries if less than 1.5 hours remain.
     """
-    from datetime import datetime, timezone
-    now_utc = datetime.now(timezone.utc)
-    today_close_utc = now_utc.replace(hour=20, minute=0, second=0, microsecond=0)
-    today_open_utc = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-
-    # Before market open — entries will be fine
-    if now_utc < today_open_utc:
-        return True
-    # After close — irrelevant
-    if now_utc >= today_close_utc:
+    if clock is None or not getattr(clock, "is_open", False):
         return False
-
-    remaining = (today_close_utc - now_utc).total_seconds() / 3600
+    from datetime import datetime, timezone
+    close_at = getattr(clock, "next_close", None)
+    if close_at is None:
+        return False
+    if close_at.tzinfo is None:
+        close_at = close_at.replace(tzinfo=timezone.utc)
+    remaining = (close_at - datetime.now(timezone.utc)).total_seconds() / 3600
     return remaining >= min_hours_for_entries
 
 
@@ -451,14 +426,6 @@ def run_walkforward() -> None:
 def run_live():
     _validate_credentials()
 
-    # Guard: skip session if less than 15 minutes of trading time remain
-    if not _has_sufficient_trading_time(min_hours=0.25):
-        logger.warning(
-            "Insufficient trading time remaining (<15 minutes). "
-            "Session skipped. Next session will run tomorrow."
-        )
-        return  # Exit run_live() cleanly — finally block still runs
-
     import sys
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
@@ -531,6 +498,13 @@ def run_live():
     print("=" * 60)
 
     first_broker = brokers[tickers[0]]
+    start_clock = first_broker.get_clock()
+    if not _has_sufficient_trading_time(min_hours=0.25, clock=start_clock):
+        logger.warning(
+            "Exchange clock is closed, unavailable, or within 15 minutes of close. "
+            "Live session skipped; no orders submitted."
+        )
+        return
     account = first_broker.get_account_info()
     print(f"  Equity:       ${account['equity']:,.2f}")
     print(f"  Buying power: ${account['buying_power']:,.2f}\n")
@@ -538,7 +512,6 @@ def run_live():
     # Sync circuit breaker baseline to actual broker equity (not config hardcode)
     actual_equity = account.get("equity", config.TRADING["initial_balance"])
     rm.sync_day_start_balance(actual_equity)
-    rm.reset_daily_state()
     logger.info(f"Session started. Actual broker equity: ${actual_equity:,.2f}")
 
     # Track session start timestamp for filtering trade history to this session
@@ -574,7 +547,11 @@ def run_live():
             action_alerts = []
 
             # Block new BUY entries if less than 90 minutes remain
-            allow_new_entries = _should_allow_new_entries(min_hours_for_entries=1.5)
+            entry_clock = first_broker.get_clock()
+            allow_new_entries = _should_allow_new_entries(
+                min_hours_for_entries=1.5,
+                clock=entry_clock,
+            )
             if not allow_new_entries:
                 logger.info(
                     "Late session (<90 min to close): blocking new BUY entries. "

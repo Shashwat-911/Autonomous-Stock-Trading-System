@@ -4,35 +4,30 @@ cloud_launcher.py
 Render cloud deployment wrapper for the Autonomous Stock Trading System.
 
 Purpose:
-  - Runs continuously as a Render 'worker' service.
-  - Only launches the trading bot during US market hours (Mon-Fri 13:30-20:00 UTC).
+  - Render is the single live trading execution owner.
+  - Launches the bot only when Alpaca's exchange clock says the market is open.
   - Auto-restarts the bot if it crashes mid-session.
   - Streams all bot output to both Render logs (stdout) and a date-stamped local log file.
-  - After each session ends (market closes), runs the post-session pipeline:
-      fetch equity → regenerate chart → git commit → git push to GitHub.
-  - Sleeps when market is closed so Render is not billed for idle compute.
-
-Market Hours Reference:
-  US Market:  Mon-Fri  09:30 - 16:00 ET
-  = UTC:      Mon-Fri  13:30 - 20:00 UTC
-  = IST:      Mon-Fri  19:00 - 01:30 IST (next day)
-
-Post-Session Pipeline:
-  Triggered once per day, after 20:00 UTC (market close).
-  Calls scripts/post_session.py which:
-    1. Fetches equity snapshot from Alpaca API
-    2. Regenerates daily_pnl_chart.png
-    3. Git commits: session log + equity CSV + chart
-    4. Git pushes to GitHub (requires GIT_TOKEN env var)
+  - GitHub Actions archives the log and publishes account reports after market close.
 """
 
 import subprocess
 import sys
 import os
+import signal
 import time
 import threading
 from datetime import datetime, timedelta, timezone
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlsplit
+
+from market_schedule import (
+    market_is_open,
+    new_york_now,
+    seconds_until_next_check,
+    session_date_tag,
+    should_keep_service_awake,
+)
 
 try:
     from dotenv import load_dotenv
@@ -43,6 +38,58 @@ except ImportError:
 # ── Working directory: always project root, regardless of where this script is called from ──
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.chdir('..')  # go to project root
+
+_clock_client = None
+_active_process = None
+_runtime_lock = threading.Lock()
+_runtime_state = {
+    "execution_owner": "render",
+    "runner_state": "starting",
+    "market_clock": "unknown",
+    "market_clock_checked_at": None,
+    "last_session_started_at": None,
+    "last_session_finished_at": None,
+    "last_session_exit_code": None,
+}
+
+
+def update_runtime_state(**values):
+    with _runtime_lock:
+        _runtime_state.update(values)
+
+
+def handle_shutdown(signum, _frame):
+    """Stop the child trader promptly when Render restarts or redeploys us."""
+    global _active_process
+    update_runtime_state(runner_state="shutting_down")
+    process = _active_process
+    if process is not None and process.poll() is None:
+        print(f"[INFO] Received signal {signum}; stopping the live child process.", flush=True)
+        process.terminate()
+        try:
+            process.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=5)
+    raise SystemExit(0)
+
+
+def get_market_clock():
+    """Read the authoritative exchange clock. Never infer opens from UTC hours."""
+    global _clock_client
+    import config
+
+    api_key = config.ALPACA.get("api_key")
+    secret_key = config.ALPACA.get("secret_key")
+    if not api_key or not secret_key:
+        raise RuntimeError("Alpaca credentials are missing")
+    if _clock_client is None:
+        from alpaca.trading.client import TradingClient
+        _clock_client = TradingClient(api_key, secret_key, paper=True)
+    clock = _clock_client.get_clock()
+    if clock is None:
+        raise RuntimeError("Alpaca did not return an exchange clock")
+    return clock
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -64,11 +111,11 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
           4. Legacy outputs/trader.log or outputs/session_log.txt
         """
         log_dir = "outputs/logs"
-        now_utc = datetime.now(timezone.utc)
+        now_et = new_york_now()
 
         # 1 & 2: Today and yesterday
         for delta_days in range(0, 3):
-            dt = now_utc - timedelta(days=delta_days)
+            dt = now_et - timedelta(days=delta_days)
             tag = dt.strftime("%Y_%m_%d")
             path = os.path.join(log_dir, f"session_{tag}.txt")
             if os.path.exists(path) and os.path.getsize(path) > 0:
@@ -301,8 +348,40 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            route = urlsplit(self.path).path
+            if route in ("/", "/health"):
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"status":"healthy","execution_owner":"render"}')
+                return
+
+            if route == "/ready":
+                with _runtime_lock:
+                    market_clock = _runtime_state.get("market_clock")
+                ready = market_clock in ("open", "closed")
+                self.send_response(200 if ready else 503)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(
+                    b'{"status":"ready"}' if ready
+                    else b'{"status":"waiting_for_broker_clock"}'
+                )
+                return
+
+            if route == "/status":
+                with _runtime_lock:
+                    status = dict(_runtime_state)
+                status["observed_at"] = datetime.now(timezone.utc).isoformat()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                import json
+                self.wfile.write(json.dumps(status).encode("utf-8"))
+                return
+
             # --- /logs or /log: Show session logs ---
-            if self.path.rstrip("/") in ("/logs", "/log"):
+            if route.rstrip("/") in ("/logs", "/log"):
                 log_content, log_label = self._find_best_log()
                 available_logs = self._list_available_logs()
                 page = self._render_logs_page(log_content, log_label, available_logs)
@@ -314,8 +393,8 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 return
 
             # --- /logs/<filename>: Serve a specific log file ---
-            if self.path.startswith("/logs/session_"):
-                fname = self.path.split("/")[-1]
+            if route.startswith("/logs/session_"):
+                fname = route.split("/")[-1]
                 # Sanitize: only allow alphanumeric, underscores, dots
                 safe_name = "".join(c for c in fname if c.isalnum() or c in ("_", "."))
                 fpath = os.path.join("outputs", "logs", safe_name)
@@ -336,12 +415,12 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 return
 
             # --- /debug: Show debug/stderr log for today ---
-            if self.path.rstrip("/") in ("/debug", "/stderr"):
-                now_utc = datetime.now(timezone.utc)
+            if route.rstrip("/") in ("/debug", "/stderr"):
+                now_et = new_york_now()
                 debug_content = None
                 debug_label = None
                 for delta_days in range(0, 3):
-                    dt = now_utc - timedelta(days=delta_days)
+                    dt = now_et - timedelta(days=delta_days)
                     tag = dt.strftime("%Y_%m_%d")
                     dpath = os.path.join("outputs", "logs", f"debug_{tag}.log")
                     if os.path.exists(dpath) and os.path.getsize(dpath) > 0:
@@ -389,19 +468,19 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 
 
 def keep_alive():
-    """Background keep-alive ping to prevent Render free tier from sleeping."""
+    """Keep the free web instance awake only around US weekday operations."""
     time.sleep(180)  # Wait 3 mins after startup
     url = os.environ.get("RENDER_EXTERNAL_URL", "https://autonomous-stock-trader.onrender.com/")
-    if not url.endswith("/"):
-        url += "/"
+    url = url.rstrip("/") + "/health"
     while True:
-        try:
-            import urllib.request
-            req = urllib.request.Request(url, headers={"User-Agent": "RenderKeepAlive/1.0"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                pass
-        except Exception:
-            pass
+        if should_keep_service_awake():
+            try:
+                import urllib.request
+                req = urllib.request.Request(url, headers={"User-Agent": "RenderSessionKeepAlive/1.0"})
+                with urllib.request.urlopen(req, timeout=15):
+                    pass
+            except Exception as exc:
+                print(f"[WARN] Scheduled health ping failed ({type(exc).__name__}).", flush=True)
         time.sleep(600)  # Ping every 10 minutes (Render timeout is 15 minutes)
 
 
@@ -409,7 +488,7 @@ def start_health_server():
     port_str = os.environ.get("PORT", "10000")
     try:
         port = int(port_str)
-        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        server = ThreadingHTTPServer(("0.0.0.0", port), HealthCheckHandler)
         print(f"  Health check server listening on port {port} (Render Free Web Service mode)", flush=True)
         # Start keep-alive ping in background
         threading.Thread(target=keep_alive, daemon=True).start()
@@ -422,89 +501,6 @@ def start_health_server():
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
-def is_market_hours() -> bool:
-    """
-    Returns True if the current UTC time falls within US equity market hours.
-
-    US market:  Monday – Friday, 09:30 – 16:00 Eastern Time
-    UTC equiv:  Monday – Friday, 13:30 – 20:00 UTC  (standard / no DST adjustment)
-
-    Note: This is a conservative approximation. The Alpaca broker layer inside
-    main.py also checks the live market clock before submitting any orders,
-    so this function only determines whether to *launch* the bot process at all.
-    """
-    now_utc = datetime.now(timezone.utc)
-    weekday = now_utc.weekday()   # 0 = Monday … 4 = Friday, 5 = Saturday, 6 = Sunday
-
-    # ── Weekend guard ──
-    if weekday >= 5:
-        return False
-
-    # ── Build today's open / close timestamps in UTC ──
-    market_open  = now_utc.replace(hour=13, minute=30, second=0, microsecond=0)
-    market_close = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
-
-    if not (market_open <= now_utc <= market_close):
-        return False
-
-    # Check Alpaca market clock for exchange holidays (e.g. Labor Day, Thanksgiving, etc.)
-    try:
-        import config
-        from broker.alpaca import AlpacaPaperBroker
-        b = AlpacaPaperBroker(config.ALPACA["api_key"], config.ALPACA["secret_key"], config.ALPACA["base_url"])
-        clock = b.get_clock()
-        if clock is not None:
-            if not clock.is_open:
-                print(f"  [Alpaca Clock] Market is CLOSED for holiday/observance. Next open: {clock.next_open}", flush=True)
-                return False
-    except Exception as e:
-        print(f"  [Alpaca Clock] Warning: clock check failed: {e}. Falling back to time window.", flush=True)
-
-    return True
-
-
-def is_post_session_window() -> bool:
-    """
-    Returns True after market close (20:00–23:59 UTC) on weekdays.
-    This ensures the post-session pipeline reliably triggers once market has
-    definitively closed and all Alpaca order fills have settled.
-    """
-    now_utc = datetime.now(timezone.utc)
-    weekday = now_utc.weekday()
-
-    if weekday >= 5:
-        return False
-
-    post_open  = now_utc.replace(hour=20, minute=0,  second=0, microsecond=0)
-    post_close = now_utc.replace(hour=23, minute=59, second=0, microsecond=0)
-
-    return post_open <= now_utc <= post_close
-
-
-def run_post_session(date_str: str):
-    """
-    Invoke scripts/post_session.py as a subprocess.
-    Streams all output to Railway logs.
-    """
-    print(f"\n{'=' * 60}")
-    print(f"  POST-SESSION PIPELINE -- {date_str}")
-    print(f"  Time: {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}")
-    print(f"{'=' * 60}", flush=True)
-
-    result = subprocess.run(
-        [sys.executable, "scripts/post_session.py"],
-        text=True,
-        check=False
-    )
-
-    if result.returncode == 0:
-        print(f"\n  ✅ Post-session pipeline succeeded.", flush=True)
-    else:
-        print(f"\n  ❌ Post-session pipeline failed (exit {result.returncode}).", flush=True)
-
-    return result.returncode == 0
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Main loop
 # ──────────────────────────────────────────────────────────────────────────────
@@ -516,26 +512,62 @@ print(f"  Python:      {sys.version.split()[0]}")
 print(f"  Working dir: {os.getcwd()}")
 print("=" * 60, flush=True)
 
+signal.signal(signal.SIGTERM, handle_shutdown)
+signal.signal(signal.SIGINT, handle_shutdown)
+
 # ── Start HTTP health server for Render Free Web Service ──
 threading.Thread(target=start_health_server, daemon=True).start()
 
-# Track which date we last ran the post-session pipeline (prevent duplicate runs)
-last_post_session_date: str = ""
-
 while True:
     now_utc  = datetime.now(timezone.utc)
-    today    = now_utc.strftime("%Y-%m-%d")
-    date_tag = now_utc.strftime("%Y_%m_%d")
+    date_tag = session_date_tag(now_utc)
 
     # ──────────────────────────────────────────────────────────────────────────
     # Branch A: Market is OPEN — run the trading bot
     # ──────────────────────────────────────────────────────────────────────────
-    if is_market_hours():
+    try:
+        clock = get_market_clock()
+        is_open = market_is_open(clock)
+        update_runtime_state(
+            market_clock="open" if is_open else "closed",
+            market_clock_checked_at=datetime.now(timezone.utc).isoformat(),
+            runner_state="market_open" if is_open else "waiting_for_market",
+        )
+    except Exception as exc:
+        clock = None
+        is_open = False
+        update_runtime_state(
+            market_clock="unavailable",
+            market_clock_checked_at=datetime.now(timezone.utc).isoformat(),
+            runner_state="market_clock_unavailable",
+        )
+        print(f"[ERROR] Exchange clock unavailable; entries remain disabled ({type(exc).__name__}).", flush=True)
+
+    if is_open:
+        close_at = getattr(clock, "next_close", None)
+        if close_at is None:
+            print("[ERROR] Open clock has no next-close timestamp; delaying session start.", flush=True)
+            update_runtime_state(runner_state="market_clock_incomplete")
+            time.sleep(60)
+            continue
+        if close_at.tzinfo is None:
+            close_at = close_at.replace(tzinfo=timezone.utc)
+        seconds_left = (close_at - datetime.now(timezone.utc)).total_seconds()
+        if seconds_left < 15 * 60:
+            print("[WARN] Market closes in under 15 minutes; no session launched.", flush=True)
+            update_runtime_state(runner_state="market_open_too_late")
+            time.sleep(max(15, min(60, int(max(0, seconds_left)))))
+            continue
+
         log_path = f"outputs/logs/session_{date_tag}.txt"
         os.makedirs("outputs/logs", exist_ok=True)
 
         print(f"\n[{now_utc.strftime('%H:%M:%S UTC')}] Market OPEN — launching trading bot...", flush=True)
         print(f"  Session log: {log_path}", flush=True)
+        update_runtime_state(
+            runner_state="starting_session",
+            last_session_started_at=datetime.now(timezone.utc).isoformat(),
+        )
 
         try:
             debug_path = f"outputs/logs/debug_{date_tag}.log"
@@ -556,6 +588,7 @@ while True:
                 errors="replace",
                 env=env,
             )
+            _active_process = process
 
             # ── Thread: drain stdout → session log (clean tabular output only) ──
             def stream_stdout():
@@ -585,11 +618,18 @@ while True:
             t_err = threading.Thread(target=stream_stderr, daemon=True)
             t_out.start()
             t_err.start()
+            update_runtime_state(runner_state="trading_session_running")
             t_out.join()
             t_err.join()
 
             process.wait()
             exit_code = process.returncode
+            _active_process = None
+            update_runtime_state(
+                runner_state="session_exited",
+                last_session_finished_at=datetime.now(timezone.utc).isoformat(),
+                last_session_exit_code=exit_code,
+            )
             print(
                 f"\n[{datetime.now(timezone.utc).strftime('%H:%M:%S UTC')}] "
                 f"Bot exited with code: {exit_code}",
@@ -606,30 +646,14 @@ while True:
         print("  Cooling down 5 minutes before next check...", flush=True)
         time.sleep(300)   # 5 minutes
 
-    # ──────────────────────────────────────────────────────────────────────────
-    # Branch B: Post-session window (20:00–20:30 UTC) — run pipeline once/day
-    # ──────────────────────────────────────────────────────────────────────────
-    elif is_post_session_window() and last_post_session_date != today:
-        print(
-            f"\n[{now_utc.strftime('%H:%M:%S UTC')}] "
-            f"Post-session window open — starting pipeline...",
-            flush=True
-        )
-        # Wait 2 minutes after close for Alpaca fills to settle before fetching
-        print("  Waiting 2 min for order fills to settle...", flush=True)
-        time.sleep(120)
-
-        run_post_session(today)
-        last_post_session_date = today   # mark as done for today
-
-        print("  Sleeping 15 minutes before next check...", flush=True)
-        time.sleep(900)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Branch C: Market is CLOSED (and not post-session window) — sleep
-    # ──────────────────────────────────────────────────────────────────────────
     else:
-        day_name = now_utc.strftime("%A")
-        time_str = now_utc.strftime("%H:%M UTC")
-        print(f"  Market CLOSED — {day_name} {time_str} — sleeping 10 minutes", flush=True)
-        time.sleep(600)   # 10 minutes
+        if clock is None:
+            delay = 60
+        else:
+            delay = seconds_until_next_check(clock, now_utc)
+        next_open = getattr(clock, "next_open", None) if clock is not None else None
+        if next_open:
+            print(f"  Market closed — next exchange open: {next_open}; checking again in {delay}s", flush=True)
+        else:
+            print(f"  Market closed or clock unavailable — checking again in {delay}s", flush=True)
+        time.sleep(delay)
