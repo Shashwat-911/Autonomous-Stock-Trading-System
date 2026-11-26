@@ -10,9 +10,23 @@ services:
 
     # -- Start ------------------------------------------------------------------
     startCommand: python scripts/cloud_launcher.py
+    healthCheckPath: /ready
 
     # -- Auto-deploy on git push ------------------------------------------------
     autoDeploy: true
+
+    # Report and documentation commits must not restart the live trader.
+    buildFilter:
+      ignoredPaths:
+        - .github/**
+        - outputs/**
+        - README.md
+        - docs/**
+        - research/**
+        - tests/**
+        - scripts/check_trading_day.py
+        - scripts/fetch_render_session_log.py
+        - scripts/report_schedule.py
 
     # -- Environment Variables --------------------------------------------------
     envVars:

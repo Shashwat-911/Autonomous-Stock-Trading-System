@@ -1,149 +1,131 @@
-name: AutoTrader Daily Session
+name: Render wake checks and daily reports
 
 on:
+  # Repeated short HTTP checks give the free Render web service several chances
+  # to wake before the US session. This workflow never starts the trading bot.
   schedule:
-    - cron: '30 13 * * 1-5'  # 7:00 PM IST = 13:30 UTC Mon-Fri
-    - cron: '0 2 * * 0'      # Run every Sunday at 2 AM UTC (7:30 AM IST) - weekly ML retrain
-  workflow_dispatch:           # manual trigger for testing
+    - cron: '*/15 12-21 * * 1-5'
+    # 17:30 New York is 21:30 UTC during EDT and 22:30 UTC during EST.
+    - cron: '30 21 * * 1-5'
+    - cron: '30 22 * * 1-5'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  trade:
+  wake-render:
+    if: github.event_name == 'schedule' && github.event.schedule == '*/15 12-21 * * 1-5'
     runs-on: ubuntu-latest
-    timeout-minutes: 400
+    timeout-minutes: 4
+    concurrency:
+      group: render-session-wake
+      cancel-in-progress: true
+    steps:
+      - name: Wake the single trading service and check readiness
+        env:
+          RENDER_URL: https://autonomous-stock-trader.onrender.com
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --connect-timeout 15 --max-time 180 \
+            --retry 4 --retry-all-errors --retry-delay 10 --retry-max-time 210 \
+            "$RENDER_URL/health"
+          echo
+          ready=false
+          for attempt in {1..6}; do
+            status=$(curl --fail --silent --show-error --max-time 15 "$RENDER_URL/status" || true)
+            if printf '%s' "$status" | python -c 'import json,sys; data=json.load(sys.stdin); assert data.get("execution_owner") == "render"; assert data.get("market_clock") in ("open", "closed")' 2>/dev/null; then
+              echo "$status"
+              ready=true
+              break
+            fi
+            sleep 5
+          done
+          if [ "$ready" != true ]; then
+            echo "Render is reachable but its broker-clock status did not become ready."
+            exit 1
+          fi
+
+  publish-session:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && (github.event.schedule == '30 21 * * 1-5' || github.event.schedule == '30 22 * * 1-5'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    concurrency:
+      group: render-session-report
+      cancel-in-progress: false
     env:
       ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID || '' }}
       ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY || '' }}
-      ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets' }}
+      ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets/v2' }}
       ALPACA_FEED: ${{ secrets.ALPACA_FEED || 'iex' }}
-
     steps:
-    # ─────────────────────────────────────────
-    # STAGE 1: Setup
-    # ─────────────────────────────────────────
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
-        fetch-depth: 0  # full history for git operations
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          ref: main
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install lightgbm optuna scikit-learn
-        echo "Dependencies installed"
+      - name: Install report dependencies
+        run: pip install -r requirements.txt
 
-    - name: Train ML meta-labeling model
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        if [ ! -f ml/meta_model.pkl ]; then
-          echo "No model found — training..."
-          python ml/run_pipeline.py
-          echo "ML model trained"
-        else
-          echo "Model exists — skipping training (weekly retrain handles updates)"
-        fi
+      - name: Determine New York report date
+        id: date
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          python scripts/report_schedule.py \
+            --event-name "$EVENT_NAME" \
+            --event-schedule "$EVENT_SCHEDULE" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
-    - name: Create output directories
-      run: |
-        mkdir -p outputs/logs
-        mkdir -p outputs
-        echo "Directories ready"
+      - name: Skip the nonmatching daylight-saving schedule
+        if: steps.date.outputs.report_required != 'true'
+        run: echo "This UTC schedule does not map to the 5 PM New York report window."
 
-    # ─────────────────────────────────────────
-    # STAGE 2: Run the trading bot / ML retrain
-    # ─────────────────────────────────────────
-    - name: Retrain ML model (weekly)
-      if: github.event.schedule == '0 2 * * 0'
-      run: python ml/run_pipeline.py
+      - name: Check the Alpaca exchange calendar
+        if: steps.date.outputs.report_required == 'true'
+        id: calendar
+        run: |
+          is_trading_day=$(python scripts/check_trading_day.py --date "${{ steps.date.outputs.date }}")
+          echo "trading_day=$is_trading_day" >> "$GITHUB_OUTPUT"
+          echo "${{ steps.date.outputs.date }} is a trading day: $is_trading_day"
 
-    - name: Pre-session position cleanup
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        echo "Running pre-session cleanup..."
-        python scripts/force_close_all.py || echo "Cleanup completed (non-fatal warnings OK)"
-        sleep 5
-        echo "Cleanup done"
+      - name: Archive Render session log
+        if: steps.date.outputs.report_required == 'true' && steps.calendar.outputs.trading_day == 'true'
+        run: python scripts/fetch_render_session_log.py --date "${{ steps.date.outputs.date }}"
 
-    - name: Run live trading session
-      if: github.event.schedule != '0 2 * * 0'
-      run: |
-        DATE=$(date +%Y_%m_%d)
-        LOG_FILE="outputs/logs/session_${DATE}.txt"
-        echo "Starting bot session: $DATE"
-        echo "Log file: $LOG_FILE"
-        python main.py live 2>&1 | tee $LOG_FILE
-        echo "Bot session ended"
-      timeout-minutes: 385
+      - name: Fetch broker equity observations
+        if: steps.date.outputs.report_required == 'true' && steps.calendar.outputs.trading_day == 'true'
+        run: python scripts/fetch_alpaca_equity.py --today
 
-    # ─────────────────────────────────────────
-    # STAGE 3: Post-session data pipeline
-    # ─────────────────────────────────────────
-    - name: Fetch Alpaca equity history
-      if: always()
-      run: |
-        python scripts/fetch_alpaca_equity.py --today
-        echo "Equity history updated"
+      - name: Rebuild session metrics, chart, and README
+        if: steps.date.outputs.report_required == 'true' && steps.calendar.outputs.trading_day == 'true'
+        run: |
+          python scripts/generate_session_report.py
+          python scripts/generate_pnl_chart.py
+          python scripts/update_readme.py
 
-    - name: Generate session performance report
-      if: always()
-      run: |
-        python scripts/generate_session_report.py
-        echo "Performance summary updated"
-
-    # ─────────────────────────────────────────
-    # STAGE 4: Update chart and README
-    # ─────────────────────────────────────────
-    - name: Regenerate daily P&L chart
-      if: always()
-      run: |
-        python scripts/generate_pnl_chart.py
-        echo "Chart regenerated"
-
-    - name: Update README session table
-      if: always()
-      run: |
-        python scripts/update_readme.py
-        echo "README updated"
-
-    # ─────────────────────────────────────────
-    # STAGE 5: Commit and push everything
-    # ─────────────────────────────────────────
-    - name: Commit and push all session artifacts
-      if: always()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
-        TZ: 'Asia/Kolkata'
-      run: |
-        git config user.email "shashwatyadav975@gmail.com"
-        git config user.name "SHASHWAT YADAV"
-
-        DATE=$(python -c "import pandas as pd, os; print(pd.read_csv('outputs/alpaca_equity_history.csv').iloc[-1]['timestamp']) if os.path.exists('outputs/alpaca_equity_history.csv') else print('$(date +%Y-%m-%d)')")
-
-        # Stage all updated files
-        git add outputs/logs/ || true
-        git add outputs/alpaca_equity_history.csv || true
-        git add outputs/performance_summary.json || true
-        git add outputs/trade_history.csv || true
-        git add outputs/daily_pnl_chart.png || true
-        git add README.md || true
-        git add ml/optimal_params.json ml/feature_importance.csv ml/meta_model.pkl || true
-
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          SUMMARY=$(python -c "import json, os; d=json.load(open('outputs/performance_summary.json')) if os.path.exists('outputs/performance_summary.json') else {}; print(f'equity=\${d.get(\"ending_equity\", 0):,.0f} | return={d.get(\"total_return_pct\", 0):+.3f}%') if d else print('session complete')")
-          git commit -m "auto(session): ${DATE} | ${SUMMARY}"
-          git pull --rebase origin main || true
-          git push origin main
-          echo "Session artifacts pushed to GitHub"
-        fi
-
+      - name: Commit and publish report artifacts
+        if: steps.date.outputs.report_required == 'true' && steps.calendar.outputs.trading_day == 'true'
+        run: |
+          set -euo pipefail
+          git config user.email "shashwatyadav975@gmail.com"
+          git config user.name "SHASHWAT YADAV"
+          git add outputs/logs/ outputs/alpaca_equity_history.csv \
+            outputs/performance_summary.json outputs/trade_history.csv \
+            outputs/session_all_orders.csv outputs/daily_pnl_chart.png README.md
+          if git diff --cached --quiet; then
+            echo "No report artifacts changed."
+            exit 0
+          fi
+          git commit -m "data(session): archive ${{ steps.date.outputs.date }} report [skip render]"
+          git pull --rebase origin main
+          git push origin HEAD:main

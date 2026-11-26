@@ -34,12 +34,15 @@ An autonomous, production-grade algorithmic trading system and quantitative rese
 
 ## Live Cloud Deployment & Monitoring
 
-The automated trading bot is deployed in the cloud on Render with continuous monitoring and real-time log streaming endpoints:
+Render is the sole live order executor. It polls Alpaca's exchange clock and starts the existing paper-trading strategy only while the exchange is open. GitHub Actions does not place orders or close positions; it sends scheduled health requests to wake Render and publishes the session log and reports after the market closes.
 
 | Endpoint | Link | Description |
 |---|---|---|
 | **Live Web Service / Health** | [autonomous-stock-trader.onrender.com](https://autonomous-stock-trader.onrender.com/) | Real-time web server endpoint and operational status |
+| **Runner Status** | [autonomous-stock-trader.onrender.com/status](https://autonomous-stock-trader.onrender.com/status) | Execution owner, broker clock state, and last session timestamps |
 | **Live Streaming Logs** | [autonomous-stock-trader.onrender.com/logs](https://autonomous-stock-trader.onrender.com/logs) | Live real-time session execution and trade logs stream |
+
+The runner uses the broker's live market clock for daylight-saving changes, holidays, and early closes. A trading session with no qualifying signal can correctly place no orders; automation does not force an entry. Render's free service can restart and has a monthly instance-hour limit, so this setup improves wake-up coverage but cannot guarantee uninterrupted service. See [Render's free-instance limits](https://render.com/docs/free).
 
 ---
 
@@ -225,14 +228,7 @@ The trading engine evaluates technical indicators across price windows using rig
 
 ## Machine Learning Meta-Labeling & Optimization Subsystem
 
-A LightGBM-based meta-labeling filter sits directly on top of the primary technical indicator strategy to validate candidate BUY setups:
-
-- **Full Architecture & Technical Documentation**: See [`docs/ML_ARCHITECTURE.md`](docs/ML_ARCHITECTURE.md).
-- **Trade Gating Logic**: Candidate BUY signals from [`SignalGenerator`](file:///c:/Users/Shashwat/Desktop/personal%20project/finance/strategy/signals.py) are routed through [`MetaLabelPredictor`](file:///c:/Users/Shashwat/Desktop/personal%20project/finance/ml/predictor.py). Trades are executed only if predicted probability of success exceeds **0.65**; otherwise, signals downgrade to HOLD.
-- **Feature Engineering**: 25 normalized momentum, volatility, and trend factors derived from OHLCV without lookahead bias.
-- **Bayesian Optimization**: Optuna backtesting tuned `rsi_oversold` (37.0), `adx_min` (24.0), and `rsi_overbought` (71.0), increasing Sharpe ratio from **1.38 to 2.02 (+45.9%)**.
-- **Portfolio Diversification**: 20-ticker multi-sector universe with conservative 5% / $3,000 risk caps per trade.
-- **Weekly Automated Retraining**: GitHub Actions workflow (`trading_bot.yml`) retrains on fresh 5-year data every Sunday at 2:00 AM UTC.
+The repository contains an experimental LightGBM meta-labeling subsystem, documented in [`docs/ML_ARCHITECTURE.md`](docs/ML_ARCHITECTURE.md). **It is disabled in the live signal path** (`_META_AVAILABLE = False` in `strategy/signals.py`), so it does not approve or reject current live trades. The main-branch GitHub Actions workflow is now limited to wake checks and post-session reporting; it does not retrain or promote models. Historical optimizer metrics in this section of the project are research outputs, not evidence of live profitability.
 
 ---
 
