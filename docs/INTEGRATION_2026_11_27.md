@@ -49,8 +49,8 @@ of trading. Deployment verification must check the live /status revision and
 
 ## Verification checkpoint
 
-Local suites: main 64 passed; research 80 passed with one optional private-snapshot
-fixture skipped. GitHub Python 3.11/3.12 suites passed on the published checkpoints.
+Local suites: main 64 passed; research 80 run, 79 passed and one optional
+private-snapshot fixture skipped. GitHub Python 3.11/3.12 suites passed on the published checkpoints.
 Daily run 45964751042 and weekly run 46030191384 succeeded. The latter retained
 15 comparisons and 100 random controls at each of three cost levels. These are
 completed research jobs, not proof of edge; hourly historical parity remains blocked.
@@ -63,3 +63,8 @@ archived before redeployment; it does not reconstruct the missing raw inputs.
 The watchdog now fails explicitly for missing or delayed private delivery. Restoring
 Render's private-repository write credential and confirming an actual remote bundle
 are required before runtime evidence delivery can be called verified.
+
+Final source deployment b1228d8 was verified Live in Render and running during market
+hours. GitHub regression runs for b1228d8 and b825c71 succeeded. Check-only watchdog
+run 46031426632 failed specifically with `Render private evidence credential is
+missing`, confirming the failure is now visible rather than silently accepted.
