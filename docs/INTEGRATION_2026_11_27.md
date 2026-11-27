@@ -46,3 +46,20 @@ Run `python -m unittest discover -s tests -v` separately in both checkouts.
 Main CI runs Python 3.11 and 3.12. Cloud evidence/research failures are independent
 of trading. Deployment verification must check the live /status revision and
 /ready plus CI results; a closed-market check does not prove an open-market trade.
+
+## Verification checkpoint
+
+Local suites: main 64 passed; research 80 passed with one optional private-snapshot
+fixture skipped. GitHub Python 3.11/3.12 suites passed on the published checkpoints.
+Daily run 45964751042 and weekly run 46030191384 succeeded. The latter retained
+15 comparisons and 100 random controls at each of three cost levels. These are
+completed research jobs, not proof of edge; hourly historical parity remains blocked.
+
+Render successfully ran main during the November 27 open session with fresh
+market data and sanitized decision_v2 events. Deployment verification discovered
+that Render lacks GIT_TOKEN, although the GitHub Actions secret is configured and
+works. Raw runtime replay bundles therefore remained ephemeral. Partial stdout was
+archived before redeployment; it does not reconstruct the missing raw inputs.
+The watchdog now fails explicitly for missing or delayed private delivery. Restoring
+Render's private-repository write credential and confirming an actual remote bundle
+are required before runtime evidence delivery can be called verified.
