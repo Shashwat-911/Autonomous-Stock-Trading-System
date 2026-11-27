@@ -12,7 +12,7 @@ from research.download import download
 from research.compare import compare
 
 
-def run(output, weekly=False):
+def run(output, weekly=False, private_store=None):
     output=Path(output); output.mkdir(parents=True,exist_ok=True)
     now=datetime.now(timezone.utc)
     day=now.astimezone(ZoneInfo('America/New_York')).date()
@@ -31,11 +31,35 @@ def run(output, weekly=False):
             gross_pnl=str(sum((Decimal(r['pnl']) for r in rows),Decimal(0))),
             unknown_entry_versions=sum(r['entry_version']=='unknown' for r in rows),
             exit_evidence=dict(Counter('+'.join(r['exit_evidence']) for r in rows)))
+        if private_store:
+            storage=Path(private_store); storage.mkdir(parents=True,exist_ok=True)
+            (storage/('account-'+now.strftime('%Y%m%dT%H%M%SZ')+'.json')).write_text(json.dumps(snapshot,default=str))
         if weekly:
-            private=Path('outputs/private_reconciliation')/now.strftime('research_%Y%m%dT%H%M%SZ')
-            download(private)
+            private=(Path(private_store) if private_store else Path('outputs/private_reconciliation'))/'frozen-daily-2015-2025'
+            if not (private/'manifest.json').exists(): download(private)
             comparison=compare(private,'2023-01-01','2025-12-31')
             (output/'comparison.json').write_text(json.dumps(comparison,indent=2))
+            import pandas as pd
+            from research.random_control import compare_random
+            from research.simulator import Costs
+            from research.register import record
+            protocol_data=json.loads(protocol)
+            frames={}
+            for symbol in protocol_data['universe']:
+                frame=pd.read_csv(private/(symbol+'.csv'),index_col=0)
+                frame.index=pd.to_datetime(frame.index,utc=True)
+                frames[symbol]=frame.loc['2023-01-01':'2025-12-31']
+            spec={'kind':'daily_random_control','trials':100,'source_sha256':comparison['source_sha256'],
+                  'period':['2023-01-01','2025-12-31'],'cost_multipliers':[1,2,4]}
+            register=output.parent/'tried.jsonl'
+            record(register,spec,{'status':'STARTED'})
+            try:
+                controls={str(m):compare_random(frames,trials=100,costs=Costs(**{k:v*m for k,v in protocol_data['costs'].items()})) for m in (1,2,4)}
+                (output/'random_controls.json').write_text(json.dumps(controls,indent=2))
+                record(register,spec,{'status':'COMPLETED','automatic_promotion':False})
+            except Exception as exc:
+                record(register,spec,{'status':'FAILED','error_type':type(exc).__name__})
+                raise
         (output/'status.json').write_text(json.dumps(status,indent=2))
     except Exception as exc:
         status.update(status='FAILED',error_type=type(exc).__name__)
@@ -43,5 +67,5 @@ def run(output, weekly=False):
         raise RuntimeError('Research failed; inspect status.json. No promotion permitted.') from None
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(); p.add_argument('--output',required=True); p.add_argument('--weekly',action='store_true')
-    a=p.parse_args(); run(a.output,a.weekly)
+    p=argparse.ArgumentParser(); p.add_argument('--output',required=True); p.add_argument('--weekly',action='store_true'); p.add_argument('--private-store')
+    a=p.parse_args(); run(a.output,a.weekly,a.private_store)

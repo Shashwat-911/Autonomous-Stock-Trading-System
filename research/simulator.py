@@ -23,6 +23,13 @@ class Costs:
         return price * (1 + impact if buy else 1 - impact)
 
 
+def cost_in_r(entry_price, stop_distance, costs=None):
+    costs=costs or Costs()
+    if not math.isfinite(stop_distance) or stop_distance<=0:
+        raise ValueError('Positive stop distance required')
+    return (costs.price(entry_price,True)-costs.price(entry_price,False)+2*costs.fee_per_share)/stop_distance
+
+
 def validate_bars(bars):
     if not isinstance(bars.index, pd.DatetimeIndex) or bars.index.tz is None:
         raise ValueError('Timezone-aware bar-close index required')

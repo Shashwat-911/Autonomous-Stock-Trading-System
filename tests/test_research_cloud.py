@@ -6,6 +6,10 @@ from unittest.mock import patch
 from research.cloud import run
 
 class CloudResearchTests(unittest.TestCase):
+    def setUp(self):
+        revision=patch('research.cloud.subprocess.check_output',return_value='test-revision')
+        revision.start(); self.addCleanup(revision.stop)
+
     def test_api_failure_records_failure_and_never_promotes(self):
         with tempfile.TemporaryDirectory() as directory, patch('research.cloud.PaperReader',side_effect=ValueError('SECRET')):
             with self.assertRaises(RuntimeError): run(directory)

@@ -1,4 +1,5 @@
 """Attribute episodes from private execution evidence; never infer missing causes."""
+import re
 from analytics.measurement import position_episodes, day_of as ny_date
 from scripts.reconciliation import flatten_orders, timestamp
 
@@ -27,8 +28,15 @@ def attribute(snapshot, start='2026-10-19', end='2026-10-30'):
                 reasons.add('eod_client_id')
             else:
                 reasons.add('unknown')
+        entries=[f for f in fills if f['side'].lower() in ('buy','buy_to_cover')]
+        versions=set()
+        for f in entries:
+            client=orders.get(f['order_id'],{}).get('client_order_id','')
+            match=re.match(r'^([0-9a-f]{8})-',client)
+            versions.add(match.group(1) if match else 'unknown')
+        version=next(iter(versions)) if len(versions)==1 else 'mixed_or_unknown'
         result.append(dict(**ep, overnight=ny_date(ep['entry_time']) != ny_date(ep['exit_time']),
-                           exit_evidence=sorted(reasons), entry_version='unknown',
+                           exit_evidence=sorted(reasons), entry_version=version if versions else 'unknown',
                            entry_signal='unknown', quote_slippage='unknown',
                            evidence_scope='order_type_or_explicit_client_id_only',
                            order_ids=sorted({f['order_id'] for f in fills})))
