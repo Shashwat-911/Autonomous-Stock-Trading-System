@@ -596,13 +596,26 @@ def run_live():
                                      and daily_trend_bullish is not None
                                      and regime['is_bullish'] is not None)
 
-                    tick = brokers[ticker].run_tick(
-                        df,
+                    from analytics.decision_trace import record_tick
+                    tick, evidence = record_tick(brokers[ticker], df, dict(
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
                         pending_exposure=pending_exposure_dollars,
                         allow_new_entries=entry_allowed,
-                    )
+                    ))
+                    import json
+                    event = {'event':'decision_v2','ticker':ticker,'revision':evidence['revision'],
+                             'observed_at':evidence['recorded_at'],'bar_status':bar_status,
+                             'daily_status':'UNKNOWN' if daily_trend_bullish is None else 'AVAILABLE',
+                             'entry_allowed':entry_allowed,'signal':tick.get('signal'),
+                             'action':tick.get('action','HOLD'),'reason':tick.get('reason'),
+                             'config_sha256':__import__('hashlib').sha256(json.dumps(evidence['config'],sort_keys=True).encode()).hexdigest()}
+                    try:
+                        from analytics.private_evidence import archive_payload
+                        event['evidence_sha256'] = archive_payload(evidence)
+                    except Exception as exc:
+                        event['evidence_error'] = type(exc).__name__
+                    logger.info('DECISION %s', json.dumps(event,sort_keys=True))
 
                     # Track pending exposure for subsequent tickers in this scan
                     if tick.get("action") == "BUY":
@@ -634,7 +647,8 @@ def run_live():
                         )
 
                 except Exception as e:
-                    print(f"  {ticker:<8} ERROR: {e}")
+                    logger.error('DECISION_ERROR ticker=%s error_type=%s', ticker, type(e).__name__)
+                    print(f"  {ticker:<8} ERROR: {type(e).__name__}")
                     continue
 
             # Portfolio summary

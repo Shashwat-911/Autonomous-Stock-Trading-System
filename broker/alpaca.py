@@ -203,9 +203,11 @@ class AlpacaPaperBroker:
         """Generate a clean client_order_id embedding the signal reason."""
         import re
         sym = ticker or self.ticker
-        timestamp = datetime.now().strftime("%m%d%H%M")
+        import uuid
+        revision = os.getenv("RENDER_GIT_COMMIT", os.getenv("GITHUB_SHA", "unknown"))[:8]
+        timestamp = uuid.uuid4().hex[:10]
         clean_reason = re.sub(r'[^a-zA-Z0-9]', '-', reason)[:20]
-        client_id = f"{sym}-{clean_reason}-{timestamp}"
+        client_id = f"{revision}-{sym}-{timestamp}-{clean_reason}"
         return client_id[:48]
 
     def submit_buy(
