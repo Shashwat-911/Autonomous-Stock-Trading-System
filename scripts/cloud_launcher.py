@@ -47,6 +47,7 @@ _active_process = None
 _runtime_lock = threading.Lock()
 _runtime_state = {
     "execution_owner": "render",
+    "revision": os.getenv("RENDER_GIT_COMMIT", "unknown"),
     "runner_state": "starting",
     "market_clock": "unknown",
     "market_clock_checked_at": None,
@@ -93,6 +94,20 @@ def get_market_clock():
     if clock is None:
         raise RuntimeError("Alpaca did not return an exchange clock")
     return clock
+
+
+def clock_heartbeat():
+    while True:
+        try:
+            clock = get_market_clock()
+            update_runtime_state(market_clock="open" if market_is_open(clock) else "closed",
+                                 market_clock_checked_at=datetime.now(timezone.utc).isoformat())
+        except Exception:
+            update_runtime_state(market_clock="unavailable")
+        time.sleep(60)
+
+
+threading.Thread(target=clock_heartbeat, daemon=True).start()
 
 
 # ──────────────────────────────────────────────────────────────────────────────

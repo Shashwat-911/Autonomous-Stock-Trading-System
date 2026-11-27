@@ -1,0 +1,102 @@
+name: Isolated daily evidence and weekly research
+on:
+  schedule:
+    - cron: '47 23 * * 1-5'
+    - cron: '17 4 * * 6'
+  workflow_dispatch:
+    inputs:
+      weekly:
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: isolated-research-state
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: research-and-ml-preserved
+          path: research-code
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          path: live-code
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -r research-code/requirements.txt
+      - name: Verify private destination before accessing evidence
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: python live-code/scripts/verify_private_store.py
+      - uses: actions/checkout@v5
+        with:
+          repository: Shashwat-911/Autonomous-Stock-Trading-Evidence
+          token: ${{ secrets.GIT_TOKEN }}
+          path: evidence-store
+      - name: Research regression tests
+        working-directory: research-code
+        run: python -m unittest discover -s tests -v
+      - name: Collect full account evidence and evaluate frozen research inputs
+        working-directory: research-code
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY }}
+          WEEKLY: ${{ inputs.weekly || github.event.schedule == '17 4 * * 6' }}
+        run: |
+          extra=()
+          if [ "$WEEKLY" = "true" ]; then extra+=(--weekly); fi
+          python -m research.cloud --output outputs/research_cloud/current --private-store ../evidence-store/research-inputs "${extra[@]}"
+      - name: Replay recorded main decisions without broker execution
+        run: python live-code/scripts/replay_evidence.py --bundles evidence-store/bundles --output research-code/outputs/research_cloud/current/replay.json
+      - name: Advance only the separately registered ETF shadow
+        working-directory: research-code
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY }}
+        run: python -m research.shadow --protocol research/experiments/etf-2026-11-30.json --output outputs/research_shadow/etf-2026-11-30
+      - name: Preserve private research inputs even when evaluation fails
+        if: always()
+        working-directory: evidence-store
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add research-inputs/ 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "evidence: retain research inputs for run ${{ github.run_id }}"
+            git pull --rebase
+            git push
+          fi
+      - name: Preserve public results and isolated state on research branch only
+        if: always()
+        working-directory: research-code
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = research-and-ml-preserved
+          mkdir -p outputs/research_cloud/history/${{ github.run_id }}
+          if compgen -G 'outputs/research_cloud/current/*.json' >/dev/null; then
+            cp outputs/research_cloud/current/*.json outputs/research_cloud/history/${{ github.run_id }}/
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -f outputs/research_cloud/history/ outputs/research_shadow/
+          if [ -f outputs/research_cloud/tried.jsonl ]; then git add -f outputs/research_cloud/tried.jsonl; fi
+          if ! git diff --cached --quiet; then
+            git commit -m "research: preserve run ${{ github.run_id }} outcomes and shadow state"
+            git pull --rebase origin research-and-ml-preserved
+            git push origin HEAD:research-and-ml-preserved
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanitized-research-${{ github.run_id }}
+          path: research-code/outputs/research_cloud/current/*.json
+          retention-days: 90
+          if-no-files-found: warn

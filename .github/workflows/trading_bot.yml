@@ -22,6 +22,9 @@ jobs:
       group: render-session-wake
       cancel-in-progress: true
     steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
       - name: Wake the single trading service and check readiness
         env:
           RENDER_URL: https://autonomous-stock-trader.onrender.com
@@ -46,6 +49,7 @@ jobs:
             echo "Render is reachable but its broker-clock status did not become ready."
             exit 1
           fi
+          python scripts/check_runtime.py
 
   publish-session:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && (github.event.schedule == '30 21 * * 1-5' || github.event.schedule == '30 22 * * 1-5'))
