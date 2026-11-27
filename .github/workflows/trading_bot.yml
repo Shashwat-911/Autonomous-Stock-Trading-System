@@ -1,45 +1,9 @@
-name: Account reporting (Render owns trading)
-
-on:
-  schedule:
-    - cron: '17 22 * * 1-5' # After both summer and winter market close; delay is harmless.
-  workflow_dispatch:
-
+name: Research branch cannot trade
+on: workflow_dispatch
 permissions:
-  contents: write
-concurrency:
-  group: account-report-publication
-  cancel-in-progress: false
-defaults:
-  run:
-    shell: bash
+  contents: read
 jobs:
-  report:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY || secrets.APCA_API_KEY_ID || '' }}
-      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY || secrets.APCA_API_SECRET_KEY || '' }}
-      ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets' }}
-      ALPACA_FEED: ${{ secrets.ALPACA_FEED || 'iex' }}
-      GIT_TOKEN: ${{ secrets.GIT_TOKEN || secrets.GITHUB_TOKEN }}
+  isolation:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: pip
-      - run: pip install -r requirements.txt
-      - name: Archive Render session stdout independently
-        id: archive
-        continue-on-error: true
-        if: github.event.schedule != '0 2 * * 0'
-        run: python scripts/archive_session_log.py --publish
-      - name: Publish validated account measurements (no trading or cleanup)
-        run: python scripts/post_session.py
-      - name: Surface archive failure after allowing accounting to run
-        if: always() && steps.archive.outcome == 'failure'
-        run: exit 1
+      - run: echo "Trading belongs to Render main only. Research has no broker order runner."
