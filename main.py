@@ -558,9 +558,12 @@ def run_live():
 
             # --- Market regime check (SPY SMA-200) ---
             regime_cfg = getattr(config, "MARKET_REGIME", {})
+            completed_dates=[r["close"].date().isoformat() for r in calendar if r["close"]<=datetime.now(timezone.utc)]
+            completed_session=max(completed_dates) if completed_dates else None
             regime = get_market_regime_data(
                 ticker=regime_cfg.get("ticker", "SPY"),
                 sma_period=regime_cfg.get("sma_period", 200),
+                completed_session=completed_session,
             )
             regime_str = "UNKNOWN" if regime["is_bullish"] is None else "BULL" if regime["is_bullish"] else "BEAR"
 
@@ -601,9 +604,9 @@ def run_live():
                             ticker,
                             (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
                             datetime.now().strftime("%Y-%m-%d"),
-                            "1d",
+                            "1d", strict=True,
                         )
-                        daily_trend_bullish = daily_trend(daily_df)
+                        daily_trend_bullish = daily_trend(daily_df,completed_session)
                     except Exception:
                         logger.warning('Daily evidence unavailable for %s', ticker)
                     entry_allowed = (allow_new_entries and bar_status == 'FRESH'

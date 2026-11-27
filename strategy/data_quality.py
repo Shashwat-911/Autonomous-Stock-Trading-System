@@ -7,10 +7,12 @@ import math
 import pandas as pd
 
 
-def daily_trend(frame):
+def daily_trend(frame, expected_session=None):
     if frame is None or len(frame) < 20 or 'Close' not in frame:
         return None
     try:
+        if expected_session is not None and pd.Timestamp(frame.index[-1]).date().isoformat()!=expected_session:
+            return None
         values = frame.Close.tail(20).astype(float)
         if not all(math.isfinite(v) and v > 0 for v in values):
             return None

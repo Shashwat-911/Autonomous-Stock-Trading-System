@@ -112,7 +112,8 @@ def get_historical_data(
     df = df.dropna(how="all")
 
     # Forward fill then backward fill to handle intermittent missing values, drop remaining NaNs
-    df = df.ffill().bfill().dropna()
+    if not strict:
+        df = df.ffill().bfill().dropna()
 
     if df.empty:
         logger.error(f"Historical data for ticker '{ticker}' is empty after cleaning missing values.")
@@ -313,6 +314,7 @@ def get_intraday_data(
 def get_market_regime_data(
     ticker: str = "SPY",
     sma_period: int = 200,
+    completed_session: str = None,
 ) -> dict:
     """
     Fetch daily data for a broad-market ETF and determine whether the
@@ -331,11 +333,15 @@ def get_market_regime_data(
         Keys: 'is_bullish' (bool), 'price' (float), 'sma' (float),
         'ticker' (str).
     """
-    lookback = sma_period + 60  # extra margin for SMA warmup
+    lookback = sma_period * 2 + 30  # calendar days, including weekends and holidays
     try:
         ticker_obj = yf.Ticker(ticker)
         df = ticker_obj.history(period=f"{lookback}d", interval="1d")
 
+        if completed_session is not None and df is not None and not df.empty:
+            df = df.loc[[t.date().isoformat() <= completed_session for t in df.index]]
+            if df.empty or df.index[-1].date().isoformat() != completed_session:
+                raise ValueError('Stale regime daily history')
         if df is None or df.empty or len(df) < sma_period:
             logger.warning(
                 "Insufficient data for market regime (%s). "
@@ -346,7 +352,9 @@ def get_market_regime_data(
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
 
-        df = df.dropna(how="all").ffill().bfill()
+        import math
+        if not all(math.isfinite(float(v)) and float(v)>0 for v in df['Close'].tail(sma_period)):
+            raise ValueError('Invalid regime daily prices')
         sma = df["Close"].rolling(window=sma_period).mean()
         latest_close = float(df["Close"].iloc[-1])
         latest_sma = float(sma.iloc[-1])

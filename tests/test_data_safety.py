@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import pandas as pd
 from broker.alpaca import AlpacaPaperBroker
 from strategy.data_quality import completed_bars, daily_trend
@@ -33,6 +33,21 @@ class DataSafetyTests(unittest.TestCase):
     def test_daily_missing_is_unknown_not_bullish(self):
         for frame in (None, pd.DataFrame({'Close':[100]*19}), pd.DataFrame({'Close':[100]*19+[float('nan')]})):
             self.assertIsNone(daily_trend(frame))
+
+    def test_stale_daily_trend_is_unknown(self):
+        frame=pd.DataFrame({'Close':range(100,120)},index=pd.bdate_range('2026-01-01',periods=20))
+        self.assertIsNone(daily_trend(frame,'2026-11-25'))
+
+    def test_regime_excludes_forming_daily_candle_and_rejects_stale_data(self):
+        from data.fetcher import get_market_regime_data
+        frame=pd.DataFrame({'Close':[100]*200+[1000]},index=pd.bdate_range('2026-01-01',periods=201))
+        day=frame.index[-2].date().isoformat()
+        with patch('data.fetcher.yf.Ticker') as ticker:
+            ticker.return_value.history.return_value=frame
+            result=get_market_regime_data(completed_session=day)
+            self.assertEqual(result['price'],100)
+            self.assertFalse(result['is_bullish'])
+            self.assertIsNone(get_market_regime_data(completed_session='2026-12-31')['is_bullish'])
 
     def broker(self):
         b=object.__new__(AlpacaPaperBroker)
