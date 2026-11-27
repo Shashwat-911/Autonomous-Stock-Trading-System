@@ -15,6 +15,10 @@ class WatchdogTests(unittest.TestCase):
         with self.assertRaises(ValueError): validate({**status,'runner_state':'session_exited'},now)
         with self.assertRaises(ValueError): validate(status,now+timedelta(minutes=4))
         self.assertTrue(validate({**status,'market_clock':'closed','runner_state':'waiting_for_market'},now))
+        with self.assertRaisesRegex(ValueError,'credential'):
+            validate({**status,'private_evidence':{'configured':False}},now)
+        with self.assertRaisesRegex(ValueError,'delivery'):
+            validate({**status,'private_evidence':{'configured':True,'oldest_pending_seconds':901}},now)
 
     def test_eod_exit_acknowledgement_is_not_flat_confirmation(self):
         b=object.__new__(AlpacaPaperBroker);b.ticker='TEST';b.client=Mock()

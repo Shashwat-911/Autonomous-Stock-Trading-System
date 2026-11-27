@@ -14,6 +14,11 @@ def validate(status, now=None):
     if status.get('market_clock') not in ('open','closed'): raise ValueError('Unknown market clock')
     if status['market_clock']=='open' and status.get('runner_state') not in ('trading_session_running','starting_session','market_open_too_late'):
         raise ValueError('Market open without an active or explicitly late session')
+    evidence=status.get('private_evidence',{})
+    if evidence.get('configured') is False:
+        raise ValueError('Render private evidence credential is missing')
+    if evidence.get('oldest_pending_seconds',0)>900:
+        raise ValueError('Private evidence delivery is delayed beyond 15 minutes')
     return True
 
 

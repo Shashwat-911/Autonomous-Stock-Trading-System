@@ -391,6 +391,8 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 with _runtime_lock:
                     status = dict(_runtime_state)
                 status["observed_at"] = datetime.now(timezone.utc).isoformat()
+                from analytics.private_evidence import health as evidence_health
+                status["private_evidence"] = evidence_health()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()

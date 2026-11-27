@@ -9,13 +9,19 @@ on:
     - cron: '30 21 * * 1-5'
     - cron: '30 22 * * 1-5'
   workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [check, report]
+        default: check
+        description: Check runtime without publishing an intraday report
 
 permissions:
   contents: read
 
 jobs:
   wake-render:
-    if: github.event_name == 'schedule' && github.event.schedule == '*/15 12-21 * * 1-5'
+    if: (github.event_name == 'schedule' && github.event.schedule == '*/15 12-21 * * 1-5') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'check')
     runs-on: ubuntu-latest
     timeout-minutes: 4
     concurrency:
@@ -52,7 +58,7 @@ jobs:
           python scripts/check_runtime.py
 
   publish-session:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && (github.event.schedule == '30 21 * * 1-5' || github.event.schedule == '30 22 * * 1-5'))
+    if: (github.event_name == 'workflow_dispatch' && inputs.mode == 'report') || (github.event_name == 'schedule' && (github.event.schedule == '30 21 * * 1-5' || github.event.schedule == '30 22 * * 1-5'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

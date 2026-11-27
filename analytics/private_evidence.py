@@ -21,6 +21,14 @@ _started=False
 _lock=threading.Lock()
 
 
+def health():
+    """Public-safe delivery status; no filenames, payloads or credential values."""
+    pending=[p for p in ROOT.glob('*.json.gz') if not p.with_suffix(p.suffix+'.uploaded').exists()]
+    oldest=min((p.stat().st_mtime for p in pending),default=time.time())
+    return {'configured':bool(os.getenv('GIT_TOKEN','').strip()),
+            'pending_count':len(pending),'oldest_pending_seconds':max(0,int(time.time()-oldest))}
+
+
 class EvidenceError(RuntimeError):
     """Safe diagnostic: never include response bodies, URLs, or credentials."""
     def __init__(self, code, retry_after=300):
