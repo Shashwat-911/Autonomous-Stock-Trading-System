@@ -731,56 +731,11 @@ def run_live():
 
         # Generate performance metrics
         try:
-            all_trades = []
-            all_raw_orders = []
-            all_slippage_logs = []
-            for ticker in tickers:
-                trade_df = brokers[ticker].get_trade_history(session_start=session_start_time)
-                if not trade_df.empty:
-                    all_trades.append(trade_df)
-                raw_df = brokers[ticker].get_raw_orders()
-                if not raw_df.empty:
-                    all_raw_orders.append(raw_df)
-                all_slippage_logs.extend(brokers[ticker].get_slippage_log())
-
-            equity_curve = None
-            equity_file = os.path.join(OUTPUTS_DIR, "alpaca_equity_history.csv")
-            if os.path.exists(equity_file):
-                try:
-                    eq_df = pd.read_csv(equity_file)
-                    if not eq_df.empty and "equity" in eq_df.columns:
-                        equity_curve = pd.Series(
-                            eq_df["equity"].values,
-                            index=pd.to_datetime(eq_df["timestamp"]),
-                        )
-                except Exception:
-                    pass
-
-            combined_trades = (
-                pd.concat(all_trades, ignore_index=True)
-                if all_trades else pd.DataFrame()
-            )
-            combined_raw = (
-                pd.concat(all_raw_orders, ignore_index=True)
-                if all_raw_orders else pd.DataFrame()
-            )
-
-            metrics = perf_engine.compute_from_trades(
-                combined_trades,
-                equity_curve=equity_curve,
-                starting_equity=config.TRADING["initial_balance"],
-                live_equity=live_eq,
-                raw_orders_df=combined_raw,
-                slippage_log=all_slippage_logs,
-            )
-
-            perf_engine.save_summary(
-                os.path.join(OUTPUTS_DIR, "performance_summary.json")
-            )
-            perf_engine.append_session_stats(
-                os.path.join(OUTPUTS_DIR, "trade_history.csv")
-            )
-            print(perf_engine.get_summary_string())
+            from analytics.reporting import run_report
+            from scripts.reconcile_paper_account import PaperReader
+            result, _ = run_report(reader=PaperReader(first_broker.api_key, first_broker.secret_key),
+                                   since=session_start_time.isoformat())
+            print("Fill-based measurement:", result['summary']['status'])
         except Exception as e:
             print(f"  Performance metrics error: {e}")
 

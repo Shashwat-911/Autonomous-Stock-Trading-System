@@ -121,7 +121,7 @@ jobs:
           git config user.name "SHASHWAT YADAV"
           git add outputs/logs/ outputs/alpaca_equity_history.csv \
             outputs/performance_summary.json outputs/trade_history.csv \
-            outputs/session_all_orders.csv outputs/daily_pnl_chart.png README.md
+            outputs/session_all_orders.csv outputs/daily_pnl_chart.png outputs/measurement_v2/ README.md
           if git diff --cached --quiet; then
             echo "No report artifacts changed."
             exit 0
