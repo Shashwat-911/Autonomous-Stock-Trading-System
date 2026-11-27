@@ -370,6 +370,7 @@ def get_market_regime_data(
             "price": latest_close,
             "sma": latest_sma,
             "ticker": ticker,
+            "bars_csv": df.to_csv(),
         }
     except Exception as e:
         logger.warning("Market regime check failed (%s): %s. Entry regime is UNKNOWN.", ticker, e)

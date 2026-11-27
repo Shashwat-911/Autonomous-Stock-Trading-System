@@ -16,7 +16,7 @@ BROKER_METHODS = ('get_account_info','get_current_position','get_all_positions',
 RISK_METHODS = ('can_trade','check_stop_loss','check_portfolio_heat',
     'get_position_size_atr','get_position_size')
 CODE_FILES = ('broker/alpaca.py','strategy/signals.py','strategy/data_quality.py',
-              'analytics/decision_trace.py')
+              'analytics/decision_trace.py','strategy/indicators.py','risk/manager.py')
 
 
 def code_hashes():

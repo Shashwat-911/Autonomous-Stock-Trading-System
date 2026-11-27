@@ -594,11 +594,14 @@ def run_live():
                     df = get_intraday_data(
                         ticker, lookback_intraday, interval
                     )
-                    df, bar_status = completed_bars(df, calendar, datetime.now(timezone.utc), interval)
+                    raw_intraday_csv = df.to_csv()
+                    data_as_of = datetime.now(timezone.utc)
+                    df, bar_status = completed_bars(df, calendar, data_as_of, interval)
                     df = add_all_indicators(df) if not df.empty else df
 
                     # Multi-timeframe: check daily trend
                     daily_trend_bullish = None
+                    daily_df = None
                     try:
                         daily_df = get_historical_data(
                             ticker,
@@ -620,6 +623,12 @@ def run_live():
                         pending_exposure=pending_exposure_dollars,
                         allow_new_entries=entry_allowed,
                     ))
+                    evidence['source_inputs']={'intraday_csv':raw_intraday_csv,
+                        'daily_csv':daily_df.to_csv() if daily_df is not None else None,
+                        'regime_csv':regime.get('bars_csv'),'provider':'yfinance',
+                        'data_as_of':data_as_of.isoformat(),'completed_daily_session':completed_session,
+                        'bar_status':bar_status,'interval':interval,
+                        'calendar':[{'open':r['open'].isoformat(),'close':r['close'].isoformat()} for r in calendar]}
                     import json
                     proposals=evidence.get('proposed_orders',[])
                     action=tick.get('action','HOLD')
