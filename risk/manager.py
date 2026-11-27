@@ -146,7 +146,9 @@ class RiskManager:
             ``(True, "OK")`` if trading is allowed, otherwise
             ``(False, reason)`` describing which limit was breached.
         """
-        now = as_of if as_of is not None else datetime.now()
+        now = as_of if as_of is not None else datetime.now(timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
 
         # 1. Check daily loss limit
         daily_loss_pct = (
@@ -280,7 +282,9 @@ class RiskManager:
 
         if loss_pct >= self.max_trade_loss_pct:
             self._stop_loss_count += 1
-            now = as_of if as_of is not None else datetime.now()
+            now = as_of if as_of is not None else datetime.now(timezone.utc)
+            if now.tzinfo is None:
+                now = now.replace(tzinfo=timezone.utc)
             self._cooldown_until = now + timedelta(minutes=self.cooldown_minutes)
             self._save_state()
             reason = (
@@ -534,7 +538,7 @@ class RiskManager:
         dict
             Dictionary containing all current risk state fields.
         """
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         cooldown_active = (
             self._cooldown_until is not None and now < self._cooldown_until
         )
