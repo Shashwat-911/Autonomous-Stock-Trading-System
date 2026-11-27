@@ -1,0 +1,61 @@
+============================================================
+  LIVE PAPER TRADING — 20 tickers
+  NVDA, AAPL, MSFT, TSLA, AMZN, GOOGL, META, AMD, NFLX, CRM, JPM, GS, BAC, V, MA, LLY, UNH, JNJ, PG, XOM
+  Interval: 1h | Confidence floor: 0.7
+  ATR sizing: k=2.0, risk/trade=1.0%
+  Portfolio heat cap: 60%
+  Bracket orders: SL=2.0×ATR, TP=2.5×ATR
+  Checking every 15 minutes
+  Press Ctrl+C to stop
+============================================================
+  Equity:       $98,455.71
+  Buying power: $393,822.84
+
+
+[16:00:57] Scanning 20 tickers... | SPY regime: BEAR ($725.22 vs SMA-200 $730.97)
+  Ticker      Price Signal  Conf      ATR     Position
+  -------------------------------------------------------
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "d503adec29f84b32704651c90eedb49da636612a8c63bcb12d4a540281c69c0d", "observed_at": "2026-11-27T16:00:58.398278+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "NVDA"}
+  NVDA     $ 146.97 HOLD    0.00 $   4.65         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "4139585affea2f6b103ff86bcdee4a02560089bf2338209e9af72b289ad21e29", "observed_at": "2026-11-27T16:00:59.204642+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "AAPL"}
+  AAPL     $ 358.42 HOLD    0.00 $   3.28         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "467252871098bb3cff4bd469e72116e8af0272cc00f353d075643c41afd1936d", "observed_at": "2026-11-27T16:01:00.289714+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "MSFT"}
+  MSFT     $ 490.36 HOLD    0.00 $   6.45         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "477cd37198dd4b8037f4bf4cf0b7138206dab8313bde8a01fb7ad13c872f3912", "observed_at": "2026-11-27T16:01:01.445034+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "TSLA"}
+  TSLA     $ 397.70 HOLD    0.00 $   8.06         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "3a3040f27c29fc5bc4b53d6e67ac84df9f176cbffc410ac4ce270707bf694153", "observed_at": "2026-11-27T16:01:02.596590+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "AMZN"}
+  AMZN     $ 251.28 HOLD    0.00 $   3.94         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "070acae5b3e35cb04b99e78fb28713d717efc08409511d84b81a886d7b75d6f7", "observed_at": "2026-11-27T16:01:03.795196+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "GOOGL"}
+  GOOGL    $ 270.84 HOLD    0.00 $   4.38         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "154e5f92990d23c3a4e3763126bb09aac1824f73d80ea0e49be1947ddd234bf4", "observed_at": "2026-11-27T16:01:04.797804+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "META"}
+  META     $ 630.70 HOLD    0.00 $   9.99         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "ab9c01ad73fca6c94e1c025eb271df617133c1c3249ac57d43f2702d6298d2fa", "observed_at": "2026-11-27T16:01:05.790865+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "AMD"}
+  AMD      $ 406.18 HOLD    0.00 $  15.26         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "3d465d198ff3ab64def772cf4ff1ab0de7b8f507dabb15321e4c97076eaf0946", "observed_at": "2026-11-27T16:01:06.670987+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "NFLX"}
+  NFLX     $  60.52 HOLD    0.00 $   0.74         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "e4f3f31592ee62454f1c3e6b760f984e87eacc70329c3de32776703c68e073f5", "observed_at": "2026-11-27T16:01:07.592840+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "CRM"}
+  CRM      $ 197.78 HOLD    0.00 $   2.75         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "d6775bbc58caff45b89cda33d0c408e3a925d1ce48684dec20c030226191595e", "observed_at": "2026-11-27T16:01:08.500945+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "JPM"}
+  JPM      $ 323.10 HOLD    0.00 $   3.01         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "2c1b5f01dfd1cbb7fe5de4020691cae2c7fc5b2a4d58cb1c6310a1871903a844", "observed_at": "2026-11-27T16:01:09.589556+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "GS"}
+  GS       $ 809.73 HOLD    0.00 $  11.46         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "778d272d24be9ee49db7c52ff98cd21310eb076d3ca267116a0b1f779949b036", "observed_at": "2026-11-27T16:01:10.590303+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "BAC"}
+  BAC      $  49.13 HOLD    0.00 $   0.48         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "6d953ed8ce98833e913f96916fca5bac0b2edb094c082d6a1094f386ee1682de", "observed_at": "2026-11-27T16:01:11.695598+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "V"}
+  V        $ 431.34 HOLD    0.00 $   3.21         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "30416f24a0f436b6b396c61c6246c54ef56a89d16c385f8b56d8e393429ce604", "observed_at": "2026-11-27T16:01:12.813625+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "MA"}
+  MA       $ 668.12 HOLD    0.00 $   4.90         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "50d9db7326862e2baf10aa5200b1e83ee6c342663ab49443410f9570637eea63", "observed_at": "2026-11-27T16:01:13.994918+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "LLY"}
+  LLY      $1392.76 HOLD    0.00 $  13.32         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "a35248d20a833a701b47910502c8f1c28bbb7d2ecf5d18d7ff5442679cd8d326", "observed_at": "2026-11-27T16:01:14.997118+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "UNH"}
+  UNH      $ 351.03 HOLD    0.00 $   4.58         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "6715435f912b847166d08ab45aae6dd7ab430846fdea94e22d803031a68db681", "observed_at": "2026-11-27T16:01:15.997072+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "JNJ"}
+  JNJ      $ 274.85 HOLD    0.00 $   2.10         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "3eeb9602388564ca167cddcd81ccdf8cb35f76b957807fa511286410ab416291", "observed_at": "2026-11-27T16:01:17.077068+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "PG"}
+  PG       $ 172.82 HOLD    0.00 $   0.97         none
+DECISION {"action": "HOLD", "bar_status": "FRESH", "config_sha256": "a9dc49e8f8e9702cd46ddf1cf13fae765ac33c6941b0bc3027a99858cf7d3de5", "daily_status": "AVAILABLE", "entry_allowed": true, "event": "decision_v2", "evidence_sha256": "7ddd58618f4eb6b80231762ebbd3459216febf93151e0f61f98006b633496399", "observed_at": "2026-11-27T16:01:18.001274+00:00", "reason": null, "revision": "ac68d9d1fd5384f66b95d50e7b54e72c937f0aaf", "signal": "HOLD", "ticker": "XOM"}
+  XOM      $ 161.19 HOLD    0.00 $   1.26         none
+
+  Equity: $98,455.71 | Long exposure: $0 (0.0%) | Cash: $98,455.71
+  Market closes in: 118 mins
+  Next scan:        in 15 minutes
