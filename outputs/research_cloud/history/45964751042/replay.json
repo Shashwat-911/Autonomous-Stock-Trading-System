@@ -1,0 +1,8 @@
+{
+  "outcomes": {
+    "LEGACY_SIGNAL_ONLY": 1
+  },
+  "total": 1,
+  "scope": "recorded_decision_parity_only",
+  "promotion_eligible": false
+}
