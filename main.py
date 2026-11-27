@@ -542,6 +542,20 @@ def run_live():
             now = datetime.now().strftime("%H:%M:%S")
             pending_exposure_dollars = 0.0  # Reset each scan
 
+            # Exit confirmation takes precedence over slow market-data requests.
+            close_clock = first_broker.get_clock()
+            if close_clock and close_clock.is_open:
+                remaining = (close_clock.next_close-close_clock.timestamp).total_seconds()
+                if remaining <= 10*60:
+                    import json
+                    for symbol in tickers:
+                        result = brokers[symbol].eod_liquidate_all(reason="EOD_auto_close")
+                        print('EXIT_STATUS ' + json.dumps({'ticker':symbol,**result}),flush=True)
+                    time.sleep(20)
+                    continue
+            elif close_clock and not close_clock.is_open:
+                break
+
             # --- Market regime check (SPY SMA-200) ---
             regime_cfg = getattr(config, "MARKET_REGIME", {})
             regime = get_market_regime_data(
@@ -615,7 +629,7 @@ def run_live():
                         event['evidence_sha256'] = archive_payload(evidence)
                     except Exception as exc:
                         event['evidence_error'] = type(exc).__name__
-                    logger.info('DECISION %s', json.dumps(event,sort_keys=True))
+                    print('DECISION ' + json.dumps(event,sort_keys=True), flush=True)
 
                     # Track pending exposure for subsequent tickers in this scan
                     if tick.get("action") == "BUY":
