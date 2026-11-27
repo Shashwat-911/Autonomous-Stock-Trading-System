@@ -65,7 +65,8 @@ def get_historical_data(
     ticker: str,
     start_date: Union[str, date, datetime],
     end_date: Union[str, date, datetime],
-    interval: str = "1d"
+    interval: str = "1d",
+    strict: bool = False,
 ) -> pd.DataFrame:
     """
     Fetch historical OHLCV data for a given ticker symbol and date range using yfinance.

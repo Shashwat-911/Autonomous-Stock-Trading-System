@@ -38,6 +38,17 @@ class DataSafetyTests(unittest.TestCase):
         frame=pd.DataFrame({'Close':range(100,120)},index=pd.bdate_range('2026-01-01',periods=20))
         self.assertIsNone(daily_trend(frame,'2026-11-25'))
 
+    def test_live_daily_fetch_accepts_strict_mode_and_preserves_missing_prices(self):
+        from data.fetcher import get_historical_data
+        frame=pd.DataFrame({'Close':[100.,float('nan'),102.]},
+                           index=pd.date_range('2026-11-23',periods=3))
+        with patch('data.fetcher.yf.Ticker') as ticker:
+            ticker.return_value.history.return_value=frame.copy()
+            strict=get_historical_data('TEST','2026-11-01','2026-11-27','1d',strict=True)
+            self.assertTrue(pd.isna(strict.Close.iloc[1]))
+            normal=get_historical_data('TEST','2026-11-01','2026-11-27','1d')
+            self.assertFalse(normal.Close.isna().any())
+
     def test_regime_excludes_forming_daily_candle_and_rejects_stale_data(self):
         from data.fetcher import get_market_regime_data
         frame=pd.DataFrame({'Close':[100]*200+[1000]},index=pd.bdate_range('2026-01-01',periods=201))
