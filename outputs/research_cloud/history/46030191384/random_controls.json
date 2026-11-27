@@ -1,0 +1,1859 @@
+{
+  "1": {
+    "candidate": {
+      "net_pnl": 1054.6171678785577,
+      "completed_episodes": 83,
+      "mean_exposure": 0.04989393204365881
+    },
+    "controls": [
+      {
+        "net_pnl": 2419.9756176037627,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06438611664723373
+      },
+      {
+        "net_pnl": 1667.3152149853922,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06543239771377352
+      },
+      {
+        "net_pnl": 3073.1379548901314,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06647715578045273
+      },
+      {
+        "net_pnl": 3094.1213152815326,
+        "completed_episodes": 124,
+        "mean_exposure": 0.06659879381456557
+      },
+      {
+        "net_pnl": 1891.4548732324329,
+        "completed_episodes": 150,
+        "mean_exposure": 0.06858121456144724
+      },
+      {
+        "net_pnl": 2148.860623682929,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06794360393586477
+      },
+      {
+        "net_pnl": 2076.433481939617,
+        "completed_episodes": 135,
+        "mean_exposure": 0.0662919571828516
+      },
+      {
+        "net_pnl": 2001.0953796272515,
+        "completed_episodes": 149,
+        "mean_exposure": 0.06876568252631009
+      },
+      {
+        "net_pnl": 2148.7995337485954,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07202630944835747
+      },
+      {
+        "net_pnl": 2000.1763575608347,
+        "completed_episodes": 128,
+        "mean_exposure": 0.06563726057015407
+      },
+      {
+        "net_pnl": 2607.5897894949667,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06947761862158161
+      },
+      {
+        "net_pnl": 3186.0118087957344,
+        "completed_episodes": 119,
+        "mean_exposure": 0.06830626056450803
+      },
+      {
+        "net_pnl": 1583.6273081471045,
+        "completed_episodes": 141,
+        "mean_exposure": 0.0698750124607273
+      },
+      {
+        "net_pnl": 3234.3060660934243,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06779054786592253
+      },
+      {
+        "net_pnl": 3030.8066563392276,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06660730408757368
+      },
+      {
+        "net_pnl": 1989.1593863054004,
+        "completed_episodes": 136,
+        "mean_exposure": 0.060980685706793755
+      },
+      {
+        "net_pnl": 2048.321254931925,
+        "completed_episodes": 134,
+        "mean_exposure": 0.06350560519902447
+      },
+      {
+        "net_pnl": 3320.886137939302,
+        "completed_episodes": 139,
+        "mean_exposure": 0.0769917634652387
+      },
+      {
+        "net_pnl": 1910.2306105203534,
+        "completed_episodes": 120,
+        "mean_exposure": 0.06139093602189288
+      },
+      {
+        "net_pnl": 1829.7063519143012,
+        "completed_episodes": 142,
+        "mean_exposure": 0.07057501169486984
+      },
+      {
+        "net_pnl": 2642.9573318203475,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06951831133746503
+      },
+      {
+        "net_pnl": 1808.1501866436192,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06616573086479967
+      },
+      {
+        "net_pnl": 2573.7415749400207,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07252551452511206
+      },
+      {
+        "net_pnl": 2239.7215758935017,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06984986266517869
+      },
+      {
+        "net_pnl": 2830.5599111695883,
+        "completed_episodes": 130,
+        "mean_exposure": 0.07090796594102919
+      },
+      {
+        "net_pnl": 2845.565909593617,
+        "completed_episodes": 136,
+        "mean_exposure": 0.0693051456538108
+      },
+      {
+        "net_pnl": 2835.3900524012315,
+        "completed_episodes": 145,
+        "mean_exposure": 0.07529701849954747
+      },
+      {
+        "net_pnl": 2567.052171657877,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07163255170842629
+      },
+      {
+        "net_pnl": 3081.2647514954115,
+        "completed_episodes": 127,
+        "mean_exposure": 0.07251229342162269
+      },
+      {
+        "net_pnl": 2080.4379408647364,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06651150721916513
+      },
+      {
+        "net_pnl": 3092.1890576251462,
+        "completed_episodes": 138,
+        "mean_exposure": 0.07574436104585151
+      },
+      {
+        "net_pnl": 3762.668667914473,
+        "completed_episodes": 127,
+        "mean_exposure": 0.07662459831989273
+      },
+      {
+        "net_pnl": 1867.504922360029,
+        "completed_episodes": 136,
+        "mean_exposure": 0.0674386572308605
+      },
+      {
+        "net_pnl": 1618.4625771641258,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06594855434122734
+      },
+      {
+        "net_pnl": 1723.592980356534,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06753114675026203
+      },
+      {
+        "net_pnl": 2254.8750827239855,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06478086219452123
+      },
+      {
+        "net_pnl": 2298.5243765100786,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06547486971224069
+      },
+      {
+        "net_pnl": 3002.0125603953893,
+        "completed_episodes": 138,
+        "mean_exposure": 0.07047027417840371
+      },
+      {
+        "net_pnl": 4156.297242547324,
+        "completed_episodes": 133,
+        "mean_exposure": 0.07544531679414056
+      },
+      {
+        "net_pnl": 1961.7246397578201,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06672174267937178
+      },
+      {
+        "net_pnl": 2207.2367776462015,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06862508901281536
+      },
+      {
+        "net_pnl": 2382.537255169671,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06924425563964441
+      },
+      {
+        "net_pnl": 2958.747719731782,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06969632612635537
+      },
+      {
+        "net_pnl": 2001.9436174481016,
+        "completed_episodes": 140,
+        "mean_exposure": 0.06580340383166165
+      },
+      {
+        "net_pnl": 2587.5756047029645,
+        "completed_episodes": 139,
+        "mean_exposure": 0.0703646716154402
+      },
+      {
+        "net_pnl": 3287.1732626103985,
+        "completed_episodes": 126,
+        "mean_exposure": 0.0677633489169329
+      },
+      {
+        "net_pnl": 2894.546411812935,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07152016362207328
+      },
+      {
+        "net_pnl": 2236.5999129794327,
+        "completed_episodes": 138,
+        "mean_exposure": 0.07050329546533878
+      },
+      {
+        "net_pnl": 3018.524717068227,
+        "completed_episodes": 135,
+        "mean_exposure": 0.0722915104336516
+      },
+      {
+        "net_pnl": 2851.9818800534194,
+        "completed_episodes": 135,
+        "mean_exposure": 0.07019463119027923
+      },
+      {
+        "net_pnl": 2307.0786000322296,
+        "completed_episodes": 123,
+        "mean_exposure": 0.06910179257607837
+      },
+      {
+        "net_pnl": 2695.8561133437724,
+        "completed_episodes": 130,
+        "mean_exposure": 0.07139770282845821
+      },
+      {
+        "net_pnl": 2252.220053232104,
+        "completed_episodes": 142,
+        "mean_exposure": 0.06739306016969573
+      },
+      {
+        "net_pnl": 2242.8733587343704,
+        "completed_episodes": 134,
+        "mean_exposure": 0.06581239195722302
+      },
+      {
+        "net_pnl": 2156.001838761709,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06636281179246643
+      },
+      {
+        "net_pnl": 3262.8685315389193,
+        "completed_episodes": 132,
+        "mean_exposure": 0.07211183907282585
+      },
+      {
+        "net_pnl": 2910.154385823367,
+        "completed_episodes": 135,
+        "mean_exposure": 0.07561301926188453
+      },
+      {
+        "net_pnl": 2130.90449583816,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06473223012384223
+      },
+      {
+        "net_pnl": 2976.101693971239,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06707245787192281
+      },
+      {
+        "net_pnl": 2448.7655184071264,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06842853804178506
+      },
+      {
+        "net_pnl": 2717.4349200331417,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06579382822338349
+      },
+      {
+        "net_pnl": 1792.0654830398162,
+        "completed_episodes": 141,
+        "mean_exposure": 0.0716071565451913
+      },
+      {
+        "net_pnl": 2155.9062000688136,
+        "completed_episodes": 144,
+        "mean_exposure": 0.06738367364458227
+      },
+      {
+        "net_pnl": 2517.0096968170546,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06763502329886494
+      },
+      {
+        "net_pnl": 2660.5103203061335,
+        "completed_episodes": 140,
+        "mean_exposure": 0.06749748414797678
+      },
+      {
+        "net_pnl": 2808.1470886309944,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06782821618278741
+      },
+      {
+        "net_pnl": 2153.7953432420145,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06804679467397041
+      },
+      {
+        "net_pnl": 3400.0123703824574,
+        "completed_episodes": 140,
+        "mean_exposure": 0.07132770212739561
+      },
+      {
+        "net_pnl": 3585.3555739357325,
+        "completed_episodes": 123,
+        "mean_exposure": 0.07427165538044435
+      },
+      {
+        "net_pnl": 2639.700449925207,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06877105896357469
+      },
+      {
+        "net_pnl": 2493.479063372306,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06904243940749082
+      },
+      {
+        "net_pnl": 2972.153873260675,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06990910909042033
+      },
+      {
+        "net_pnl": 2631.8936484821716,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06795381457956204
+      },
+      {
+        "net_pnl": 1793.2655814681457,
+        "completed_episodes": 133,
+        "mean_exposure": 0.0644752164891795
+      },
+      {
+        "net_pnl": 2157.057175160662,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06956729076699084
+      },
+      {
+        "net_pnl": 3298.1780361049823,
+        "completed_episodes": 126,
+        "mean_exposure": 0.0702374636474751
+      },
+      {
+        "net_pnl": 3324.627270918456,
+        "completed_episodes": 123,
+        "mean_exposure": 0.07376296564547428
+      },
+      {
+        "net_pnl": 2159.5144887567585,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06678138178315454
+      },
+      {
+        "net_pnl": 2549.0874489476555,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06905139115770136
+      },
+      {
+        "net_pnl": 2026.4966726814746,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06297507480986717
+      },
+      {
+        "net_pnl": 2461.2039255683158,
+        "completed_episodes": 123,
+        "mean_exposure": 0.06278814992496409
+      },
+      {
+        "net_pnl": 2669.143301559543,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06959447971206553
+      },
+      {
+        "net_pnl": 2614.1871027031375,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06836145696236258
+      },
+      {
+        "net_pnl": 2547.885343656533,
+        "completed_episodes": 132,
+        "mean_exposure": 0.07296211818461856
+      },
+      {
+        "net_pnl": 2107.7539485895068,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06739810803424887
+      },
+      {
+        "net_pnl": 3038.941240149481,
+        "completed_episodes": 125,
+        "mean_exposure": 0.07124096349256967
+      },
+      {
+        "net_pnl": 3182.16334371447,
+        "completed_episodes": 128,
+        "mean_exposure": 0.06946906401151898
+      },
+      {
+        "net_pnl": 2800.659037653433,
+        "completed_episodes": 118,
+        "mean_exposure": 0.06706283339705406
+      },
+      {
+        "net_pnl": 3031.7529596736385,
+        "completed_episodes": 124,
+        "mean_exposure": 0.06571011951081725
+      },
+      {
+        "net_pnl": 2907.994117989834,
+        "completed_episodes": 130,
+        "mean_exposure": 0.07403859944646085
+      },
+      {
+        "net_pnl": 2607.7700106453776,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06770936733165275
+      },
+      {
+        "net_pnl": 2247.520770383402,
+        "completed_episodes": 118,
+        "mean_exposure": 0.06408696391116771
+      },
+      {
+        "net_pnl": 3329.01237926499,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06968796763341123
+      },
+      {
+        "net_pnl": 2303.545390126241,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06375557093506835
+      },
+      {
+        "net_pnl": 2399.4055263245245,
+        "completed_episodes": 133,
+        "mean_exposure": 0.0727743803845248
+      },
+      {
+        "net_pnl": 3193.2865895687537,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06839277494768806
+      },
+      {
+        "net_pnl": 2804.152845968758,
+        "completed_episodes": 127,
+        "mean_exposure": 0.07320044944759134
+      },
+      {
+        "net_pnl": 1583.2869687538914,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06826209307160618
+      },
+      {
+        "net_pnl": 2727.891656206699,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06599430737499254
+      },
+      {
+        "net_pnl": 3168.0376271207606,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06995363999096067
+      }
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
+    "fraction_controls_at_least_candidate": 1.0,
+    "scope": "daily_candidate_year_stratified_entry_opportunities",
+    "limitations": [
+      "Retrospective randomized control, not an online tradable policy",
+      "Opportunity counts matched; realized exposure and episodes may differ",
+      "Not a significance or promotion verdict; daily market observations are dependent"
+    ],
+    "automatic_promotion": false
+  },
+  "2": {
+    "candidate": {
+      "net_pnl": 840.2218866246185,
+      "completed_episodes": 84,
+      "mean_exposure": 0.04969984066946244
+    },
+    "controls": [
+      {
+        "net_pnl": 2105.496232936588,
+        "completed_episodes": 134,
+        "mean_exposure": 0.06440095620874979
+      },
+      {
+        "net_pnl": 1361.326622900553,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06482828001811385
+      },
+      {
+        "net_pnl": 2782.1613916740716,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06643020924545642
+      },
+      {
+        "net_pnl": 2868.0889936321364,
+        "completed_episodes": 124,
+        "mean_exposure": 0.06659355373930213
+      },
+      {
+        "net_pnl": 1594.1057625481335,
+        "completed_episodes": 150,
+        "mean_exposure": 0.06862708398684574
+      },
+      {
+        "net_pnl": 1842.7895641236319,
+        "completed_episodes": 143,
+        "mean_exposure": 0.0672860117313498
+      },
+      {
+        "net_pnl": 1783.303863539535,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06518710993421042
+      },
+      {
+        "net_pnl": 1697.6640183694726,
+        "completed_episodes": 150,
+        "mean_exposure": 0.06801825002779752
+      },
+      {
+        "net_pnl": 1880.0446149902818,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07195344220020373
+      },
+      {
+        "net_pnl": 1784.2407285521367,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06570779140152014
+      },
+      {
+        "net_pnl": 2356.2244188803124,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06952159306329174
+      },
+      {
+        "net_pnl": 2955.3630388809725,
+        "completed_episodes": 119,
+        "mean_exposure": 0.06833743861668426
+      },
+      {
+        "net_pnl": 1321.9049697409027,
+        "completed_episodes": 141,
+        "mean_exposure": 0.069579671206665
+      },
+      {
+        "net_pnl": 3000.934325643673,
+        "completed_episodes": 127,
+        "mean_exposure": 0.067418793836198
+      },
+      {
+        "net_pnl": 2785.764503707356,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06658680142103907
+      },
+      {
+        "net_pnl": 1699.2342855678544,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06081878025866866
+      },
+      {
+        "net_pnl": 1783.3548683458794,
+        "completed_episodes": 135,
+        "mean_exposure": 0.0635604950381353
+      },
+      {
+        "net_pnl": 3045.560135495245,
+        "completed_episodes": 139,
+        "mean_exposure": 0.07702794840306629
+      },
+      {
+        "net_pnl": 1685.7911619829865,
+        "completed_episodes": 120,
+        "mean_exposure": 0.06143781470624071
+      },
+      {
+        "net_pnl": 1383.6152463284889,
+        "completed_episodes": 144,
+        "mean_exposure": 0.06950170920927118
+      },
+      {
+        "net_pnl": 2414.4864209696098,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06933673909930449
+      },
+      {
+        "net_pnl": 1539.5672058951568,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06601782132339254
+      },
+      {
+        "net_pnl": 2315.9654363204572,
+        "completed_episodes": 132,
+        "mean_exposure": 0.07190169520829595
+      },
+      {
+        "net_pnl": 1940.0386495826388,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06955075873742775
+      },
+      {
+        "net_pnl": 2594.441647550673,
+        "completed_episodes": 130,
+        "mean_exposure": 0.07094580101790277
+      },
+      {
+        "net_pnl": 2568.962471742736,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06916075188375732
+      },
+      {
+        "net_pnl": 2529.302134995607,
+        "completed_episodes": 145,
+        "mean_exposure": 0.07513260546624219
+      },
+      {
+        "net_pnl": 2333.959385528462,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07156547197611024
+      },
+      {
+        "net_pnl": 2829.2544435265227,
+        "completed_episodes": 127,
+        "mean_exposure": 0.0725559120087157
+      },
+      {
+        "net_pnl": 1774.819978253825,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06642959491524543
+      },
+      {
+        "net_pnl": 2791.177056156699,
+        "completed_episodes": 139,
+        "mean_exposure": 0.07541470678169428
+      },
+      {
+        "net_pnl": 3459.9252534179504,
+        "completed_episodes": 128,
+        "mean_exposure": 0.07650197227098449
+      },
+      {
+        "net_pnl": 1539.566716307003,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06704391984415042
+      },
+      {
+        "net_pnl": 1227.7092942436539,
+        "completed_episodes": 140,
+        "mean_exposure": 0.0654149198497985
+      },
+      {
+        "net_pnl": 1363.2278192517915,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06737884847374473
+      },
+      {
+        "net_pnl": 1947.0256904118905,
+        "completed_episodes": 136,
+        "mean_exposure": 0.0646038963373555
+      },
+      {
+        "net_pnl": 2051.439207708114,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06545383646615151
+      },
+      {
+        "net_pnl": 2725.860802237028,
+        "completed_episodes": 138,
+        "mean_exposure": 0.07052308993779503
+      },
+      {
+        "net_pnl": 3893.1294953722427,
+        "completed_episodes": 133,
+        "mean_exposure": 0.07525126677743776
+      },
+      {
+        "net_pnl": 1772.9800177199431,
+        "completed_episodes": 133,
+        "mean_exposure": 0.0665013125595999
+      },
+      {
+        "net_pnl": 1809.524484243837,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06806978581417517
+      },
+      {
+        "net_pnl": 2155.1911700246637,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06884541587450563
+      },
+      {
+        "net_pnl": 2686.3476655176783,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06963412567614671
+      },
+      {
+        "net_pnl": 1776.6126427812378,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06576577827515431
+      },
+      {
+        "net_pnl": 2044.97853439346,
+        "completed_episodes": 143,
+        "mean_exposure": 0.06991019325610162
+      },
+      {
+        "net_pnl": 3013.625681027166,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06772691299507154
+      },
+      {
+        "net_pnl": 2617.7094822231484,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07158160488684051
+      },
+      {
+        "net_pnl": 1958.378012940113,
+        "completed_episodes": 138,
+        "mean_exposure": 0.07055036644753548
+      },
+      {
+        "net_pnl": 2764.6668678213173,
+        "completed_episodes": 135,
+        "mean_exposure": 0.07215341254529736
+      },
+      {
+        "net_pnl": 2535.9921798604555,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06998731332319574
+      },
+      {
+        "net_pnl": 2043.0539162919376,
+        "completed_episodes": 123,
+        "mean_exposure": 0.06895053272305743
+      },
+      {
+        "net_pnl": 2288.8651471143203,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07097397382925397
+      },
+      {
+        "net_pnl": 1984.9102269739851,
+        "completed_episodes": 142,
+        "mean_exposure": 0.0674553355326992
+      },
+      {
+        "net_pnl": 1935.7096961097704,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06573737576825958
+      },
+      {
+        "net_pnl": 1905.1481047344714,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06661013847714997
+      },
+      {
+        "net_pnl": 3005.4699091659277,
+        "completed_episodes": 132,
+        "mean_exposure": 0.07177509008189782
+      },
+      {
+        "net_pnl": 2546.358778084432,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07558181914597945
+      },
+      {
+        "net_pnl": 1863.5878618615898,
+        "completed_episodes": 141,
+        "mean_exposure": 0.0648175435670759
+      },
+      {
+        "net_pnl": 2716.1104482078517,
+        "completed_episodes": 126,
+        "mean_exposure": 0.0670931589691939
+      },
+      {
+        "net_pnl": 2195.9411818396875,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06829499021400567
+      },
+      {
+        "net_pnl": 2464.0299035598036,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06476639133223054
+      },
+      {
+        "net_pnl": 1515.6016370094658,
+        "completed_episodes": 141,
+        "mean_exposure": 0.07162561779467255
+      },
+      {
+        "net_pnl": 1877.3066266225906,
+        "completed_episodes": 144,
+        "mean_exposure": 0.06750972742528412
+      },
+      {
+        "net_pnl": 2230.9411828367192,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06749560859307276
+      },
+      {
+        "net_pnl": 2330.0013660859986,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06727295933994112
+      },
+      {
+        "net_pnl": 2526.382534411445,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06769027000323873
+      },
+      {
+        "net_pnl": 1839.6242919602773,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06793314518744817
+      },
+      {
+        "net_pnl": 3121.698405609306,
+        "completed_episodes": 140,
+        "mean_exposure": 0.07225306086653076
+      },
+      {
+        "net_pnl": 3363.174483239407,
+        "completed_episodes": 123,
+        "mean_exposure": 0.0742942046787998
+      },
+      {
+        "net_pnl": 2310.476194468014,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06827153920703735
+      },
+      {
+        "net_pnl": 2235.744560797637,
+        "completed_episodes": 132,
+        "mean_exposure": 0.0689659647443972
+      },
+      {
+        "net_pnl": 2692.0076416113807,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06948175072328966
+      },
+      {
+        "net_pnl": 2359.1694931129023,
+        "completed_episodes": 131,
+        "mean_exposure": 0.0678962915280232
+      },
+      {
+        "net_pnl": 1536.627627784117,
+        "completed_episodes": 134,
+        "mean_exposure": 0.0641970957982292
+      },
+      {
+        "net_pnl": 1934.9946286785998,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06943019906204877
+      },
+      {
+        "net_pnl": 3054.610075566965,
+        "completed_episodes": 126,
+        "mean_exposure": 0.07034150400202487
+      },
+      {
+        "net_pnl": 3008.9128402892384,
+        "completed_episodes": 124,
+        "mean_exposure": 0.0731182597653082
+      },
+      {
+        "net_pnl": 1876.4075034410998,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06647220648347343
+      },
+      {
+        "net_pnl": 2288.5800354752537,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06900908381172326
+      },
+      {
+        "net_pnl": 1750.6414370564453,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06294555452999095
+      },
+      {
+        "net_pnl": 2187.453939394032,
+        "completed_episodes": 123,
+        "mean_exposure": 0.06273249168600652
+      },
+      {
+        "net_pnl": 2393.8110064797183,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06956005619492804
+      },
+      {
+        "net_pnl": 2225.3154687477945,
+        "completed_episodes": 133,
+        "mean_exposure": 0.067846285376165
+      },
+      {
+        "net_pnl": 2212.683943036878,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07229263191532001
+      },
+      {
+        "net_pnl": 1782.4358751850014,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06734929866797174
+      },
+      {
+        "net_pnl": 2802.0729659301433,
+        "completed_episodes": 125,
+        "mean_exposure": 0.07083080619343649
+      },
+      {
+        "net_pnl": 2917.0304831631256,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06925261370871232
+      },
+      {
+        "net_pnl": 2588.813552045718,
+        "completed_episodes": 118,
+        "mean_exposure": 0.06706143968042617
+      },
+      {
+        "net_pnl": 2707.962721847809,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06538827007412497
+      },
+      {
+        "net_pnl": 2608.0037136478604,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07398759564170874
+      },
+      {
+        "net_pnl": 2239.577373687316,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06750639275764606
+      },
+      {
+        "net_pnl": 2016.1074392807495,
+        "completed_episodes": 118,
+        "mean_exposure": 0.06405483259372477
+      },
+      {
+        "net_pnl": 3096.145814061587,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06962935078986651
+      },
+      {
+        "net_pnl": 2010.9847684972228,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06313001168586374
+      },
+      {
+        "net_pnl": 1977.6189610964066,
+        "completed_episodes": 135,
+        "mean_exposure": 0.07229575859739863
+      },
+      {
+        "net_pnl": 2934.7992771966747,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06840115605139888
+      },
+      {
+        "net_pnl": 2492.089545060171,
+        "completed_episodes": 128,
+        "mean_exposure": 0.07279207175177237
+      },
+      {
+        "net_pnl": 1272.3805533044942,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06762480505488365
+      },
+      {
+        "net_pnl": 2424.5995169509297,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06578570938281023
+      },
+      {
+        "net_pnl": 2884.368336953172,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06996227826524176
+      }
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
+    "fraction_controls_at_least_candidate": 1.0,
+    "scope": "daily_candidate_year_stratified_entry_opportunities",
+    "limitations": [
+      "Retrospective randomized control, not an online tradable policy",
+      "Opportunity counts matched; realized exposure and episodes may differ",
+      "Not a significance or promotion verdict; daily market observations are dependent"
+    ],
+    "automatic_promotion": false
+  },
+  "4": {
+    "candidate": {
+      "net_pnl": 579.0865220581,
+      "completed_episodes": 84,
+      "mean_exposure": 0.04903294190195844
+    },
+    "controls": [
+      {
+        "net_pnl": 1551.551152068434,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06357859549728266
+      },
+      {
+        "net_pnl": 782.4599905115247,
+        "completed_episodes": 140,
+        "mean_exposure": 0.06494488557839957
+      },
+      {
+        "net_pnl": 2021.865049666303,
+        "completed_episodes": 127,
+        "mean_exposure": 0.06516378444820384
+      },
+      {
+        "net_pnl": 2262.3554930643368,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06607365086255021
+      },
+      {
+        "net_pnl": 962.5568092385365,
+        "completed_episodes": 152,
+        "mean_exposure": 0.06811384193105782
+      },
+      {
+        "net_pnl": 1324.4852126743099,
+        "completed_episodes": 143,
+        "mean_exposure": 0.06702149219017875
+      },
+      {
+        "net_pnl": 1092.2939055582428,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06512046051016089
+      },
+      {
+        "net_pnl": 1098.779825728583,
+        "completed_episodes": 151,
+        "mean_exposure": 0.06820000844775272
+      },
+      {
+        "net_pnl": 1287.6526110962623,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07156383977260962
+      },
+      {
+        "net_pnl": 1099.2915243583047,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06509865054893166
+      },
+      {
+        "net_pnl": 1771.1632096678368,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06929055393077724
+      },
+      {
+        "net_pnl": 2302.6972804664692,
+        "completed_episodes": 121,
+        "mean_exposure": 0.06743442510002493
+      },
+      {
+        "net_pnl": 633.4182903097098,
+        "completed_episodes": 143,
+        "mean_exposure": 0.06932755035153457
+      },
+      {
+        "net_pnl": 2324.488013911123,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06693935062292285
+      },
+      {
+        "net_pnl": 2284.8440612778686,
+        "completed_episodes": 128,
+        "mean_exposure": 0.06654352559112216
+      },
+      {
+        "net_pnl": 1176.0004765249869,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06074731575341341
+      },
+      {
+        "net_pnl": 1191.2278293732888,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06259856512292913
+      },
+      {
+        "net_pnl": 2420.4083662751764,
+        "completed_episodes": 141,
+        "mean_exposure": 0.07662209582555793
+      },
+      {
+        "net_pnl": 1250.9193929421926,
+        "completed_episodes": 120,
+        "mean_exposure": 0.06122892298711825
+      },
+      {
+        "net_pnl": 726.8238094356602,
+        "completed_episodes": 144,
+        "mean_exposure": 0.0690085268014789
+      },
+      {
+        "net_pnl": 1827.1766405309972,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06888002172792539
+      },
+      {
+        "net_pnl": 874.3224454979245,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06498563188704742
+      },
+      {
+        "net_pnl": 1406.1777710708157,
+        "completed_episodes": 138,
+        "mean_exposure": 0.0702403441679987
+      },
+      {
+        "net_pnl": 1435.0835464340998,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06934277030053063
+      },
+      {
+        "net_pnl": 2124.70103816556,
+        "completed_episodes": 130,
+        "mean_exposure": 0.07008379182632571
+      },
+      {
+        "net_pnl": 2016.5477754007225,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06891606313509217
+      },
+      {
+        "net_pnl": 1864.071097055581,
+        "completed_episodes": 148,
+        "mean_exposure": 0.07516057129096278
+      },
+      {
+        "net_pnl": 1766.2375756894726,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07147923585871237
+      },
+      {
+        "net_pnl": 2304.23298972916,
+        "completed_episodes": 127,
+        "mean_exposure": 0.07182127477195147
+      },
+      {
+        "net_pnl": 1246.2389659590372,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06604344333343046
+      },
+      {
+        "net_pnl": 2111.037102532817,
+        "completed_episodes": 141,
+        "mean_exposure": 0.07486715502526141
+      },
+      {
+        "net_pnl": 2666.4890752033207,
+        "completed_episodes": 131,
+        "mean_exposure": 0.07389108533534591
+      },
+      {
+        "net_pnl": 1029.0729687506064,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06680436418361099
+      },
+      {
+        "net_pnl": 505.5856035078541,
+        "completed_episodes": 143,
+        "mean_exposure": 0.0635353076165981
+      },
+      {
+        "net_pnl": 783.3414392766863,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06713759614579029
+      },
+      {
+        "net_pnl": 1398.190289264614,
+        "completed_episodes": 137,
+        "mean_exposure": 0.06387587091625757
+      },
+      {
+        "net_pnl": 1556.1857310113191,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06534122445352605
+      },
+      {
+        "net_pnl": 2090.197481644049,
+        "completed_episodes": 139,
+        "mean_exposure": 0.07035781432183796
+      },
+      {
+        "net_pnl": 3237.2227254134377,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07471081090772162
+      },
+      {
+        "net_pnl": 1245.1910472104682,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06614427649085672
+      },
+      {
+        "net_pnl": 1080.1489951920084,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06660317169177596
+      },
+      {
+        "net_pnl": 1523.1880283399223,
+        "completed_episodes": 140,
+        "mean_exposure": 0.0675101316740537
+      },
+      {
+        "net_pnl": 2011.4732558296746,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06874350421415637
+      },
+      {
+        "net_pnl": 1259.7481044105225,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06567122039360437
+      },
+      {
+        "net_pnl": 1448.0504937011428,
+        "completed_episodes": 144,
+        "mean_exposure": 0.06951791661411492
+      },
+      {
+        "net_pnl": 2539.763471668608,
+        "completed_episodes": 127,
+        "mean_exposure": 0.0674882432697423
+      },
+      {
+        "net_pnl": 2062.3184559660003,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07122100299725675
+      },
+      {
+        "net_pnl": 1345.6659850406322,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06965798929594286
+      },
+      {
+        "net_pnl": 2236.509130570972,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07191278000612558
+      },
+      {
+        "net_pnl": 2037.2732536813346,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06911161081643913
+      },
+      {
+        "net_pnl": 1702.3565017339715,
+        "completed_episodes": 122,
+        "mean_exposure": 0.07040479822888372
+      },
+      {
+        "net_pnl": 1615.6683133300176,
+        "completed_episodes": 134,
+        "mean_exposure": 0.07008397237994143
+      },
+      {
+        "net_pnl": 1382.6717360731636,
+        "completed_episodes": 142,
+        "mean_exposure": 0.06721368210259801
+      },
+      {
+        "net_pnl": 1389.426634741867,
+        "completed_episodes": 136,
+        "mean_exposure": 0.0657882201731953
+      },
+      {
+        "net_pnl": 1206.8423410099313,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06601017264771598
+      },
+      {
+        "net_pnl": 2432.1462791265694,
+        "completed_episodes": 133,
+        "mean_exposure": 0.07142385165802777
+      },
+      {
+        "net_pnl": 1870.7712200323294,
+        "completed_episodes": 137,
+        "mean_exposure": 0.07413706116561977
+      },
+      {
+        "net_pnl": 1286.6338002405173,
+        "completed_episodes": 141,
+        "mean_exposure": 0.06417253413128383
+      },
+      {
+        "net_pnl": 2215.0125215453736,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06732913703227814
+      },
+      {
+        "net_pnl": 1684.9125618576145,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06811909651549025
+      },
+      {
+        "net_pnl": 1961.0025498589202,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06472029359258472
+      },
+      {
+        "net_pnl": 923.259097731021,
+        "completed_episodes": 142,
+        "mean_exposure": 0.07156897875753751
+      },
+      {
+        "net_pnl": 1320.2591077054021,
+        "completed_episodes": 144,
+        "mean_exposure": 0.06702532659374721
+      },
+      {
+        "net_pnl": 1682.5107604854857,
+        "completed_episodes": 140,
+        "mean_exposure": 0.06723366000320181
+      },
+      {
+        "net_pnl": 1701.6266927354773,
+        "completed_episodes": 142,
+        "mean_exposure": 0.06688391120226371
+      },
+      {
+        "net_pnl": 1909.235495566274,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06692223602493512
+      },
+      {
+        "net_pnl": 1106.0905484785362,
+        "completed_episodes": 129,
+        "mean_exposure": 0.0670098331677097
+      },
+      {
+        "net_pnl": 2531.061811262298,
+        "completed_episodes": 142,
+        "mean_exposure": 0.07211637071915449
+      },
+      {
+        "net_pnl": 2811.498804491486,
+        "completed_episodes": 124,
+        "mean_exposure": 0.0742327840684459
+      },
+      {
+        "net_pnl": 1736.144807431654,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06818708619220153
+      },
+      {
+        "net_pnl": 1668.752498830312,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06863957565259755
+      },
+      {
+        "net_pnl": 2200.2745797444004,
+        "completed_episodes": 130,
+        "mean_exposure": 0.06930431466264667
+      },
+      {
+        "net_pnl": 1811.0762912586579,
+        "completed_episodes": 132,
+        "mean_exposure": 0.06729978928517036
+      },
+      {
+        "net_pnl": 938.9291022208017,
+        "completed_episodes": 135,
+        "mean_exposure": 0.06378894893704679
+      },
+      {
+        "net_pnl": 1352.7497041947754,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06890764623520014
+      },
+      {
+        "net_pnl": 2512.4650420602666,
+        "completed_episodes": 127,
+        "mean_exposure": 0.07029245330923542
+      },
+      {
+        "net_pnl": 2462.71719319393,
+        "completed_episodes": 125,
+        "mean_exposure": 0.07245999641011183
+      },
+      {
+        "net_pnl": 1341.07966777205,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06612434117937838
+      },
+      {
+        "net_pnl": 1730.7793849208138,
+        "completed_episodes": 136,
+        "mean_exposure": 0.06876663327651228
+      },
+      {
+        "net_pnl": 1286.8042933795077,
+        "completed_episodes": 129,
+        "mean_exposure": 0.06294200789331653
+      },
+      {
+        "net_pnl": 1663.3545227954965,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06304025080747201
+      },
+      {
+        "net_pnl": 1896.6228266008693,
+        "completed_episodes": 138,
+        "mean_exposure": 0.06941770864474842
+      },
+      {
+        "net_pnl": 1654.0172329252127,
+        "completed_episodes": 134,
+        "mean_exposure": 0.06759744217239706
+      },
+      {
+        "net_pnl": 1641.0053489951315,
+        "completed_episodes": 135,
+        "mean_exposure": 0.07204918662405507
+      },
+      {
+        "net_pnl": 1260.2691022922336,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06716395874261145
+      },
+      {
+        "net_pnl": 2297.6503645028642,
+        "completed_episodes": 125,
+        "mean_exposure": 0.07028862417336626
+      },
+      {
+        "net_pnl": 2401.3120306738856,
+        "completed_episodes": 129,
+        "mean_exposure": 0.0692605733834345
+      },
+      {
+        "net_pnl": 2149.600784504819,
+        "completed_episodes": 118,
+        "mean_exposure": 0.06712788871166409
+      },
+      {
+        "net_pnl": 2154.49799669371,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06455967315110014
+      },
+      {
+        "net_pnl": 2096.769724123016,
+        "completed_episodes": 132,
+        "mean_exposure": 0.07379879004493266
+      },
+      {
+        "net_pnl": 1515.1002374217423,
+        "completed_episodes": 139,
+        "mean_exposure": 0.06691632807291205
+      },
+      {
+        "net_pnl": 1476.1063420987812,
+        "completed_episodes": 119,
+        "mean_exposure": 0.06318128031662433
+      },
+      {
+        "net_pnl": 2616.276582929513,
+        "completed_episodes": 125,
+        "mean_exposure": 0.06976692004283506
+      },
+      {
+        "net_pnl": 1495.1109518439189,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06259875405904833
+      },
+      {
+        "net_pnl": 1319.7679237594239,
+        "completed_episodes": 136,
+        "mean_exposure": 0.07187269375538173
+      },
+      {
+        "net_pnl": 2363.661127171865,
+        "completed_episodes": 131,
+        "mean_exposure": 0.06838394451520721
+      },
+      {
+        "net_pnl": 1948.676879779945,
+        "completed_episodes": 129,
+        "mean_exposure": 0.07289012653903541
+      },
+      {
+        "net_pnl": 584.9089454248642,
+        "completed_episodes": 142,
+        "mean_exposure": 0.06690502119031201
+      },
+      {
+        "net_pnl": 1898.7938224960562,
+        "completed_episodes": 126,
+        "mean_exposure": 0.06558690823540428
+      },
+      {
+        "net_pnl": 2275.0581800112013,
+        "completed_episodes": 133,
+        "mean_exposure": 0.06819161955271129
+      }
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99
+    ],
+    "fraction_controls_at_least_candidate": 0.99,
+    "scope": "daily_candidate_year_stratified_entry_opportunities",
+    "limitations": [
+      "Retrospective randomized control, not an online tradable policy",
+      "Opportunity counts matched; realized exposure and episodes may differ",
+      "Not a significance or promotion verdict; daily market observations are dependent"
+    ],
+    "automatic_promotion": false
+  }
+}
