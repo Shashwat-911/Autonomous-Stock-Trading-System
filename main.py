@@ -618,11 +618,17 @@ def run_live():
                         allow_new_entries=entry_allowed,
                     ))
                     import json
+                    proposals=evidence.get('proposed_orders',[])
+                    action=tick.get('action','HOLD')
+                    if proposals and any(p['acknowledged'] for p in proposals):
+                        action='SELL' if proposals[-1]['method']=='broker.submit_sell' else 'BUY'
+                    elif proposals:
+                        action='ORDER_REJECTED'
                     event = {'event':'decision_v2','ticker':ticker,'revision':evidence['revision'],
                              'observed_at':evidence['recorded_at'],'bar_status':bar_status,
                              'daily_status':'UNKNOWN' if daily_trend_bullish is None else 'AVAILABLE',
                              'entry_allowed':entry_allowed,'signal':tick.get('signal'),
-                             'action':tick.get('action','HOLD'),'reason':tick.get('reason'),
+                             'action':action,'reason':tick.get('reason'),'proposed_orders':proposals,
                              'config_sha256':__import__('hashlib').sha256(json.dumps(evidence['config'],sort_keys=True).encode()).hexdigest()}
                     try:
                         from analytics.private_evidence import archive_payload

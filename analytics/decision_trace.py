@@ -77,6 +77,20 @@ def record_tick(broker, frame, context):
         return {'action':'ERROR','reason':type(exc).__name__},trace
     finally:
         recorder.restore(); trace['calls']=recorder.calls
+        trace['proposed_orders']=[]
+        for call in recorder.calls:
+            if call['method'] not in ('broker.submit_buy','broker.submit_bracket_buy','broker.submit_sell'):
+                continue
+            request=call['kwargs']; receipt=call.get('result') or {}
+            price=request.get('current_price'); atr=request.get('atr')
+            trace['proposed_orders'].append({
+                'method':call['method'],'entry_reference':price,
+                'quantity':request.get('qty',request.get('quantity')),
+                'stop':round(price-request['stop_loss_mult']*atr,2) if atr and price and 'stop_loss_mult' in request else None,
+                'target':round(price+request['take_profit_mult']*atr,2) if atr and price and 'take_profit_mult' in request else None,
+                'reason':request.get('reason',call['args'][1] if len(call['args'])>1 else None),
+                'acknowledged':bool(receipt.get('order_id') or receipt.get('id')),
+                'execution_status':'acknowledgement_is_not_a_fill'})
 
 
 def replay_tick(payload):
