@@ -67,3 +67,17 @@ class DataSafetyTests(unittest.TestCase):
         with self.assertRaises(RuntimeError): b.get_current_position()
         with self.assertRaises(RuntimeError): b.get_all_positions()
         self.assertTrue(b._has_pending_buy_order())
+
+    def test_rejected_bracket_never_falls_back_to_unprotected_market_order(self):
+        b=object.__new__(AlpacaPaperBroker); b.ticker='AAPL'; b.client=Mock()
+        b.client.submit_order.side_effect=RuntimeError('rejected')
+        b._make_client_order_id=Mock(return_value='test-order')
+        b.submit_buy=Mock()
+        result=b.submit_bracket_buy(quantity=2,current_price=100,atr=2)
+        self.assertEqual(result,{})
+        b.submit_buy.assert_not_called()
+
+    def test_infinite_price_never_reaches_account_or_order_queries(self):
+        b=self.broker()
+        self.assertEqual(b.run_tick(pd.DataFrame({'Close':[float('inf')]}))['action'],'SKIP')
+        b.get_account_info.assert_not_called()

@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 # Prevent local module (broker/alpaca.py) from shadowing installed 'alpaca' package
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -372,16 +372,9 @@ class AlpacaPaperBroker:
             }
 
         except Exception as e:
-            logger.warning(
-                "Bracket order failed (%s), falling back to market order: %s",
-                sym, e,
-            )
-            return self.submit_buy(
-                quantity=quantity,
-                reason=reason,
-                current_price=current_price,
-                ticker=ticker,
-            )
+            logger.error("Bracket rejected for %s; unprotected market fallback disabled (%s)",
+                         sym, type(e).__name__)
+            return {}
 
     def cancel_open_orders(self, ticker: Optional[str] = None) -> list:
         """
@@ -687,7 +680,7 @@ class AlpacaPaperBroker:
             }
 
         raw_price = df["Close"].iloc[-1]
-        if pd.isna(raw_price) or raw_price <= 0:
+        if pd.isna(raw_price) or not __import__("math").isfinite(float(raw_price)) or raw_price <= 0:
             logger.warning(
                 f"Invalid price for {self.ticker}: {raw_price} — skipping tick"
             )
@@ -962,7 +955,7 @@ class AlpacaPaperBroker:
                 continue
 
             raw_price = df["Close"].iloc[-1]
-            if pd.isna(raw_price) or raw_price <= 0:
+            if pd.isna(raw_price) or not __import__("math").isfinite(float(raw_price)) or raw_price <= 0:
                 continue
             current_price = float(raw_price)
 
