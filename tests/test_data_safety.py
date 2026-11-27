@@ -40,7 +40,7 @@ class DataSafetyTests(unittest.TestCase):
 
     def test_live_daily_fetch_accepts_strict_mode_and_preserves_missing_prices(self):
         from data.fetcher import get_historical_data
-        frame=pd.DataFrame({'Close':[100.,float('nan'),102.]},
+        frame=pd.DataFrame({'Open':[100.,101.,102.], 'Close':[100.,float('nan'),102.]},
                            index=pd.date_range('2026-11-23',periods=3))
         with patch('data.fetcher.yf.Ticker') as ticker:
             ticker.return_value.history.return_value=frame.copy()
