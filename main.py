@@ -28,6 +28,7 @@ from data.fetcher import (
     get_historical_data, get_batch_historical_data, get_latest_price,
     get_intraday_data, get_market_regime_data, get_latest_bar,
 )
+from strategy.data_quality import completed_bars, daily_trend
 from strategy.indicators import add_all_indicators
 from strategy.signals import SignalGenerator
 from risk.manager import RiskManager
@@ -438,6 +439,7 @@ def run_live():
     import config
     from broker.alpaca import AlpacaPaperBroker
     from data.fetcher import get_intraday_data, get_market_regime_data, get_historical_data
+    from strategy.data_quality import completed_bars, daily_trend
     from strategy.indicators import add_all_indicators
     from risk.manager import RiskManager
     from strategy.signals import SignalGenerator
@@ -505,6 +507,17 @@ def run_live():
             "Live session skipped; no orders submitted."
         )
         return
+    # Calendar is required for entry eligibility; exits remain independently managed.
+    try:
+        from alpaca.trading.requests import GetCalendarRequest
+        calendar_rows = first_broker.client.get_calendar(GetCalendarRequest(
+            start=date.today()-timedelta(days=lookback_intraday+10), end=date.today()))
+        calendar = [{'open': pd.Timestamp(str(r.date)+' '+str(r.open.time()), tz='America/New_York'),
+                     'close': pd.Timestamp(str(r.date)+' '+str(r.close.time()), tz='America/New_York')}
+                    for r in calendar_rows]
+    except Exception:
+        calendar = []
+        logger.error('Exchange calendar unavailable: new entries blocked')
     account = first_broker.get_account_info()
     print(f"  Equity:       ${account['equity']:,.2f}")
     print(f"  Buying power: ${account['buying_power']:,.2f}\n")
@@ -535,7 +548,7 @@ def run_live():
                 ticker=regime_cfg.get("ticker", "SPY"),
                 sma_period=regime_cfg.get("sma_period", 200),
             )
-            regime_str = "BULL" if regime["is_bullish"] else "BEAR"
+            regime_str = "UNKNOWN" if regime["is_bullish"] is None else "BULL" if regime["is_bullish"] else "BEAR"
 
             print(f"\n[{now}] Scanning {len(tickers)} tickers... "
                   f"| SPY regime: {regime_str} "
@@ -564,10 +577,11 @@ def run_live():
                     df = get_intraday_data(
                         ticker, lookback_intraday, interval
                     )
-                    df = add_all_indicators(df)
+                    df, bar_status = completed_bars(df, calendar, datetime.now(timezone.utc), interval)
+                    df = add_all_indicators(df) if not df.empty else df
 
                     # Multi-timeframe: check daily trend
-                    daily_trend_bullish = True
+                    daily_trend_bullish = None
                     try:
                         daily_df = get_historical_data(
                             ticker,
@@ -575,19 +589,19 @@ def run_live():
                             datetime.now().strftime("%Y-%m-%d"),
                             "1d",
                         )
-                        if len(daily_df) >= 20:
-                            daily_sma = daily_df["Close"].rolling(20).mean().iloc[-1]
-                            daily_close = daily_df["Close"].iloc[-1]
-                            daily_trend_bullish = daily_close > daily_sma
+                        daily_trend_bullish = daily_trend(daily_df)
                     except Exception:
-                        pass  # default to bullish if daily fetch fails
+                        logger.warning('Daily evidence unavailable for %s', ticker)
+                    entry_allowed = (allow_new_entries and bar_status == 'FRESH'
+                                     and daily_trend_bullish is not None
+                                     and regime['is_bullish'] is not None)
 
                     tick = brokers[ticker].run_tick(
                         df,
                         market_regime_bullish=regime["is_bullish"],
                         daily_trend_bullish=daily_trend_bullish,
                         pending_exposure=pending_exposure_dollars,
-                        allow_new_entries=allow_new_entries,
+                        allow_new_entries=entry_allowed,
                     )
 
                     # Track pending exposure for subsequent tickers in this scan
@@ -691,7 +705,7 @@ def run_live():
                         subprocess.Popen(['powershell', '-command', cmd_str])
                     except Exception:
                         pass
-                time.sleep(scan_interval_secs)
+                time.sleep(min(scan_interval_secs, max(1, (mins_left - 9) * 60)))
             else:
                 next_open_str = ""
                 try:

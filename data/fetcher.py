@@ -299,7 +299,7 @@ def get_intraday_data(
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
 
-    df = df.dropna(how="all").ffill().bfill().dropna()
+    df = df.dropna(how="all")
 
     if df.empty:
         raise ValueError(f"Intraday data for '{ticker}' is empty after cleaning.")
@@ -339,9 +339,9 @@ def get_market_regime_data(
         if df is None or df.empty or len(df) < sma_period:
             logger.warning(
                 "Insufficient data for market regime (%s). "
-                "Defaulting to bullish.", ticker,
+                "Entry regime is UNKNOWN.", ticker,
             )
-            return {"is_bullish": True, "price": 0.0, "sma": 0.0, "ticker": ticker}
+            return {"is_bullish": None, "price": 0.0, "sma": 0.0, "ticker": ticker}
 
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = df.columns.get_level_values(0)
@@ -364,8 +364,8 @@ def get_market_regime_data(
             "ticker": ticker,
         }
     except Exception as e:
-        logger.warning("Market regime check failed (%s): %s. Defaulting to bullish.", ticker, e)
-        return {"is_bullish": True, "price": 0.0, "sma": 0.0, "ticker": ticker}
+        logger.warning("Market regime check failed (%s): %s. Entry regime is UNKNOWN.", ticker, e)
+        return {"is_bullish": None, "price": 0.0, "sma": 0.0, "ticker": ticker}
 
 
 @retry_on_failure(max_retries=2, initial_delay=0.5)

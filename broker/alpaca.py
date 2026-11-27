@@ -170,8 +170,10 @@ class AlpacaPaperBroker:
                 "unrealized_pnl": float(position.unrealized_pl),
                 "unrealized_pnl_pct": float(position.unrealized_plpc) * 100.0,
             }
-        except Exception:
-            return None
+        except Exception as exc:
+            if getattr(exc, "status_code", None) == 404:
+                return None
+            raise RuntimeError("Position state unavailable") from None
 
     def get_all_positions(self) -> Dict[str, dict]:
         """
@@ -195,7 +197,7 @@ class AlpacaPaperBroker:
                 }
             return pos_dict
         except Exception:
-            return {}
+            raise RuntimeError("Portfolio inventory unavailable") from None
 
     def _make_client_order_id(self, reason: str, ticker: Optional[str] = None) -> str:
         """Generate a clean client_order_id embedding the signal reason."""
@@ -531,7 +533,7 @@ class AlpacaPaperBroker:
             return False
         except Exception as e:
             logger.warning(f"Dedup check failed for {self.ticker}: {e}")
-            return False  # Fail open: if we can't check, allow the order
+            return True  # Unknown pending state must block duplicate entries
 
     def eod_liquidate_all(self, reason: str = "EOD force-close") -> dict:
         """
@@ -643,7 +645,7 @@ class AlpacaPaperBroker:
             state["trailing_activated"] = True
             new_stop = round(current_price - (trail_mult * atr), 2)
             logger.info(
-                "TRAILING STOP ACTIVATED for %s: gain=$%.2f >= %.1f×ATR($%.2f). "
+                "TRAILING REFERENCE ONLY (not broker enforced) for %s: gain=$%.2f >= %.1f×ATR($%.2f). "
                 "New mental stop=$%.2f (was $%.2f)",
                 ticker, unrealized_gain, activation_mult, activation_threshold,
                 new_stop, state["stop_price"],
@@ -654,7 +656,7 @@ class AlpacaPaperBroker:
             trail_stop = round(current_price - (trail_mult * atr), 2)
             if trail_stop > state["stop_price"]:
                 logger.info(
-                    "TRAILING STOP RAISED for %s: $%.2f -> $%.2f (price=$%.2f)",
+                    "TRAILING REFERENCE UPDATED (not broker enforced) for %s: $%.2f -> $%.2f (price=$%.2f)",
                     ticker, state["stop_price"], trail_stop, current_price,
                 )
                 state["stop_price"] = trail_stop
@@ -725,7 +727,7 @@ class AlpacaPaperBroker:
             account = self.get_account_info()
             portfolio_value = account["portfolio_value"]
         except Exception:
-            portfolio_value = 100000.0
+            return {"action": "SKIP", "reason": "Account state unavailable", "ticker": self.ticker}
 
         can_trade, block_reason = self.risk_manager.can_trade(portfolio_value)
         position = self.get_current_position()
@@ -781,14 +783,14 @@ class AlpacaPaperBroker:
             }
 
         if signal == "BUY" and confidence >= self.min_confidence and position is None:
-            if not allow_new_entries:
+            if not allow_new_entries or daily_trend_bullish is None or market_regime_bullish is None:
                 logger.info(
                     f"New entry blocked for {self.ticker} — "
                     f"<90 min to market close."
                 )
                 return {
                     "action": "SKIP",
-                    "reason": "Late session entry blocked",
+                    "reason": "Entry evidence or session gate blocked",
                     "ticker": self.ticker,
                 }
 
@@ -832,7 +834,7 @@ class AlpacaPaperBroker:
                     tp_mult = bracket_cfg.get("take_profit_atr_mult", 3.0)
 
                     if atr_value > 0:
-                        self.submit_bracket_buy(
+                        submitted = self.submit_bracket_buy(
                             qty=qty,
                             reason="; ".join(signal_dict["reasons"]),
                             current_price=current_price,
@@ -841,14 +843,15 @@ class AlpacaPaperBroker:
                             take_profit_mult=tp_mult,
                         )
                     else:
-                        self.submit_buy(
+                        submitted = self.submit_buy(
                             qty=qty,
                             reason="; ".join(signal_dict["reasons"]),
                             current_price=current_price,
                         )
-                    self._last_buy_time[self.ticker] = datetime.now()
-                    submitted_buy = True
-                    order_val = qty * current_price
+                    if submitted and (submitted.get("order_id") or submitted.get("id")):
+                        self._last_buy_time[self.ticker] = datetime.now()
+                        submitted_buy = True
+                        order_val = qty * current_price
             elif not heat_ok:
                 logger.info("BUY blocked by portfolio heat: %s", heat_reason)
         elif signal == "BUY" and confidence < self.min_confidence:
