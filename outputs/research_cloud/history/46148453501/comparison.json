@@ -1,0 +1,344 @@
+{
+  "status": "RESEARCH_ONLY",
+  "source_sha256": {
+    "SPY": "fcc0ca82ae785ab68950996a3617abb1f6846d67e01387c83c88642e3ebdb53b",
+    "QQQ": "a39df02c2b19dc79ccab9618700138afa106a5b612ac0b709df32291ab177ca3",
+    "IWM": "1cd1584fb085a556c6de68fcccace92d03b5dac0b2e9d2031daafbd58d5f18ac",
+    "IEF": "45f52314832986b02761b260311971e89a57caa143582e67722b39b56c92a371",
+    "GLD": "d08ceac364c45b98b78354d77694110368ddd8e2851a83b47d9c9b69f796cbae"
+  },
+  "protocol_sha256": "3e6dc75f864421f6b10c8455056c753de30df38bb3133b896270ab9bacd82282",
+  "period": [
+    "2023-01-01",
+    "2025-12-31"
+  ],
+  "hourly_baseline": {
+    "status": "BLOCKED_MISSING_LIVE_PARITY_REPLAY"
+  },
+  "runs": [
+    {
+      "candidate": "cash",
+      "cost_multiplier": 1,
+      "net_pnl": 0.0,
+      "max_drawdown_pct": 0.0,
+      "mean_exposure": 0.0,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 0.0,
+        "2024": 0.0,
+        "2025": 0.0
+      },
+      "open_positions": 0,
+      "symbol_net_pnl": {
+        "SPY": 0.0,
+        "QQQ": 0.0,
+        "IWM": 0.0,
+        "IEF": 0.0,
+        "GLD": 0.0
+      }
+    },
+    {
+      "candidate": "passive",
+      "cost_multiplier": 1,
+      "net_pnl": 77222.17139118412,
+      "max_drawdown_pct": -12.99686023905602,
+      "mean_exposure": 0.9627488584558404,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 20882.401829416543,
+        "2024": 21555.12905883789,
+        "2025": 34784.64050292969
+      },
+      "open_positions": 5,
+      "symbol_net_pnl": {
+        "SPY": 16172.044301112022,
+        "QQQ": 25629.336818660217,
+        "IWM": 8823.372414127625,
+        "IEF": 1802.6981800564681,
+        "GLD": 24794.719677227782
+      }
+    },
+    {
+      "candidate": "trend_20_10",
+      "cost_multiplier": 1,
+      "net_pnl": 1054.6171678785613,
+      "max_drawdown_pct": -0.6535357288836696,
+      "mean_exposure": 0.04989393204365881,
+      "completed_episodes": 83,
+      "calendar_year_net_pnl": {
+        "2023": 557.6931605678983,
+        "2024": 80.25094143892056,
+        "2025": 416.67306587174244
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 176.89502484236436,
+        "QQQ": 508.30706595208903,
+        "IWM": -61.7955560790906,
+        "IEF": -179.59770626749741,
+        "GLD": 610.8083394306923
+      }
+    },
+    {
+      "candidate": "sensitivity_15_8",
+      "cost_multiplier": 1,
+      "net_pnl": 1226.374057900015,
+      "max_drawdown_pct": -0.6904976984578814,
+      "mean_exposure": 0.05314398327541546,
+      "completed_episodes": 97,
+      "calendar_year_net_pnl": {
+        "2023": 420.31350097819814,
+        "2024": 431.55213569267653,
+        "2025": 374.50842122914037
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 222.96232003771001,
+        "QQQ": 490.3367748084165,
+        "IWM": 85.9275371556505,
+        "IEF": -279.6060743118069,
+        "GLD": 706.7535002100485
+      }
+    },
+    {
+      "candidate": "sensitivity_25_12",
+      "cost_multiplier": 1,
+      "net_pnl": 1851.2642977306677,
+      "max_drawdown_pct": -0.629285021720738,
+      "mean_exposure": 0.05077192828176462,
+      "completed_episodes": 60,
+      "calendar_year_net_pnl": {
+        "2023": 839.0951961420069,
+        "2024": 409.82911210207385,
+        "2025": 602.339989486587
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 327.158869966348,
+        "QQQ": 751.2036185930119,
+        "IWM": 1.487818819216045,
+        "IEF": -251.6442699416657,
+        "GLD": 1023.058260293772
+      }
+    },
+    {
+      "candidate": "cash",
+      "cost_multiplier": 2,
+      "net_pnl": 0.0,
+      "max_drawdown_pct": 0.0,
+      "mean_exposure": 0.0,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 0.0,
+        "2024": 0.0,
+        "2025": 0.0
+      },
+      "open_positions": 0,
+      "symbol_net_pnl": {
+        "SPY": 0.0,
+        "QQQ": 0.0,
+        "IWM": 0.0,
+        "IEF": 0.0,
+        "GLD": 0.0
+      }
+    },
+    {
+      "candidate": "passive",
+      "cost_multiplier": 2,
+      "net_pnl": 77181.13404611722,
+      "max_drawdown_pct": -13.00042105096434,
+      "mean_exposure": 0.9630630187935857,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 20841.364484349644,
+        "2024": 21555.12905883789,
+        "2025": 34784.64050292969
+      },
+      "open_positions": 5,
+      "symbol_net_pnl": {
+        "SPY": 16164.182255447602,
+        "QQQ": 25621.349780697987,
+        "IWM": 8815.18577582233,
+        "IEF": 1793.9265409486106,
+        "GLD": 24786.48969320068
+      }
+    },
+    {
+      "candidate": "trend_20_10",
+      "cost_multiplier": 2,
+      "net_pnl": 840.2218866246112,
+      "max_drawdown_pct": -0.6683774215259008,
+      "mean_exposure": 0.04969984066946244,
+      "completed_episodes": 84,
+      "calendar_year_net_pnl": {
+        "2023": 529.1830303874012,
+        "2024": -39.04052504005085,
+        "2025": 350.07938127726084
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 147.8544818604896,
+        "QQQ": 413.0342019526179,
+        "IWM": -74.59898922685534,
+        "IEF": -225.6714528722514,
+        "GLD": 579.6036449106177
+      }
+    },
+    {
+      "candidate": "sensitivity_15_8",
+      "cost_multiplier": 2,
+      "net_pnl": 945.2423995465942,
+      "max_drawdown_pct": -0.7124631473008014,
+      "mean_exposure": 0.052920148420879255,
+      "completed_episodes": 98,
+      "calendar_year_net_pnl": {
+        "2023": 378.80713757965714,
+        "2024": 287.5891940820875,
+        "2025": 278.8460678848496
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 190.29219207805363,
+        "QQQ": 391.4739498349154,
+        "IWM": 70.61172392714798,
+        "IEF": -365.5327520735882,
+        "GLD": 658.3972857800691
+      }
+    },
+    {
+      "candidate": "sensitivity_25_12",
+      "cost_multiplier": 2,
+      "net_pnl": 1554.5325846743508,
+      "max_drawdown_pct": -0.644137807725409,
+      "mean_exposure": 0.05012047851771848,
+      "completed_episodes": 62,
+      "calendar_year_net_pnl": {
+        "2023": 816.3806037075119,
+        "2024": 275.81129788261023,
+        "2025": 462.34068308422866
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 307.7595990928421,
+        "QQQ": 560.5597955387093,
+        "IWM": -9.595430903762463,
+        "IEF": -302.26727933322036,
+        "GLD": 998.0759002797895
+      }
+    },
+    {
+      "candidate": "cash",
+      "cost_multiplier": 4,
+      "net_pnl": 0.0,
+      "max_drawdown_pct": 0.0,
+      "mean_exposure": 0.0,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 0.0,
+        "2024": 0.0,
+        "2025": 0.0
+      },
+      "open_positions": 0,
+      "symbol_net_pnl": {
+        "SPY": 0.0,
+        "QQQ": 0.0,
+        "IWM": 0.0,
+        "IEF": 0.0,
+        "GLD": 0.0
+      }
+    },
+    {
+      "candidate": "passive",
+      "cost_multiplier": 4,
+      "net_pnl": 77099.0593559834,
+      "max_drawdown_pct": -13.007548531426071,
+      "mean_exposure": 0.9636919907320006,
+      "completed_episodes": 0,
+      "calendar_year_net_pnl": {
+        "2023": 20759.28979421583,
+        "2024": 21555.129058837905,
+        "2025": 34784.64050292966
+      },
+      "open_positions": 5,
+      "symbol_net_pnl": {
+        "SPY": 16148.458164118769,
+        "QQQ": 25605.375704773527,
+        "IWM": 8798.812499211737,
+        "IEF": 1776.3832627328957,
+        "GLD": 24770.02972514648
+      }
+    },
+    {
+      "candidate": "trend_20_10",
+      "cost_multiplier": 4,
+      "net_pnl": 579.0865220581036,
+      "max_drawdown_pct": -0.6785072275201531,
+      "mean_exposure": 0.04903294190195844,
+      "completed_episodes": 84,
+      "calendar_year_net_pnl": {
+        "2023": 471.24712681050005,
+        "2024": -144.69220200263953,
+        "2025": 252.53159725024307
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 88.85541398763598,
+        "QQQ": 397.7842553159717,
+        "IWM": -100.21607218558347,
+        "IEF": -334.2689889239482,
+        "GLD": 526.931913864024
+      }
+    },
+    {
+      "candidate": "sensitivity_15_8",
+      "cost_multiplier": 4,
+      "net_pnl": 462.38923361468187,
+      "max_drawdown_pct": -0.7548290053632001,
+      "mean_exposure": 0.052188775452445324,
+      "completed_episodes": 100,
+      "calendar_year_net_pnl": {
+        "2023": 284.88612499501323,
+        "2024": 168.84648530147388,
+        "2025": 8.656623318194761
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 57.37335719546172,
+        "QQQ": 369.04643093510094,
+        "IWM": 38.96414105569784,
+        "IEF": -589.1672582968531,
+        "GLD": 586.1725627252708
+      }
+    },
+    {
+      "candidate": "sensitivity_25_12",
+      "cost_multiplier": 4,
+      "net_pnl": 1245.387369051081,
+      "max_drawdown_pct": -0.653951242292683,
+      "mean_exposure": 0.04963091784821837,
+      "completed_episodes": 64,
+      "calendar_year_net_pnl": {
+        "2023": 770.9464939226018,
+        "2024": 204.03828003817762,
+        "2025": 270.4025950903015
+      },
+      "open_positions": 3,
+      "symbol_net_pnl": {
+        "SPY": 268.9518600490592,
+        "QQQ": 557.0923683543551,
+        "IWM": -99.70444146796581,
+        "IEF": -439.19601870666156,
+        "GLD": 958.2436008222794
+      }
+    }
+  ],
+  "promotion": {
+    "eligible": false,
+    "reasons": [
+      "Prospective holdout incomplete",
+      "Hourly replay parity unverified",
+      "Historical data provenance requires review",
+      "Research risk limits have not been approved for live use"
+    ]
+  }
+}
